@@ -1,14 +1,12 @@
 #include <GL/glut.h>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
 
-#include "textures.cpp"
-#include "classes.cpp"
-#include "constants.cpp"
+#include "textures.h"
+#include "classes.h"
+#include "constants.h"
 
 using namespace std;
 
@@ -18,10 +16,17 @@ static int userWindowWidth = 600;
 static int userWindowHeight = 600;
 static int viewportBaseOffsetX = 0; // 
 static int viewportBaseOffsetY = 0;
-static float currentScale = 1.0;
+
+static float currentScale = 1.75;
 static float scaleSpeed = 1.2;
+
 static CoordPoint clickDown(0, 0);
+static bool panActive = false;
+static int panSensitivity = 20;
 static vector<string> selectedBuildings;
+static int fullXShift = 0;
+static int fullYShift = 0;
+
 static int viewportPanOffsetX = 0;
 static int viewportPanOffsetY = 0;
 static int activePanShiftX = 0;
@@ -38,9 +43,6 @@ static bool labelsOn = false;
 CoordPoint convertCoordinates(int x, int y, bool invertY=false) {
 	if (invertY)
 		y = userWindowHeight - y; // Invert Y (drawing and clicking have different 0,0 locations)
-
-	int fullXShift = viewportBaseOffsetX + viewportPanOffsetX + activePanShiftX;
-	int fullYShift = viewportBaseOffsetY + viewportPanOffsetY + activePanShiftY;
 
 	x -= fullXShift;
 	y -= fullYShift;
@@ -112,14 +114,14 @@ void saveBuildings() {
 void drawBuildings() {
 	// cout << "Drawing " << buildingList.size() << " buildings." << endl;
 	for (vector<Building>::iterator it = buildingList.begin(); it < buildingList.end(); it++) {
-		if ( (it->getType() == BUILDING_DORM) && highlightDorms ) it->draw(true);
-		else if ( (it->getLabel() == "ColeChapel") && highlightChapel ) it->draw(true);
-		else if ( (it->getLabel() == "OldfieldHouse") && highlightFieldHouse ) it->draw(true);
-		else if ( (it->getLabel() == "Library") && highlightLibrary ) it->draw(true);
-		else if ( (it->getLabel() == "MarsScience") && highlightMarsScience ) it->draw(true);
-		else if ( (it->getType() == BUILDING_ROAD) && !roadsOn );
+		if (( it->getType() == BUILDING_DORM && highlightDorms ) ||
+			( it->getLabel() == "ColeChapel" && highlightChapel ) ||
+			( it->getLabel() == "OldfieldHouse" && highlightFieldHouse ) ||
+			( it->getLabel() == "Library" && highlightLibrary ) ||
+			( it->getLabel() == "MarsScienceUpper" && highlightMarsScience )) it->draw(true, labelsOn, currentScale);
+		else if ( it->getType() == BUILDING_ROAD && !roadsOn );
 		else {
-			it->draw();
+			it->draw(false, labelsOn, currentScale);
 		}
 	}
 }
@@ -160,15 +162,6 @@ void keyUpCallback(unsigned char key, int x, int y) { // Note: x and y are from 
 }
 
 void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are from cursor
-	// switch(key) {
-	// 	case 'a':	activeBuildingAddCorner(x, y);
-	// 				break;
-	// 	case 'd':	startNewBuilding();
-	// 				break;
-	// 	case KEY_ESCAPE:
-	// 	case 'q': 	saveBuildings();
-	// 				exit(1);
-	// }
 	switch(key) {
 		case 'c':	highlightChapel = !highlightChapel;
 					break;
@@ -201,12 +194,15 @@ void mouseCallback(int button, int state, int x, int y) {
 	else { // Mouse Down
 		if (button == GLUT_LEFT_BUTTON) {
 			clickDown = CoordPoint(x, userWindowHeight - y);
+			panActive = false;
 			selectedBuildings = buildingsClicked( convertCoordinates(x, y, true) );
 		}
 		else if (button == MOUSE_SCROLL_UP) {
+			selectedBuildings.clear();
 			currentScale *= scaleSpeed;
 		}
 		else if (button == MOUSE_SCROLL_DOWN) {
+			selectedBuildings.clear();
 			currentScale /= scaleSpeed;
 			currentScale = currentScale < 0.1 ? 0.1 : currentScale; // Provide lower limit for scale
 		}
@@ -215,61 +211,14 @@ void mouseCallback(int button, int state, int x, int y) {
 
 void mouseMotionCallback(int x, int y) {
 	y = userWindowHeight - y; // Invert y (coords start upper left, instead of lower left)
-
-	// viewportPanOffsetX = x - userWindowWidth / 2;
-	// viewportPanOffsetY = y - userWindowHeight / 2;
 	
 	activePanShiftX = x - clickDown.getX();
 	activePanShiftY = y - clickDown.getY();
 
-	// cout << "Original click at: " << clickDown.getX() << ", " << clickDown.getY() << endl;
-
-	// cout << "Shifted right: " << activePanShiftX << endl;
-	// cout << "Shifted up: " << activePanShiftY << endl;
-
-	// cout << "Perm shifted right: " << viewportPanOffsetX << endl;
-	// cout << "Perm shifted up: " << viewportPanOffsetY << endl;
-}
-
-void menuCallback(int value) {
-	// if (value == 1) {
-	// 	string output = "Hey!";
-	// 	cout << "Drawing at: " << lastClickX << ", " << lastClickY << endl;
-	// 	glRasterPos2i(lastClickX, windowHeight-lastClickY);
-	// 	for (int i = 0; i < output.length(); i++) {
-	// 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, output[i]);
-	// 	}
-	// }
-}
-
-void initMenu() {
-	glutCreateMenu(menuCallback); // register callback function
-	glutAddMenuEntry("Menu", 0);
-	glutAddMenuEntry("", 0);
-	glutAddMenuEntry("Hello", 1);
-	glutAddMenuEntry("Goodbye", 2);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
-
-void init() {
-	glClearColor(0.875, 0.875, 1.0, 1.0);
-	// glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	gluOrtho2D(0.0, mapWidth, 0.0, mapHeight);
-
-	// Initialize buildings.
-	loadBuildings();
-
-	// Initialize menu.
-	// initMenu();
-
-	// Create texture index array.
-	initTextures();
-	// Load texture from BMP.
-	loadExternalTextures();
+	if (abs(activePanShiftX) > panSensitivity || abs(activePanShiftY) > panSensitivity) {
+		panActive = true;
+		selectedBuildings.clear();
+	}
 }
 
 void resize(int w, int h) {
@@ -281,32 +230,19 @@ void shiftAndScaleViewport() {
 	viewportBaseOffsetX = (userWindowWidth - mapWidth * currentScale) / 2;
 	viewportBaseOffsetY = (userWindowHeight - mapHeight * currentScale) / 2;
 
-	int fullXShift = viewportBaseOffsetX + viewportPanOffsetX + activePanShiftX;
-	int fullYShift = viewportBaseOffsetY + viewportPanOffsetY + activePanShiftY;
+	if (panActive) {
+		fullXShift = viewportBaseOffsetX + viewportPanOffsetX + activePanShiftX;
+		fullYShift = viewportBaseOffsetY + viewportPanOffsetY + activePanShiftY;
+	}
+	else {
+		fullXShift = viewportBaseOffsetX + viewportPanOffsetX;
+		fullYShift = viewportBaseOffsetY + viewportPanOffsetY;
+	}
 
 	glViewport((GLsizei)fullXShift,
 			   (GLsizei)fullYShift,
 			   (GLsizei)mapWidth * currentScale,
 			   (GLsizei)mapHeight * currentScale );
-}
-
-void drawGrid() {
-	// glColor3f(1.0, 1.0, 1.0);
-	glColor3f(0.0, 0.0, 0.0);
-	int gridSize = 50;
-
-	for (int i = 1; i < mapHeight; i += gridSize) {
-		glBegin(GL_LINES);
-			glVertex2i(0, i);
-			glVertex2i(mapWidth, i);
-		glEnd();
-	}
-	for (int i = 1; i < mapWidth; i += gridSize) {
-		glBegin(GL_LINES);
-			glVertex2i(i, 0);
-			glVertex2i(i, mapHeight);
-		glEnd();
-	}
 }
 
 void textDisplay(string displayString, CoordPoint point) {
@@ -340,13 +276,48 @@ void display() {
 
 	shiftAndScaleViewport();
 
-	// drawTexturedMap();
-	// drawGrid();
 	drawBuildings();
 	textDisplay(selectedBuildings, convertCoordinates(clickDown));
 
 	glFlush();
 	glutPostRedisplay();
+}
+
+void init() {
+	glClearColor(0.875, 0.875, 1.0, 1.0);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	gluOrtho2D(0.0, mapWidth, 0.0, mapHeight);
+
+	// Initialize buildings.
+	loadBuildings();
+
+	// Create texture index array.
+	initTextures();
+	// Load texture from BMP.
+	loadExternalTextures();
+}
+
+void introInstructions() {
+	cout << "Welcome to Wheaton College's Map!" << endl;
+	cout << "Keyboard Commands:" << endl;
+	cout << "\tc: Toggle highlighting of the Chapel." << endl;
+	cout << "\td: Toggle highlighting of the Dorms." << endl;
+	cout << "\tf: Toggle highlighting of the Field House." << endl;
+	cout << "\tl: Toggle highlighting of the Library." << endl;
+	cout << "\ts: Toggle highlighting of the Mars Science Center." << endl;
+	cout << "\tR: Toggle display of the roads." << endl;
+	cout << "\tL: Toggle display of the labels." << endl;
+	cout << endl;
+	cout << "Mouse Commands:" << endl;
+	cout << "\tClicking on a building will display a larger version of the corresponding label." << endl;
+	cout << "\tClick'n'drag to pan." << endl;
+	cout << "\tMouse wheel to zoom in/out." << endl;
 }
 
 int main(int argc, char** argv) {
@@ -364,8 +335,6 @@ int main(int argc, char** argv) {
 	// Initialize.
 	init();
 
-	// Register key-up routine.
-	glutKeyboardUpFunc(keyUpCallback);
 	// Register key-down routine.
 	glutKeyboardFunc(keyDownCallback);
 	// Register mouse routine.
@@ -376,6 +345,9 @@ int main(int argc, char** argv) {
 	glutDisplayFunc(display);
 	// Register reshape routine.
 	glutReshapeFunc(resize);
+
+	// Display user controls.
+	introInstructions();
 
 	// Begin processing.
 	glutMainLoop();

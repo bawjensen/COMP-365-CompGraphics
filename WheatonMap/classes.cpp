@@ -1,29 +1,6 @@
-#include "constants.cpp"
+#include "classes.h"
 
 using namespace std;
-
-class CoordPoint {
-private:
-	int x, y;
-public:
-	CoordPoint() { x = 0; y = 0; };
-	CoordPoint(int newX, int newY) { x = newX; y = newY; };
-
-	void operator()(int newX, int newY) { x = newX; y = newY; };
-
-	int getX() { return this->x; };
-	int getY() { return this->y; };
-};
-
-class AxisAlignedBB {
-private:
-	int minX, minY, maxX, maxY;
-public:
-	AxisAlignedBB() {};
-
-	void operator()(int, int, int, int);
-	bool surrounds(CoordPoint);
-};
 
 void AxisAlignedBB::operator()(int nX, int nY, int xX, int xY) {
 	this->minX = nX;
@@ -33,37 +10,23 @@ void AxisAlignedBB::operator()(int nX, int nY, int xX, int xY) {
 }
 
 bool AxisAlignedBB::surrounds(CoordPoint point) {
-	// cout << "Finding " << point.getX() << ", " << point.getY() << endl;
-	// cout << "In: " << this->minX << " - " << this->maxX << 
-	// 		" by " << this->minY << " - " << this->maxY << endl;
 	return (point.getX() >= this->minX && point.getX() <= this->maxX && point.getY() >= this->minY && point.getY() <= this->maxY );
 }
 
-class Building {
-private:
-	vector<CoordPoint> corners;
-	AxisAlignedBB boundingBox;
-	string label;
-	int type;
-public:
-	Building() { this->label = "nada"; };
+CoordPoint AxisAlignedBB::getMiddle() {
+	int midX = (int)(this->minX + this->maxX) / 2;
+	int midY = (int)(this->minY + this->maxY) / 2;
+	return CoordPoint(midX, midY);
+}
 
-	void setType(int newType) { this->type = newType; };
-	void setLabel(string newLabel) { this->label = newLabel; };
+void Building::draw(bool highlighted, bool labelsOn, float currentScale) {
+	this->drawShape(highlighted);
+	this->drawOutline();
+	this->drawLabel(labelsOn, currentScale);
+}
 
-	int getType() { return this->type; };
-	string getLabel() { return this->label; };
-
-	void draw(bool highlighted=false);
-	void reset() { this->corners.clear(); };
-	void addCorner(int x, int y) { this->corners.push_back( CoordPoint(x, y) ); };
-	void calculateAABB(); // Axis-Aligned Bounding Box
-	string writeBuilding();
-	bool contains(CoordPoint);
-};
-
-void Building::draw(bool highlighted) {
-	if (highlighted) glColor3f(1.0, 1.0, 1.0);
+void Building::drawShape(bool highlighted) {
+	if (highlighted) glColor3f(1.0, 1.0, 0.0);
 	else if (this->type == BUILDING_GENERAL) glColor3f(0.0, 0.75, 0.25);
 	else if (this->type == BUILDING_DORM) glColor3f(0.0, 0.25, 0.75);
 	else if (this->type == BUILDING_FIELD) glColor3f(0.0, 0.5, 0.0);
@@ -72,19 +35,56 @@ void Building::draw(bool highlighted) {
 	else if (this->type == BUILDING_WATER) glColor3f(0.0, 0.0, 0.25);
 	else if (this->type == BUILDING_PARKINGLOT) glColor3f(0.0, 0.25, 0.25);
 
+	// Draw colored shape for building
 	glBegin(GL_POLYGON);
 	for (vector<CoordPoint>::iterator it = this->corners.begin(); it < this->corners.end(); it++) {
 		glVertex2i( it->getX(), it->getY() );
 	}
 	glEnd();
+}
 
+void Building::drawOutline() {
+	// Draw black outline (for looks)
 	glColor3f(0.0, 0.0, 0.2);
-	// glLineWidth((GLfloat)2);
 	glBegin(GL_LINE_LOOP);
 	for (vector<CoordPoint>::iterator it = this->corners.begin(); it < this->corners.end(); it++) {
 		glVertex2i( it->getX(), it->getY() );
 	}
 	glEnd();
+}
+
+void Building::drawLabel(bool labelsOn, float currentScale) {
+	if (!labelsOn || this->type == BUILDING_ROAD || this->type == BUILDING_PARKINGLOT ) return;
+
+	int charWidth = 9;
+	int charHeight = 15;
+
+	int textWidth = charWidth * this->label.length() / currentScale;
+	int textHeight = charHeight / currentScale;
+
+	int labelPadding = 2;
+
+	CoordPoint midPoint = this->boundingBox.getMiddle();
+
+	int xPos = midPoint.getX() - (textWidth / 2);
+	int yPos = midPoint.getY() - (textHeight / 2);
+
+	// Display background
+	glColor4f(0.0, 0.0, 0.0, 0.75);
+	glBegin(GL_POLYGON);
+		glVertex2i(xPos - labelPadding, yPos - labelPadding);
+		glVertex2i(xPos + textWidth + labelPadding, yPos - labelPadding);
+		glVertex2i(xPos + textWidth + labelPadding, yPos + textHeight + labelPadding);
+		glVertex2i(xPos - labelPadding, yPos + textHeight + labelPadding);
+	glEnd();
+
+	// Display text in front of background
+	glColor3f(1.0, 1.0, 1.0);
+
+	glRasterPos2i (xPos, yPos);
+	for (string::iterator it = this->label.begin(); it != this->label.end(); it++) {
+		glutBitmapCharacter (GLUT_BITMAP_9_BY_15, *it);
+	}
 }
 
 void Building::calculateAABB() {

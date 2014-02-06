@@ -4,7 +4,7 @@ CPATHS=		-I/usr/include -L/usr/lib # 2014
 CFLAGS=		$(CPATHS)$(CLIBS)
 
 wheatonMap:		wheatonMap.cpp
-			g++ wheatonMap.cpp -o wheatonMap $(CFLAGS)
+			g++ wheatonMap.cpp classes.cpp textures.cpp -o JensenG1 $(CFLAGS)
 
 clean:
 		rm *.o

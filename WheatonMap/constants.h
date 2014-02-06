@@ -3,6 +3,11 @@
 
 using namespace std;
 
+#include <string>
+#include <vector>
+#include <sstream>
+#include <fstream>
+
 static const int KEY_SHIFT = 16;
 static const int KEY_ESCAPE = 27;
 static const int MOUSE_SCROLL_UP = 3;

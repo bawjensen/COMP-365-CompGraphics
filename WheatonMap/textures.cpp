@@ -1,16 +1,6 @@
-#include "constants.cpp"
+#include "textures.h"
 
 using namespace std;
-
-static unsigned int texture[1]; // Array of texture indices.
-
-// Struct of bitmap file.
-struct BitMapFile
-{
-	int sizeX;
-	int sizeY;
-	unsigned char *data;
-};
 
 // Routine to read a bitmap file.
 // Works only for uncompressed bmp files of 24-bit color.
@@ -53,8 +43,7 @@ BitMapFile *getBMPData(string filename) {
 }
 
 // Load external textures.
-void loadExternalTextures()			
-{
+void loadExternalTextures()	{
 	// Local storage for bmp image data.
 	BitMapFile *image[2];
 
