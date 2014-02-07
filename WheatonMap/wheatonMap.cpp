@@ -10,53 +10,72 @@
 
 using namespace std;
 
-static vector<Building> buildingList;
-static Building dummyBuilding;
-static int userWindowWidth = 600;
-static int userWindowHeight = 600;
-static int viewportBaseOffsetX = 0; // 
-static int viewportBaseOffsetY = 0;
+static vector<Building> buildingList; // List of all the buildings
+static Building dummyBuilding; // Building with which to populate the above list
+static int userWindowWidth = 600; // Width of the user's window
+static int userWindowHeight = 600; // Height of the user's window
 
-static float currentScale = 1.75;
-static float scaleSpeed = 1.2;
+static float currentScale = 1.75; // Scale for the viewport
+static float scaleSpeed = 1.2; // Speed at which the map scales
 
-static CoordPoint clickDown(0, 0);
-static bool panActive = false;
-static int panSensitivity = 20;
-static vector<string> selectedBuildings;
-static int fullXShift = 0;
-static int fullYShift = 0;
+static CoordPoint clickDown(0, 0); // Position of the click on mouse down
+static bool panActive = false; // Whether or not the user is actively panning across the map
+static int panSensitivity = 20; // Distance the pan movement must exceed before being displayed
+static vector<string> selectedBuildings; // Buildings which have been selected by click for larger labelling
 
-static int viewportPanOffsetX = 0;
-static int viewportPanOffsetY = 0;
-static int activePanShiftX = 0;
-static int activePanShiftY = 0;
+static int viewportBaseOffsetX = 0; // Offset width for the viewport within the user window
+static int viewportBaseOffsetY = 0; // Offset height for the viewport within the user window
+static int viewportPanOffsetX = 0; // Offset width for the viewport due to panning
+static int viewportPanOffsetY = 0; // Offset height for the viewport due to panning
+static int activePanShiftX = 0; // Offset width for the viewport due to the active pan
+static int activePanShiftY = 0; // Offset height for the viewport due to the active pan
+static int fullXShift = 0; // Full shift of the viewport in the x direction
+static int fullYShift = 0; // Full shift of the viewport in the y direction
 
-static bool highlightChapel = false;
-static bool highlightDorms = false;
-static bool highlightFieldHouse = false;
-static bool highlightLibrary = false;
-static bool highlightMarsScience = false;
-static bool roadsOn = true;
-static bool labelsOn = false;
+static bool highlightChapel = false; // Boolean for highlighted status of the chapel
+static bool highlightDorms = false; // Boolean for highlighted status of the dorm
+static bool highlightFieldHouse = false; // Boolean for highlighted status of the field house
+static bool highlightLibrary = false; // Boolean for highlighted status of the library
+static bool highlightMarsScience = false; // Boolean for highlighted status of the Mars Science Center
+static bool roadsOn = true; // Boolean for display status of the roads
+static bool labelsOn = false; // Boolean for display status of the labels
 
+/*
+Function to convert click-coordinates to draw-coordinates.
+Precondition: x and y come in as points originating from upper left.
+Postcondition: x and y are returned as attributes of a CoordPoint corresponding to the 
+			   correct locations in the viewport for drawing.
+*/
 CoordPoint convertCoordinates(int x, int y, bool invertY=false) {
 	if (invertY)
 		y = userWindowHeight - y; // Invert Y (drawing and clicking have different 0,0 locations)
 
-	x -= fullXShift;
-	y -= fullYShift;
+	x -= fullXShift; // Unshift the point
+	y -= fullYShift; // Unshift the point
 
-	x /= currentScale;
-	y /= currentScale;
+	x /= currentScale; // Unscale the point
+	y /= currentScale; // Unscale the point
 
 	return CoordPoint(x, y);
 }
 
+
+/*
+Function to convert click-coordinates to draw-coordinates.
+Precondition: x and y come in as attributes of a CoordPoint originating from upper left.
+Postcondition: x and y are returned as attributes of a CoordPoint corresponding to the 
+			   correct locations in the viewport for drawing.
+*/
 CoordPoint convertCoordinates(CoordPoint point, bool invertY=false) {
-	return convertCoordinates(point.getX(), point.getY(), invertY);
+	return convertCoordinates(point.getX(), point.getY(), invertY); // Redirect to other function
 }
 
+
+/*
+Function to load all buildings from a file (from the filename global) to the buildingList global variable.
+Precondition: buildingList is empty and filename corresponds to a valid file.
+Postcondition: buildingList is populated with the data contents of the file marked by the filename global
+*/
 void loadBuildings() {
 	ifstream inFile;
 
@@ -97,6 +116,11 @@ void loadBuildings() {
 	}
 }
 
+/*
+Funcion to write the contents of buildingList to the filename file.
+Precondition: buildingList contains all of the data of the map's buildings and filename represents a valid file.
+Postcondition: filename's file contains the formatted data of buildingList.
+*/
 void saveBuildings() {
 	ofstream outFile;
 	outFile.open(filename.c_str());
@@ -111,8 +135,12 @@ void saveBuildings() {
 	}
 }
 
+/*
+Function to draw all of the buildings in buildingList to the GLUT window context.
+Precondition: buildingList contains the map's buildings to be drawn.
+Postcondition: Those buildings have been rendered to the GLUT window context.
+*/
 void drawBuildings() {
-	// cout << "Drawing " << buildingList.size() << " buildings." << endl;
 	for (vector<Building>::iterator it = buildingList.begin(); it < buildingList.end(); it++) {
 		if (( it->getType() == BUILDING_DORM && highlightDorms ) ||
 			( it->getLabel() == "ColeChapel" && highlightChapel ) ||
@@ -126,16 +154,30 @@ void drawBuildings() {
 	}
 }
 
+/*
+Creation function for buildings - used in map's creation.
+Precondition: dummyBuilding, buildingList globals have been initialized.
+Postcondition: A new building has been inserted as the last element of buildingList.
+*/
 void startNewBuilding() {
-	cout << "Starting building, resetting: " << endl;
 	buildingList.push_back(dummyBuilding);
 }
 
+/*
+Clears the entire contents of the buildingList global, clearing the map.
+Precondition: dummyBuilding, buildingList globals have been initialized.
+Postcondition: buildingList is empty of any buildings.
+*/
 void eraseAllBuildings() {
 	buildingList.clear();
 	buildingList.push_back(dummyBuilding);
 }
 
+/*
+Adds a new corner to the last element of buildingList, the "active" building.
+Precondition: buildlingList has at least one Building object.
+Postcondition: The last element of the buildingList global has a new CoordPoint corner.
+*/
 void activeBuildingAddCorner(int x, int y) {
 	CoordPoint convertedPoint = convertCoordinates(x, y, true);
 
@@ -145,6 +187,11 @@ void activeBuildingAddCorner(int x, int y) {
 	buildingList[ buildingList.size()-1 ].addCorner(x, y);
 }
 
+/*
+Finds and returns all buildings intersected with a certain point.
+Precondition: buildingList has been initialized.
+Postcondition: buildingLabels is returned with the labels of all buildings around the given point.
+*/
 vector<string> buildingsClicked(CoordPoint point) {
 	vector<string> buildingLabels;
 	for (vector<Building>::iterator it = buildingList.begin(); it < buildingList.end(); it++) {
@@ -156,11 +203,11 @@ vector<string> buildingsClicked(CoordPoint point) {
 	return buildingLabels;
 }
 
-void keyUpCallback(unsigned char key, int x, int y) { // Note: x and y are from cursor
-	switch(key) {
-	}
-}
-
+/*
+Callback function for the keypress event.
+Precondition: key pressed, as well as the cursor x and y are passed in from GLUT.
+Postcondition: Various actions are performed based on which key was pressed.
+*/
 void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are from cursor
 	switch(key) {
 		case 'c':	highlightChapel = !highlightChapel;
@@ -182,6 +229,12 @@ void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are fro
 	}
 }
 
+/*
+Callback function for mouse events.
+Precondition: button, state, x and y are passed based on the current state of the mouse.
+Postcondition: Various actions are performed based on the location of the click, including
+			   label display, panning and zooming.
+*/
 void mouseCallback(int button, int state, int x, int y) {
 	if (state == GLUT_UP) { // Mouse Up
 		if (button == GLUT_LEFT_BUTTON) {
@@ -209,6 +262,11 @@ void mouseCallback(int button, int state, int x, int y) {
 	}
 }
 
+/*
+Callback function for click'n'drag mouse movement.
+Precondition: x and y are passed in based on the location of the mouse
+Postcondition: Panning may be performed based on the state of certain global variables.
+*/
 void mouseMotionCallback(int x, int y) {
 	y = userWindowHeight - y; // Invert y (coords start upper left, instead of lower left)
 	
@@ -221,11 +279,22 @@ void mouseMotionCallback(int x, int y) {
 	}
 }
 
+/*
+Callback function for resizing of the window.
+Precondition: w and h are passed in based on the width and height of the user's window.
+Postcondition: The two globals are updated based on the passed in arguments.
+*/
 void resize(int w, int h) {
 	userWindowWidth = w;
 	userWindowHeight = h;
 }
 
+/*
+Function to handle the required shifts and resizes every time the window is redisplayed.
+Precondition: All of the globals used have been intialized.
+Postcondition: The contents of the globals are updated with the latest changes to
+			   other global variables, and then the viewport is shifted accordingly.
+*/
 void shiftAndScaleViewport() {
 	viewportBaseOffsetX = (userWindowWidth - mapWidth * currentScale) / 2;
 	viewportBaseOffsetY = (userWindowHeight - mapHeight * currentScale) / 2;
@@ -245,6 +314,11 @@ void shiftAndScaleViewport() {
 			   (GLsizei)mapHeight * currentScale );
 }
 
+/*
+Function to take a string and display it, lower left corner at the CoordPoint.
+Precondition: None.
+Postcondition: The displayString is output to the GLUT context window at the x, y of the CoordPoint.
+*/
 void textDisplay(string displayString, CoordPoint point) {
 	// glColor3f(0.0, 0.0, 0.0);
 	int yPos = point.getX();
@@ -256,6 +330,11 @@ void textDisplay(string displayString, CoordPoint point) {
 	}
 }
 
+/*
+Function to take a vector of strings and display it, lower left corner at the CoordPoint.
+Precondition: None.
+Postcondition: The contents of strVect have been output to the GLUT context window.
+*/
 void textDisplay(vector<string> strVect, CoordPoint point) {
 	glColor3f(0.0, 0.0, 0.0);
 
@@ -271,6 +350,12 @@ void textDisplay(vector<string> strVect, CoordPoint point) {
 	}
 }
 
+/*
+Display loop function for GLUT drawing.
+Precondition: display() called by GLUT.
+Postcondition: All of the output to the GLUT context window has been performed by subfunctions,
+			   and a flag is set with glutPostRedisplay() for immediate redrawing.
+*/
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -283,6 +368,12 @@ void display() {
 	glutPostRedisplay();
 }
 
+/*
+Initialization function for GLUT.
+Precondition: None.
+Postcondition: All of the OpenGL, and map-specific intialization has been performed with GLUT
+			   and personally defined functions.
+*/
 void init() {
 	glClearColor(0.875, 0.875, 1.0, 1.0);
 
@@ -303,6 +394,11 @@ void init() {
 	loadExternalTextures();
 }
 
+/*
+Stdio output instructions for the user to interact with this program.
+Precondition: None.
+Postcondition: Much output to stdio.
+*/
 void introInstructions() {
 	cout << "Welcome to Wheaton College's Map!" << endl;
 	cout << "Keyboard Commands:" << endl;
@@ -320,6 +416,11 @@ void introInstructions() {
 	cout << "\tMouse wheel to zoom in/out." << endl;
 }
 
+/*
+Main function for the program.
+Precondition: None.
+Postconditino: Everything has been initialized, and the GLUT main loop has been started.
+*/
 int main(int argc, char** argv) {
 	// Initialize GLUT.
 	glutInit(&argc, argv);

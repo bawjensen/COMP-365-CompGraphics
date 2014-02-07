@@ -2,8 +2,11 @@
 
 using namespace std;
 
-// Routine to read a bitmap file.
-// Works only for uncompressed bmp files of 24-bit color.
+
+/*
+Routine to read a bitmap file.
+Works only for uncompressed bmp files of 24-bit color.
+*/
 BitMapFile *getBMPData(string filename) {
 	BitMapFile *bmp = new BitMapFile;
 	unsigned int size, offset, headerSize;
@@ -42,15 +45,17 @@ BitMapFile *getBMPData(string filename) {
 	return bmp;
 }
 
-// Load external textures.
+/*
+Load external textures.
+*/
 void loadExternalTextures()	{
 	// Local storage for bmp image data.
-	BitMapFile *image[2];
+	BitMapFile *image[1];
 
 	// Load the textures.
 	image[0] = getBMPData("wheatonMap.bmp");
 
-	// Bind grass image to texture index[0]. 
+	// Bind map image to texture index[0]. 
 	glBindTexture(GL_TEXTURE_2D, texture[0]); 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -60,11 +65,17 @@ void loadExternalTextures()	{
 				 GL_RGB, GL_UNSIGNED_BYTE, image[0]->data);		
 }
 
+/*
+Initialization function for the textures.
+*/
 void initTextures() {
 	glGenTextures(1, texture);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
+/*
+Display function for the textured map.
+*/
 void drawTexturedMap() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);        

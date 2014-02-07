@@ -2,6 +2,11 @@
 
 using namespace std;
 
+/*
+Function to set all variables of the AABB at once.
+Precondition: Object may or may not have existing values.
+Postcondition: Object attributes now contain the values from the parameters.
+*/
 void AxisAlignedBB::operator()(int nX, int nY, int xX, int xY) {
 	this->minX = nX;
 	this->minY = nY;
@@ -9,22 +14,43 @@ void AxisAlignedBB::operator()(int nX, int nY, int xX, int xY) {
 	this->maxY = xY;
 }
 
+/*
+Test method to see if a certain point is within the AABB.
+Precondition: The AABB has been assigned values for max and min in x and y.
+Postcondition: Boolean value is returned for whether or not the point was within the box.
+*/
 bool AxisAlignedBB::surrounds(CoordPoint point) {
 	return (point.getX() >= this->minX && point.getX() <= this->maxX && point.getY() >= this->minY && point.getY() <= this->maxY );
 }
 
+/*
+A method to return the center of the AABB.
+Precondition: The AABB has been assigned values for the sides of the box.
+Postcondition: A CoordPoint is returned containing the middle of the box.
+*/
 CoordPoint AxisAlignedBB::getMiddle() {
 	int midX = (int)(this->minX + this->maxX) / 2;
 	int midY = (int)(this->minY + this->maxY) / 2;
 	return CoordPoint(midX, midY);
 }
 
+/*
+A method to draw a building to the GLUT window context. Calls three submethods to do
+three steps of drawing.
+Precondition: corners has at least three points with which to create a polygon.
+Postcondition: The GLUT window has been updated with the displayed building.
+*/
 void Building::draw(bool highlighted, bool labelsOn, float currentScale) {
 	this->drawShape(highlighted);
 	this->drawOutline();
 	this->drawLabel(labelsOn, currentScale);
 }
 
+/*
+A method to draw the filled polygon of the building.
+Precondition: corners has at least three points with which to create a polygon.
+Postcondition: The GLUT window has been updated with the filled polygon.
+*/
 void Building::drawShape(bool highlighted) {
 	if (highlighted) glColor3f(1.0, 1.0, 0.0);
 	else if (this->type == BUILDING_GENERAL) glColor3f(0.0, 0.75, 0.25);
@@ -43,6 +69,11 @@ void Building::drawShape(bool highlighted) {
 	glEnd();
 }
 
+/*
+A method to draw the outline polygon of the building.
+Precondition: corners has at least three points with which to create a polygon.
+Postcondition: The GLUT window has been updated with the outline of the polygon.
+*/
 void Building::drawOutline() {
 	// Draw black outline (for looks)
 	glColor3f(0.0, 0.0, 0.2);
@@ -53,6 +84,11 @@ void Building::drawOutline() {
 	glEnd();
 }
 
+/*
+A method to draw the label of the building.
+Precondition: corners has at least three points with which to create a polygon.
+Postcondition: The GLUT window has been updated with the label for the building.
+*/
 void Building::drawLabel(bool labelsOn, float currentScale) {
 	if (!labelsOn || this->type == BUILDING_ROAD || this->type == BUILDING_PARKINGLOT ) return;
 
@@ -87,6 +123,11 @@ void Building::drawLabel(bool labelsOn, float currentScale) {
 	}
 }
 
+/*
+A method to calculate the Axis Aligned Bounding Box for this building.
+Precondition: corners has at least three values with which to calculate a bounding box.
+Postcondition: The resultant bounding box has been stored into the object.  
+*/
 void Building::calculateAABB() {
 	int newX, newY, maxX, maxY, minX, minY;
 
@@ -111,6 +152,11 @@ void Building::calculateAABB() {
 	this->boundingBox(minX, minY, maxX, maxY);
 }
 
+/*
+A test to use simple collision detection (using an AABB) to test if the point is within the building.
+Precondition: corners has at least three elements.
+Postcondition: Boolean returned indicating whether or not the building contains the point.
+*/
 bool Building::contains(CoordPoint point) {
 	if (this->type == BUILDING_ROAD)
 		return false;
@@ -118,6 +164,11 @@ bool Building::contains(CoordPoint point) {
 		return this->boundingBox.surrounds(point);
 }
 
+/*
+Writes the contents of the building to a formatted string.
+Precondition: Building has been assigned a label, type and at least three corners.
+Postcondition: The formatted string containing the building is returned.
+*/
 string Building::writeBuilding() {
 	stringstream outString;
 

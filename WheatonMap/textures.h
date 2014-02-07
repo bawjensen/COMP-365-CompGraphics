@@ -15,9 +15,9 @@ struct BitMapFile
 	unsigned char *data;
 };
 
-BitMapFile *getBMPData(string filename);
-void loadExternalTextures();		
-void initTextures();
-void drawTexturedMap();
+BitMapFile *getBMPData(string filename); // Function to get the BMP data from the image
+void loadExternalTextures(); // Loads the external images
+void initTextures(); // The initializer function for the textures
+void drawTexturedMap(); // The draw function for the original map
 
 #endif
