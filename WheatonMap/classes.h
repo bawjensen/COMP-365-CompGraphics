@@ -58,8 +58,8 @@ public:
 
 	void draw(bool highlighted=false, bool labelsOn=false, float currentScale=1.0); // Method to draw the building
 																					// to the GLUT window
-	void drawShape(bool); // Draws the actual shape of the building using a solid filled polygon
-	void drawOutline(); // Draws an outline around the building
+	void drawShape(); // Draws the actual shape of the building using a solid filled polygon
+	void drawOutline(bool); // Draws an outline around the building
 	void drawLabel(bool, float); // Draws the label inside the building
 	void reset() { this->corners.clear(); }; // Resets the building, clearing all corners from vector
 	void addCorner(int x, int y) { this->corners.push_back( CoordPoint(x, y) ); }; // Adds a corner to a building

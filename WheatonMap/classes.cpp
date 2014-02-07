@@ -41,8 +41,8 @@ Precondition: corners has at least three points with which to create a polygon.
 Postcondition: The GLUT window has been updated with the displayed building.
 */
 void Building::draw(bool highlighted, bool labelsOn, float currentScale) {
-	this->drawShape(highlighted);
-	this->drawOutline();
+	this->drawShape();
+	this->drawOutline(highlighted);
 	this->drawLabel(labelsOn, currentScale);
 }
 
@@ -51,9 +51,9 @@ A method to draw the filled polygon of the building.
 Precondition: corners has at least three points with which to create a polygon.
 Postcondition: The GLUT window has been updated with the filled polygon.
 */
-void Building::drawShape(bool highlighted) {
-	if (highlighted) glColor3f(1.0, 1.0, 0.0);
-	else if (this->type == BUILDING_GENERAL) glColor3f(0.0, 0.75, 0.25);
+void Building::drawShape() {
+	// if (highlighted) glColor3f(1.0, 1.0, 0.0);
+	if (this->type == BUILDING_GENERAL) glColor3f(0.0, 0.75, 0.25);
 	else if (this->type == BUILDING_DORM) glColor3f(0.0, 0.25, 0.75);
 	else if (this->type == BUILDING_FIELD) glColor3f(0.0, 0.5, 0.0);
 	// else if (this->type == BUILDING_ROAD) glColor3f(0.5, 0.25, 0.1);
@@ -74,9 +74,16 @@ A method to draw the outline polygon of the building.
 Precondition: corners has at least three points with which to create a polygon.
 Postcondition: The GLUT window has been updated with the outline of the polygon.
 */
-void Building::drawOutline() {
+void Building::drawOutline(bool highlighted) {
 	// Draw black outline (for looks)
-	glColor3f(0.0, 0.0, 0.2);
+	if (highlighted) {
+		glColor3f(1.0, 1.0, 0.2);
+		glLineWidth((GLfloat)3);
+	}
+	else {
+		glColor3f(0.0, 0.0, 0.2);
+		glLineWidth((GLfloat)1);
+	}
 	glBegin(GL_LINE_LOOP);
 	for (vector<CoordPoint>::iterator it = this->corners.begin(); it < this->corners.end(); it++) {
 		glVertex2i( it->getX(), it->getY() );
