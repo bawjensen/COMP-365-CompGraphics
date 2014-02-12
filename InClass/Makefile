@@ -19,5 +19,8 @@ text:		text.cpp
 wheatonMap:		wheatonMap.cpp
 			g++ wheatonMap.cpp -o wheatonMap $(CFLAGS)
 
+perspect1:		perspect1.cpp
+			g++ perspect1.cpp -o perspect1 $(CFLAGS)
+
 clean:
 		rm *.o
