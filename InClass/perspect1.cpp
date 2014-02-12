@@ -52,9 +52,16 @@ void display ()
 		glVertex3f (1.0, 1.0, 0.0);
 	glEnd();
 
-	glColor3f (0.0, 0.0, 1.0);
 	/* draw a unit cube (centered at 0,0,0) */
-	glutSolidCube (1.0);
+	glColor3f (0.0, 0.0, 1.0);
+	glutWireCube (1.0);
+
+	for (int i = 0; i < 8; i++) {
+		glTranslatef(2.0, 0.0, 0.0);
+		glutWireCube (1.0);
+		glTranslatef(-2.0, 0.0, 0.0);
+		glRotatef(45, 0, 0, 1);
+	}
 
 	glFlush ();
 }
