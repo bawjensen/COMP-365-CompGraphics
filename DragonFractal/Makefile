@@ -3,7 +3,7 @@ CPATHS=		-I/usr/include -L/usr/lib # 2014
 CFLAGS=		$(CPATHS)$(CLIBS)
 
 fractal:	fractal.cpp
-			g++ fractal.cpp -o JensenG2 $(CFLAGS)
+			g++ fractal.cpp classes.cpp -o JensenG2 $(CFLAGS)
 
 clean:
-		rm *.o
+			rm *.o
