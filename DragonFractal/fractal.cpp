@@ -5,10 +5,15 @@
 
 using namespace std;
 
-static int userWindowWidth = 500;
-static int userWindowHeight = 500;
-static int windowWidth = 1000; // Refers to the GL window
-static int windowHeight = 1000; // Refers to the GL window
+static int initialWindowWidth = 500;
+static int initialWindowHeight = 500;
+static int userWindowWidth = initialWindowWidth;
+static int userWindowHeight = initialWindowHeight;
+static float windowRatio = 2;
+static int windowWidth = initialWindowWidth * windowRatio; // Refers to the GL window
+static int windowHeight = initialWindowHeight * windowRatio; // Refers to the GL window
+static int widthOffset = 0;
+static int heightOffset = 0;
 
 static Fractal dFractal;
 
@@ -22,30 +27,65 @@ void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are fro
 }
 
 void mouseCallback(int button, int state, int x, int y) {
-	if (state == GLUT_UP) return;
+	if (state == GLUT_UP or button == GLUT_RIGHT_BUTTON) return;
+
+	y = userWindowHeight - y;
+
+	x *= windowRatio;
+	y *= windowRatio;
+
+	x += widthOffset;
+	y += heightOffset;
 
 	if (dFractal.begun()) dFractal.incrementIterations();
 	else dFractal.begin(x, y);
 }
 
-void resize(int w, int h) {
-	userWindowWidth = w;
-	userWindowHeight = h;
+void resize(int width, int height) {
+	userWindowWidth = width;
+	userWindowHeight = height;
+
+	widthOffset = initialWindowWidth - width;
+	heightOffset = initialWindowHeight - height;
+
+	glViewport(0, 0, width, height);
+
+	int left = initialWindowWidth - width;
+	int right = left + (width * windowRatio);
+
+	int bottom = initialWindowHeight - height;
+	int top = bottom + (height * windowRatio);
+
+	glLoadIdentity();
+	gluOrtho2D(left, right, bottom, top);
 
 	glutPostRedisplay();
 }
 
 void menuCallback(int choice) {
 	switch (choice) {
+		case -9:keyDownCallback('q', 0, 0); // Redirect call - mimic hitting 'q'
 		case 0:	dFractal.hide();
 				break;
 		case 1:	dFractal.show();
 				break;
-		case 2:	dFractal.clear();
+		case 2:	dFractal.reset();
 				break;
 		case 3:	dFractal.setInitialLength(1);
 				break;
 		case 4:	dFractal.setInitialLength(2);
+				break;
+		case 5:	dFractal.setDirection("c");
+				break;
+		case 6:	dFractal.setDirection("cc");
+				break;
+		case 7:	dFractal.setColor("red");
+				break;
+		case 8:	dFractal.setColor("green");
+				break;
+		case 9:	dFractal.setColor("blue");
+				break;
+		case 10:dFractal.alternate(20);
 				break;
 	}
 }
@@ -53,13 +93,20 @@ void menuCallback(int choice) {
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
-	glutAddMenuEntry ("Choices:", -1);
-	glutAddMenuEntry ("", -1);
-	glutAddMenuEntry ("Clear the window", 0);
-	glutAddMenuEntry ("Redisplay the fractal", 1);
-	glutAddMenuEntry ("Clear the fractal", 2);
-	glutAddMenuEntry ("Starting length: 1", 3);
-	glutAddMenuEntry ("Starting length: 2", 4);
+	glutAddMenuEntry("Choices:", -1);
+	glutAddMenuEntry("", -1);
+	glutAddMenuEntry("Clear the window", 0);
+	glutAddMenuEntry("Redisplay the fractal", 1);
+	glutAddMenuEntry("Clear the fractal", 2);
+	glutAddMenuEntry("Starting length: 1", 3);
+	glutAddMenuEntry("Starting length: 2", 4);
+	glutAddMenuEntry("Set spiral direction: Clockwise", 5);
+	glutAddMenuEntry("Set spiral direction: Counter-Clockwise", 6);
+	glutAddMenuEntry("Set Color: Red", 7);
+	glutAddMenuEntry("Set Color: Green", 8);
+	glutAddMenuEntry("Set Color: Blue", 9);
+	glutAddMenuEntry("Create alternation pattern", 10);
+	glutAddMenuEntry("Quit", -9);
 
 	glutAttachMenu (GLUT_RIGHT_BUTTON);
 }
@@ -78,6 +125,14 @@ void init() {
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// glBegin(GL_POLYGON);
+	// 	glColor3f(1.0, 0.0, 0.0);
+	// 	glVertex2i(0, 0);
+	// 	glVertex2i(0, 1000);
+	// 	glVertex2i(1000, 1000);
+	// 	glVertex2i(1000, 0);
+	// glEnd();
+
 	dFractal.draw();
 
 	glFlush();
@@ -89,7 +144,7 @@ int main(int argc, char** argv) {
 	// Set display mode as single-buffered and RGB color.
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	// Set OpenGL window size.
-	glutInitWindowSize(userWindowWidth, userWindowHeight); // Scale factor is scaling the map to fit screen 
+	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	// Set OpenGL window position.
 	glutInitWindowPosition(100, 100); 
 	// Create OpenGL window with title.
