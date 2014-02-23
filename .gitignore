@@ -2,4 +2,4 @@
 Code/*
 
 # Mac OSX folder config ignoring
-*DS_Store
+*.DS_Store
