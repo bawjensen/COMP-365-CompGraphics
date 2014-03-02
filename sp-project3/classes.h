@@ -9,13 +9,16 @@ public:
 	Vec3f() { x = 0.0f; y = 0.0f; z = 0.0f; };
 	Vec3f(float nX, float nY, float nZ) : x(nX), y(nY), z(nZ) {};
 
-	rotateX(float);
+	void rotateX(float);
+
+	Vec3f operator*(Matrix44f);
 };
 
 class Matrix44f {
 private:
 public:
-	float 
+	float matrix[4][4];
+
 };
 
 #endif
