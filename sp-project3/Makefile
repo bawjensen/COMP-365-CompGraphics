@@ -10,7 +10,10 @@ else # Linux
 endif
 
 spline:		terrainSpline.cpp
-			g++ terrainSpline.cpp -o JensenG3 -w $(CFLAGS)
+			g++ terrainSpline.cpp classes.cpp -o JensenG3 -w $(CFLAGS)
+
+testing:		testing.cpp
+			g++ testing.cpp -o testing -w $(CFLAGS)
 
 clean:
 			rm *.o
