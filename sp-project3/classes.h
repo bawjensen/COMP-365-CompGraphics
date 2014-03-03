@@ -27,8 +27,9 @@ public:
 
 	void set(float, float, float);
 
-	void rotateXZ(float, float);
-	void rotateY(float);
+	Vec3f rotateZ(float);
+	// Vec3f rotateXZ(float);
+	Vec3f rotateY(float);
 
 	Vec3f& operator*=(Matrix44f);
 	Vec3f& operator=(const Vec3f&);
@@ -54,9 +55,9 @@ public:
 class Camera {
 private:
 public:
-	Vec3f pos, focus, viewDir, clickOrigin;
+	Vec3f pos, origPos, focus, viewDir, pOrigin, xzAxis;
 	bool isFocusing, panActive;
-	float deltaHorizAngle, deltaVertAngle, angularScrollSpeed;
+	float horizAngle, vertAngle, deltaHorizAngle, deltaVertAngle, angularScrollSpeed;
 
 	Camera();
 
@@ -64,6 +65,7 @@ public:
 	void setViewDir(float, float, float);
 	void setFocus(float, float, float);
 
+	void rotateTo(float, float);
 	void rotate(float, float);
 	void handleClick(int, int, int, int);
 	void handleMovement(int, int);

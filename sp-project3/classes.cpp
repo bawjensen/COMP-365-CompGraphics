@@ -21,37 +21,22 @@ void Vec3f::set(float nX, float nY, float nZ) {
 	this->xzAngle = 0.0f;
 }
 
-void Vec3f::rotateXZ(float radians, float yRadians) {
-	cout << "Currently at a " << xzAngle << " angle" << endl;
-	this->xzAngle += yRadians;
-	cout << "Currently at a " << xzAngle << " angle" << endl;
-	float rotationArray1[4][4] = { 	{cos(-xzAngle),	0, 		-sin(-xzAngle), 0}, 
-									{0, 			1, 		0, 				0},
-									{sin(-xzAngle), 0, 		cos(-xzAngle), 	0},
-									{0, 			0, 		0, 				1}
-								};
-	float rotationArray2[4][4] = { 	{1,		0, 				0, 				0}, 
-									{0, 	cos(radians), 	sin(radians), 	0},
-									{0, 	-sin(radians), 	cos(radians), 	0},
-									{0, 	0, 				0, 				1}
-								};
-	float rotationArray3[4][4] = { 	{cos(xzAngle),	0, 		-sin(xzAngle), 	0}, 
-									{0, 			1, 		0, 				0},
-									{sin(xzAngle), 	0, 		cos(xzAngle), 	0},
-									{0, 			0, 		0, 				1}
+Vec3f Vec3f::rotateZ(float radians) {
+	Vec3f tempVec = (*this);
+	float rotationArray[4][4] = { 	{cos(radians),	sin(radians), 	0, 	0}, 
+									{-sin(radians), cos(radians), 	0, 	0},
+									{0, 			0,				1, 	0},
+									{0, 			0,				0, 	1}
 								};
 
-	Matrix44f rMatrix_composite(rotationArray1);
-	Matrix44f rMatrix1(rotationArray2);
-	Matrix44f rMatrix2(rotationArray3);
+	Matrix44f rMatrix(rotationArray);
+	tempVec *= rMatrix;
 
-	rMatrix_composite *= rMatrix1;
-	rMatrix_composite *= rMatrix2;
-
-	(*this) *= rMatrix_composite;
+	return tempVec;
 }
 
-void Vec3f::rotateY(float radians) {
+Vec3f Vec3f::rotateY(float radians) {
+	Vec3f tempVec = (*this);
 	float rotationArray[4][4] = { 	{cos(radians),	0, 		-sin(radians), 	0}, 
 									{0, 			1, 		0, 				0},
 									{sin(radians), 	0, 		cos(radians), 	0},
@@ -59,7 +44,9 @@ void Vec3f::rotateY(float radians) {
 								};
 
 	Matrix44f rMatrix(rotationArray);
-	(*this) *= rMatrix;
+	tempVec *= rMatrix;
+
+	return tempVec;
 }
 
 Vec3f& Vec3f::operator*=(Matrix44f matrix) {
@@ -122,26 +109,14 @@ Matrix44f& Matrix44f::operator*=(Matrix44f other) {
 	float sum;
 
 	for (int firstRow = 0; firstRow < 4; firstRow++) {
-		// cout << "Doing a row of the first matrix: " << endl;
 		for (int secondColumn = 0; secondColumn < 4; secondColumn++) {
-			// cout << "Doing a column of the second matrix: " << endl;
 			sum = 0;
 			for (int secondRow = 0; secondRow < 4; secondRow++) {
-				// cout << "Doing a column/row of the first/second matrix: " << endl;
-				// cout << "Multiplying " << firstRow << "," << secondRow << " by " << secondRow << "," << secondColumn << " - aka: ";
-				// cout << this->matrix[firstRow][secondRow] << " x " << other.matrix[secondRow][secondColumn] << " sum: " << sum << endl;
 				sum += this->matrix[firstRow][secondRow] * other.matrix[secondRow][secondColumn];
 			}
 			tempMatrix.matrix[firstRow][secondColumn] = sum;
-			// cout << "Storing " << sum << " into " << firstRow << "," << secondColumn << endl;
-			// cout << endl;
 		}
-		// cout << endl;
 	}
-	// cout << "First: " << (*this) << endl;
-	// cout << "Times second: " << other << endl;
-	// cout << "Equals: " << tempMatrix << endl << endl << endl;
-
 	(*this) = tempMatrix;
 
 	return *this;
@@ -168,15 +143,19 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 }
 
 Camera::Camera() {
-	this->pos = Vec3f(0.0f, 0.0f, 1.0f);
-	this->isFocusing = true;
-	this->viewDir = Vec3f(0.0f, 0.0f, -1.0f);
-	this->focus = Vec3f(0.0f, 0.0f, 0.0f);
-	this->angularScrollSpeed = 1 / 1000 * 2;
+	this->pos = Vec3f(0.0f, 0.0f, 1.0f); // Camera position
+	this->viewDir = Vec3f(0.0f, 0.0f, -1.0f); // View direction
+
+	this->isFocusing = true; // Whether or not the camera is "viewing" or "focusing"
+	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
+
+	this->angularScrollSpeed = 1 / (float)200; // Rotation speed of the camera
+	this->panActive = false; // Whether or not the camera is panning (via the mouse)
 }
 
 void Camera::setPos(float pX, float pY, float pZ) {
 	this->pos = Vec3f(pX, pY, pZ);
+	this->origPos = this->pos;
 }
 
 void Camera::setViewDir(float vX, float vY, float vZ) {
@@ -187,10 +166,18 @@ void Camera::setFocus(float fX, float fY, float fZ) {
 	this->focus = Vec3f(fX, fY, fZ);
 }
 
+void Camera::rotateTo(float hAngle, float vAngle) {
+	this->horizAngle = hAngle;
+	this->vertAngle = vAngle;
+
+	this->pos = this->origPos.rotateY(this->horizAngle);
+}
+
 void Camera::rotate(float hAngle, float vAngle) {
-	this->pos.rotateY(hAngle);
+	this->horizAngle += hAngle;
+	this->vertAngle += vAngle;
 
-
+	this->pos = this->origPos.rotateZ(this->vertAngle).rotateY(this->horizAngle);
 }
 
 void Camera::handleClick(int button, int state, int x, int y) {
@@ -199,7 +186,7 @@ void Camera::handleClick(int button, int state, int x, int y) {
 			this->panActive = false;
 		}
 		else  { // state = GLUT_DOWN
-			this->clickOrigin = Vec3f(x, y, 0); // Ignore z for simplicity
+			this->pOrigin = Vec3f(x, y, 0); // Ignore z for simplicity
 			this->panActive = true;
 		}
 	}
@@ -207,20 +194,15 @@ void Camera::handleClick(int button, int state, int x, int y) {
 
 void Camera::handleMovement(int x, int y) {
 	if (panActive) { // this will only be true when the left button is down
-		// update deltaHorizAngle
-		this->deltaHorizAngle = -(this->clickOrigin.x - x) * this->angularScrollSpeed;
-		// lastX = x;
 
-		// update camera's position (rotation y-axis)
-		// camPos.rotateY(deltaHorizAngle);
+		// update deltaHorizAngle
+		this->deltaHorizAngle = -(this->pOrigin.x - x) * this->angularScrollSpeed;
+		this->pOrigin.x = x;
 
 		// update deltaVertAngle
-		this->deltaVertAngle = -(this->clickOrigin.y - y) * angularScrollSpeed;
-		// lastY = y;
+		this->deltaVertAngle = (this->pOrigin.y - y) * angularScrollSpeed;
+		this->pOrigin.y = y;
 
 		this->rotate(deltaHorizAngle, deltaVertAngle);
-
-		// update camera's position (rotation xz-axis)
-		// camPos.rotateXZ(deltaVertAngle, deltaHorizAngle);
 	}
 }
