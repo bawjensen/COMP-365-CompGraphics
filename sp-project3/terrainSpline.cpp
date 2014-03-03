@@ -22,14 +22,8 @@ int userWindowHeight = initialWindowHeight;
 
 // baseAngle of rotation for the camera direction
 int rotationRadius = 250;
-float deltaHorizAngle = 0.0f;
-float deltaVertAngle = 0.0f;
 
 Camera mCam;
-
-bool panningActive = false;
-int lastX = 0; // Equals 0 when not using mouse to pan
-int lastY = 0; // Equals 0 when not using mouse to pan
 
 void resize(int w, int h) {
 	if (h == 0) h = 1; // Prevent division by 0
