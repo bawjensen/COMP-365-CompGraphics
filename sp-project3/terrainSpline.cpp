@@ -21,13 +21,11 @@ int userWindowWidth = initialWindowWidth;
 int userWindowHeight = initialWindowHeight;
 
 // baseAngle of rotation for the camera direction
-int rotationRadius = 100;
-float deltaAngle = 0.0f;
-float angularScrollSpeed = 1 / (float)userWindowWidth * 2;
+int rotationRadius = 250;
+float deltaHorizAngle = 0.0f;
+float deltaVertAngle = 0.0f;
 
-Vec3f camView(0.0f, 0.0f, 1.0f);
-Vec3f camFocus(0.0f, 0.0f, 0.0f);
-Vec3f camPos((float)rotationRadius, 10.0f, 0.0f);
+Camera mCam;
 
 bool panningActive = false;
 int lastX = 0; // Equals 0 when not using mouse to pan
@@ -62,22 +60,27 @@ void display() {
 	glLoadIdentity();
 
 	// Set the camera
-	gluLookAt(	camPos.x,			camPos.y,	 		camPos.z,
+	gluLookAt(	mCam.pos.x,			mCam.pos.y,	 		mCam.pos.z,
 				// camPos.x+camView.x, camPos.y+camView.y, camPos.z+camView.z,
-				camFocus.x, 		camFocus.y, 		camFocus.z,
+				mCam.focus.x, 		mCam.focus.y, 		mCam.focus.z,
 				0.0f, 				1.0f,  				0.0f);
 
 	// Draw grid on ground
 	glColor3f(0.9f, 0.9f, 0.9f);
 	glBegin(GL_LINES);
 	for (int i = -100; i <= 100; i += 10) {
-			glVertex3f(i, 0, -100);
-			glVertex3f(i, 0, 100);
+		glVertex3f(i, 0, -100);
+		glVertex3f(i, 0, 100);
 	}
 	for (int j = -100; j <= 100; j += 10) {
-			glVertex3f(-100, 0, j);
-			glVertex3f(100, 0, j);
+		glVertex3f(-100, 0, j);
+		glVertex3f(100, 0, j);
 	}
+		// glLineWidth(4);
+		// glVertex3f(-100, 0, 0);
+		// glVertex3f(100, 0, 0);
+		// glVertex3f(0, 0, -100);
+		// glVertex3f(0, 0, 100);
 	glEnd();
 
 	// Swap the buffers - flushing the current buffer
@@ -98,48 +101,35 @@ void specialDownCallback(int key, int x, int y) {
 		case GLUT_KEY_UP: break;
 		case GLUT_KEY_DOWN: break;
 	}
-} 
+}
 
 void specialUpCallback(int key, int x, int y) { 	
 	switch (key) {
 		case GLUT_KEY_UP:
 		case GLUT_KEY_DOWN: break;
 	}
-} 
+}
 
-void mouseMoveCallback(int x, int y) { 	
-	if (panningActive) { // this will only be true when the left button is down
-		// update deltaAngle
-		deltaAngle = (lastX - x) * angularScrollSpeed;
-		lastX = x;
-
-		// update camera's position (rotation y-axis)
-		camPos.rotateY(deltaAngle);
-
-		// update deltaAngle
-		deltaAngle = (lastY - y) * angularScrollSpeed;
-		lastY = y;
-
-		// update camera's position (rotation around origin)
-		camPos.rotateXZ(deltaAngle);
-	}
+void mouseMoveCallback(int x, int y) {
+	mCam.handleMovement(x, y);
 }
 
 void mouseCallback(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON) { // only start motion if the left button is pressed
-		if (state == GLUT_UP) { // when the button is released
-			panningActive = false;
-		}
-		else  { // state = GLUT_DOWN
-			lastX = x;
-			lastY = y;
-			panningActive = true;
-		}
-	}
+	mCam.handleClick(button, state, x, y);
 }
 
 void init() {
 	glEnable(GL_DEPTH_TEST);
+
+	mCam.setViewDir(0, 0, 1);
+	mCam.setFocus(0, 0, 0);
+	mCam.setPos(rotationRadius, 10, 0);
+
+	float yAngle = M_PI;
+	float xAngle = M_PI / 4;
+
+	// camPos.rotateY(yAngle);
+	// camPos.rotateXZ(xAngle, yAngle);
 }
 
 int main(int argc, char** argv) {
