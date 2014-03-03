@@ -22,16 +22,16 @@ int userWindowHeight = initialWindowHeight;
 
 // baseAngle of rotation for the camera direction
 int rotationRadius = 100;
-float baseAngle = 0.0f;
 float deltaAngle = 0.0f;
-float angleScrollSpeed = 1 / (float)userWindowWidth;
+float angularScrollSpeed = 1 / (float)userWindowWidth * 2;
 
 Vec3f camView(0.0f, 0.0f, 1.0f);
 Vec3f camFocus(0.0f, 0.0f, 0.0f);
 Vec3f camPos((float)rotationRadius, 10.0f, 0.0f);
 
-int xOrigin = 0; // Equals 0 when not using mouse to pan
-int yOrigin = 0; // Equals 0 when not using mouse to pan
+bool panningActive = false;
+int lastX = 0; // Equals 0 when not using mouse to pan
+int lastY = 0; // Equals 0 when not using mouse to pan
 
 void resize(int w, int h) {
 	if (h == 0) h = 1; // Prevent division by 0
@@ -108,31 +108,32 @@ void specialUpCallback(int key, int x, int y) {
 } 
 
 void mouseMoveCallback(int x, int y) { 	
-	// this will only be true when the left button is down
-	if (xOrigin != 0) {
+	if (panningActive) { // this will only be true when the left button is down
+		// update deltaAngle
+		deltaAngle = (lastX - x) * angularScrollSpeed;
+		lastX = x;
+
+		// update camera's position (rotation y-axis)
+		camPos.rotateY(deltaAngle);
 
 		// update deltaAngle
-		deltaAngle = (xOrigin - x) * angleScrollSpeed;
-		deltaAngle = (xOrigin - x) * angleScrollSpeed;
+		deltaAngle = (lastY - y) * angularScrollSpeed;
+		lastY = y;
 
-		// update camera's direction
-		// camView.x = sin(baseAngle + deltaAngle);
-		// camView.z = -cos(baseAngle + deltaAngle);
-		camPos.x = sin(baseAngle + deltaAngle) * rotationRadius;
-		camPos.z = -cos(baseAngle + deltaAngle) * rotationRadius;
+		// update camera's position (rotation around origin)
+		camPos.rotateXZ(deltaAngle);
 	}
 }
 
 void mouseCallback(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON) { // only start motion if the left button is pressed
 		if (state == GLUT_UP) { // when the button is released
-			baseAngle += deltaAngle;
-			xOrigin = 0;
-			yOrigin = 0;
+			panningActive = false;
 		}
 		else  { // state = GLUT_DOWN
-			xOrigin = x;
-			yOrigin = y;
+			lastX = x;
+			lastY = y;
+			panningActive = true;
 		}
 	}
 }
