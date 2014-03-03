@@ -1,7 +1,5 @@
 #include "classes.h"
 
-// -------------------------------------------------------------------------------------------
-
 Vec3f::Vec3f() {
 	this->x = 0.0f;
 	this->y = 0.0f;
@@ -85,8 +83,6 @@ ostream& operator<<(ostream& co, Vec3f& vec) {
 	return co;
 }
 
-// -------------------------------------------------------------------------------------------
-
 Matrix44f::Matrix44f() { // Creates an identity matrix
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -145,8 +141,6 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 	co << "]";
 	return co;
 }
-
-// -------------------------------------------------------------------------------------------
 
 Camera::Camera() {
 	this->pos = Vec3f(0.0f, 0.0f, 1.0f); // Camera position
@@ -212,6 +206,3 @@ void Camera::handleMovement(int x, int y) {
 		this->rotate(deltaHorizAngle, deltaVertAngle);
 	}
 }
-
-// -------------------------------------------------------------------------------------------
-

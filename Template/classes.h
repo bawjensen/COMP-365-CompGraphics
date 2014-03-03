@@ -71,12 +71,4 @@ public:
 	void handleMovement(int, int);
 };
 
-class SplineGrid {
-private:
-public:
-	SplineGrid() {};
-
-	void readFromESRI(string);
-};
-
 #endif
