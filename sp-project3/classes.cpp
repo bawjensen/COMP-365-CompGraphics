@@ -160,8 +160,11 @@ Camera::Camera() {
 }
 
 void Camera::setPos(float pX, float pY, float pZ) {
-	this->pos = Vec3f(pX, pY, pZ);
-	this->origPos = this->pos;
+	this->origPos = Vec3f(pX, pY, pZ);
+	this->pos = this->origPos;
+	this->rotationRadius = max(pX, pZ);
+	this->depthOfView = 2 * this->rotationRadius;
+	// cout << "Creating camera at: " << pX << "," << pY << "," << pZ << " at radius " << this->rotationRadius << endl;
 }
 
 void Camera::setViewDir(float vX, float vY, float vZ) {
@@ -170,6 +173,24 @@ void Camera::setViewDir(float vX, float vY, float vZ) {
 
 void Camera::setFocus(float fX, float fY, float fZ) {
 	this->focus = Vec3f(fX, fY, fZ);
+}
+
+void Camera::setRotationRadius(int r) {
+	// cout << "Old:new ratio: " << ((float)r / this->rotationRadius) << endl;
+	float radiusRatio = (float)r / this->rotationRadius;
+
+	this->origPos.x *= radiusRatio;
+	this->origPos.y *= radiusRatio;
+	this->origPos.z *= radiusRatio;
+
+	this->pos.x *= radiusRatio;
+	this->pos.y *= radiusRatio;
+	this->pos.z *= radiusRatio;
+
+	this->rotationRadius = r;
+	this->depthOfView = 2 * this->rotationRadius;
+
+	// cout << "Setting camera at: " << this->pos.x << "," << this->pos.y << "," << this->pos.z << " at radius " << this->rotationRadius << endl;
 }
 
 void Camera::rotateTo(float hAngle, float vAngle) {
@@ -215,3 +236,116 @@ void Camera::handleMovement(int x, int y) {
 
 // -------------------------------------------------------------------------------------------
 
+SplineGrid::SplineGrid() {
+	this->mode = SplineGrid::MODE_KNOTS;
+	this->elevFactor = 1;
+}
+
+SplineGrid::~SplineGrid() {
+	delete[] this->dataArray;
+}
+
+void SplineGrid::setMode(int nMode) {
+	this->mode = nMode;
+}
+
+void SplineGrid::changeGridElevation(float factor) {
+	this->elevFactor = factor;
+}
+
+void SplineGrid::readFromESRIFile(string filename) {
+	if (this->dataArray) {
+		for (int row = 0; row < nRows; row++) {
+			delete[] this->dataArray[row];
+		}
+		delete[] this->dataArray;
+	}
+
+	ifstream inFile;
+
+	inFile.open(filename.c_str());
+
+	if (!inFile) {
+		cout << "File " << filename << " didn't exist" << endl;
+		exit(1);
+	}
+
+	string labelTrash;
+	float labelValue;
+
+	inFile >> labelTrash >> labelValue;
+	this->nCols = (int)labelValue;
+
+	inFile >> labelTrash >> labelValue;
+	this->nRows = (int)labelValue;
+
+	inFile >> labelTrash >> labelValue;
+	this->xllCorner = labelValue;
+
+	inFile >> labelTrash >> labelValue;
+	this->yllCorner = labelValue;
+
+	inFile >> labelTrash >> labelValue;
+	this->cellSize = labelValue;
+
+	this->dataArray = new float*[nRows];
+	for (int row = 0; row < nRows; row++) {
+		this->dataArray[row] = new float[nCols];
+	}
+
+	float cellData;
+	for (int i = 0; i < nRows; i++) {
+		for (int j = 0; j < nCols; j++) {
+			inFile >> cellData;
+			if (cellData > highest) highest = cellData;
+			if (cellData < lowest) lowest = cellData;
+			this->dataArray[i][j] = cellData;
+		}
+	}
+
+	this->xOffset = -this->cellSize * this->nRows / 2;
+	this->yOffset = -this->cellSize * this->nCols / 2;
+
+	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
+}
+
+void SplineGrid::display() {
+	int x, y, z;
+
+	glColor3f(0.4f, 0.6f, 0.4f);
+	// glColor3i(151, 212, 148);
+	if (this->mode == SplineGrid::MODE_KNOTS) {
+		glBegin(GL_POINTS);
+		for (int row = 0; row < this->nRows; row++) {
+			for (int col = 0; col < this->nCols; col++) {
+				x = row * this->cellSize + xOffset;
+				y = this->dataArray[row][col] * this->elevFactor;
+				z = col * this->cellSize + yOffset;
+				glVertex3f(x, y, z);
+			}
+		}
+		glEnd();
+	}
+	else if (this->mode == SplineGrid::MODE_LINEAR) {
+		for (int row = 0; row < this->nRows; row++) {
+			glBegin(GL_LINE_STRIP);
+			for (int col = 0; col < this->nCols; col++) {
+				x = row * this->cellSize + xOffset;
+				y = this->dataArray[row][col] * this->elevFactor;
+				z = col * this->cellSize + yOffset;
+				glVertex3f(x, y, z);
+			}
+			glEnd();
+		}
+		for (int col = 0; col < this->nRows; col++) {
+			glBegin(GL_LINE_STRIP);
+			for (int row = 0; row < this->nCols; row++) {
+				x = row * this->cellSize + xOffset;
+				y = this->dataArray[row][col] * this->elevFactor;
+				z = col * this->cellSize + yOffset;
+				glVertex3f(x, y, z);
+			}
+			glEnd();
+		}
+	}
+}

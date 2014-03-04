@@ -12,6 +12,8 @@
 
 using namespace std;
 
+string DEMFileName = "tucks.dem.grd";
+
 int initialWindowWidth = 1000;
 int initialWindowHeight = 1000;
 
@@ -22,6 +24,25 @@ int gridBoundary = gridWidth / 2;
 int rotationRadius = 1250;
 
 Camera mCam;
+SplineGrid spGrid;
+
+void quit() {
+	exit(1);
+}
+
+void printUserInstructions() {
+	cout << "Keyboard commands:" << endl;
+	cout << "\t1 - Zoom In" << endl;
+	cout << "\t7 - Zoom Out" << endl;
+	cout << "\t8 - Rotate Up" << endl;
+	cout << "\t4 - Rotate Left" << endl;
+	cout << "\t6 - Rotate Right" << endl;
+	cout << "\t2 - Rotate Down" << endl;
+	cout << "\tq / esc - Quit" << endl;
+
+	cout << "Can also use mouse to pan/rotate, and right click will activate a menu with more options." << endl;
+
+}
 
 void resize(int w, int h) {
 	if (h == 0) h = 1; // Prevent division by 0
@@ -38,25 +59,13 @@ void resize(int w, int h) {
 	glViewport(0, 0, w, h);
 
 	// Set the correct perspective
-	gluPerspective(60.0f, ratio, 0.1f, 2000.0f);
+	gluPerspective(60.0f, ratio, 0.1f, mCam.depthOfView);
 
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void display() {
-	// Clear Color and Depth Buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Reset transformations
-	glLoadIdentity();
-
-	// Set the camera
-	gluLookAt(	mCam.pos.x,			mCam.pos.y,	 		mCam.pos.z,
-				// camPos.x+camView.x, camPos.y+camView.y, camPos.z+camView.z,
-				mCam.focus.x, 		mCam.focus.y, 		mCam.focus.z,
-				0.0f, 				1.0f,  				0.0f);
-
+void drawReferenceGrid() {
 	// Draw axes
 	glLineWidth(4);
 	glBegin(GL_LINES);
@@ -80,6 +89,24 @@ void display() {
 		glVertex3f(gridBoundary, 0, j);
 	}
 	glEnd();
+}
+
+void display() {
+	// Clear Color and Depth Buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Reset transformations
+	glLoadIdentity();
+
+	// Set the camera
+	gluLookAt(	mCam.pos.x,			mCam.pos.y,	 		mCam.pos.z,
+				// camPos.x+camView.x, camPos.y+camView.y, camPos.z+camView.z,
+				mCam.focus.x, 		mCam.focus.y, 		mCam.focus.z,
+				0.0f, 				1.0f,  				0.0f);
+
+	// drawReferenceGrid();
+
+	spGrid.display();
 
 	// Swap the buffers - flushing the current buffer
 	glutSwapBuffers();
@@ -89,9 +116,23 @@ void idle() {
 	display();
 }
 
-void keyDownCallback(unsigned char key, int x, int y) { 	
-	if (key == 27)
-		exit(0);
+void keyDownCallback(unsigned char key, int x, int y) {
+	switch(key) {
+		case 27:
+		case 'q':	quit();
+		case '1':	mCam.setRotationRadius(mCam.rotationRadius * 0.9);
+					break;
+		case '7':	mCam.setRotationRadius(mCam.rotationRadius / 0.9);
+					break;
+		case '2':	mCam.rotate(0, M_PI / 16);
+					break;
+		case '8':	mCam.rotate(0, -M_PI / 16);
+					break;
+		case '4':	mCam.rotate(M_PI / 16, 0);
+					break;
+		case '6':	mCam.rotate(-M_PI / 16, 0);
+					break;
+	}
 } 
 
 void specialDownCallback(int key, int x, int y) {
@@ -116,19 +157,61 @@ void mouseCallback(int button, int state, int x, int y) {
 	mCam.handleClick(button, state, x, y);
 }
 
-void init() {
-	glEnable(GL_DEPTH_TEST);
-	// glEnable(GL_LINE_SMOOTH);
+void menuCallback(int choice) {
+	switch(choice) {
+		case 0: quit();
+				break;
+		case 1:	spGrid.setMode(SplineGrid::MODE_LINEAR);
+				break;
+		case 2:	spGrid.setMode(SplineGrid::MODE_QUADRATIC);
+				break;
+		case 3:	spGrid.setMode(SplineGrid::MODE_KNOTS);
+				break;
+		case 4:	spGrid.changeGridElevation(2);
+				break;
+		case 5:	spGrid.changeGridElevation(.5);
+				break;
+		case 6:	spGrid.setMode(SplineGrid::MODE_KNOTS);
+				spGrid.changeGridElevation(1);
+				break;
+	}
+}
 
-	mCam.setViewDir(0, 0, 1);
-	mCam.setFocus(0, 0, 0);
+void initMenu() {
+	glutCreateMenu(menuCallback);
+
+	glutAddMenuEntry("Choices:", -1);
+	glutAddMenuEntry("", -1);
+	glutAddMenuEntry("Mode: Linear Splines", 1);
+	glutAddMenuEntry("Mode: Quadratic Splines", 2);
+	glutAddMenuEntry("Mode: No Splines", 3);
+	glutAddMenuEntry("Increase Grid Elevation", 4);
+	glutAddMenuEntry("Decrease Grid Elevation", 5);
+	glutAddMenuEntry("Reset Grid", 6);
+	glutAddMenuEntry("Quit", 0);
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+void init() {
+	// glEnable(GL_DEPTH_TEST);
+
 	mCam.setPos(rotationRadius, 10, 0);
+
+	spGrid.readFromESRIFile(DEMFileName);
+
+	mCam.setRotationRadius(spGrid.greaterDimension);
+	mCam.setFocus(0, (float)(spGrid.highest + spGrid.lowest) / 2, 0);
+
+	initMenu();
+
+	printUserInstructions();
 }
 
 int main(int argc, char** argv) {
 	// Init GLUT and create window
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	glutInitDisplayMode(/*GLUT_DEPTH |*/ GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	glutInitWindowPosition(100, 100); 
 	glutCreateWindow("Terrain Splines");
