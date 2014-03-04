@@ -11,10 +11,10 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
-class Vec3f;
 class Matrix44f; // Forward definition to allow use in Vec3f
 
 class Vec3f {
@@ -80,9 +80,28 @@ public:
 	void handleMovement(int, int);
 };
 
+class Spline {
+private:
+public:
+	static const int TYPE_KNOT = 0;
+	static const int TYPE_LINEAR = 1;
+	static const int TYPE_QUADRATIC = 2;
+
+	float* pArray;
+	int type;
+	int length;
+
+	Spline();
+	~Spline();
+
+	void create(int, float[], int);
+};
+
 class SplineGrid {
 private:
 public:
+	static const int NUM_MODES = 3;
+
 	static const int MODE_KNOTS = 0;
 	static const int MODE_LINEAR = 1;
 	static const int MODE_QUADRATIC = 2;
@@ -96,6 +115,8 @@ public:
 	float cellSize;
 	float highest, lowest;
 	float** dataArray;
+	bool initialized[10];
+	vector<Spline>* splineVectorArray;
 
 	SplineGrid();
 	~SplineGrid();
@@ -103,7 +124,12 @@ public:
 	void setMode(int);
 	void changeGridElevation(float);
 
+	void initializeKnots(bool forLinear=false);
+	void initializeLinear();
+	void initializeQuadratic();
+
 	void readFromESRIFile(string);
+	void initialize(int);
 	void display();
 };
 

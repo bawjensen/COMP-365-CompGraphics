@@ -12,7 +12,8 @@
 
 using namespace std;
 
-string DEMFileName = "tucks.dem.grd";
+string DEMFileName = "mt257.dem.grd";
+// string DEMFileName = "tucks.dem.grd";
 
 int initialWindowWidth = 1000;
 int initialWindowHeight = 1000;
@@ -137,16 +138,18 @@ void keyDownCallback(unsigned char key, int x, int y) {
 
 void specialDownCallback(int key, int x, int y) {
 	switch (key) {
-		case GLUT_KEY_UP: break;
-		case GLUT_KEY_DOWN: break;
+		case GLUT_KEY_UP: keyDownCallback('8', x, y);
+					break;
+		case GLUT_KEY_DOWN: keyDownCallback('2', x, y);
+					break;
+		case GLUT_KEY_LEFT: keyDownCallback('4', x, y);
+					break;
+		case GLUT_KEY_RIGHT: keyDownCallback('6', x, y);
+					break;
 	}
 }
 
 void specialUpCallback(int key, int x, int y) { 	
-	switch (key) {
-		case GLUT_KEY_UP:
-		case GLUT_KEY_DOWN: break;
-	}
 }
 
 void mouseMoveCallback(int x, int y) {
@@ -172,7 +175,7 @@ void menuCallback(int choice) {
 		case 5:	spGrid.changeGridElevation(.5);
 				break;
 		case 6:	spGrid.setMode(SplineGrid::MODE_KNOTS);
-				spGrid.changeGridElevation(1);
+				spGrid.changeGridElevation(0);
 				break;
 	}
 }
@@ -196,7 +199,7 @@ void initMenu() {
 void init() {
 	// glEnable(GL_DEPTH_TEST);
 
-	mCam.setPos(rotationRadius, 10, 0);
+	mCam.setPos(rotationRadius, 0, 0);
 
 	spGrid.readFromESRIFile(DEMFileName);
 
@@ -224,7 +227,7 @@ int main(int argc, char** argv) {
 	glutMouseFunc(mouseCallback); // Mouse up/down
 	glutMotionFunc(mouseMoveCallback); // Mouse movement
 
-	glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
+	// glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
 	glutKeyboardFunc(keyDownCallback); // Key down
 	glutSpecialFunc(specialDownCallback); // Special key down
 	glutSpecialUpFunc(specialUpCallback); // Special key up

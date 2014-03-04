@@ -237,7 +237,10 @@ void Camera::handleMovement(int x, int y) {
 // -------------------------------------------------------------------------------------------
 
 SplineGrid::SplineGrid() {
+	this->splineVectorArray = new vector<Spline>[SplineGrid::NUM_MODES];
+
 	this->mode = SplineGrid::MODE_KNOTS;
+
 	this->elevFactor = 1;
 }
 
@@ -246,11 +249,17 @@ SplineGrid::~SplineGrid() {
 }
 
 void SplineGrid::setMode(int nMode) {
+	if (!initialized[nMode]) {
+		this->initialize(nMode);
+	}
 	this->mode = nMode;
 }
 
 void SplineGrid::changeGridElevation(float factor) {
-	this->elevFactor = factor;
+	this->elevFactor *= factor;
+	if (this->elevFactor == 0) {
+		this->elevFactor = 1;
+	}
 }
 
 void SplineGrid::readFromESRIFile(string filename) {
@@ -307,13 +316,89 @@ void SplineGrid::readFromESRIFile(string filename) {
 	this->yOffset = -this->cellSize * this->nCols / 2;
 
 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
+
+	this->initialize(this->mode);
+}
+
+void SplineGrid::initializeKnots(bool forLinear) {
+	// const int& mode = SplineGrid::MODE_KNOTS;
+
+	// int mode;
+	// if (forLinear) {
+	// 	mode = SplineGrid::MODE_LINEAR;
+	// }
+	// else {
+	// 	mode = SplineGrid::MODE_KNOTS;
+	// }
+
+	this->splineVectorArray[mode].clear();
+
+	for (int i = 0; i < this->nRows; i++) {
+		// this->splineVectorArray[mode].push_back(Spline());
+
+		// this->splineVectorArray[mode][i].create(mode, this->dataArray[i], this->nCols);
+		for (int j = 0; j < this->nCols; j++) {
+			// this->splineVectorArray[SplineGrid::MODE_KNOTS][i].add(this->dataArray[i][j])
+		}
+	}
+}
+
+void SplineGrid::initializeLinear() {
+	// const int& mode = SplineGrid::MODE_LINEAR;
+
+	for (int i = 0; i < this->nRows; i++) {
+		for (int j = 0; j < this->nCols; j++) {
+			// this->splineVectorArray[mode].create(mode, this->dataArray[i], this->nCols);
+		}
+	}
+
+	float* tempArray = new float[this->nRows];
+	for (int j = 0; j < this->nCols; j++) {
+		for (int i = 0; i < this->nRows; i++) {
+			// this->splineVectorArray[SplineGrid::MODE_KNOTS].push_back(this->dataArray[i][j]);
+		}
+	}
+}
+
+void SplineGrid::initializeQuadratic() {
+	// const int& mode = SplineGrid::MODE_QUADRATIC;
+
+	for (int i = 0; i < this->nRows; i++) {
+		for (int j = 0; j < this->nCols; j++) {
+			// this->splineVectorArray[SplineGrid::MODE_KNOTS].push_back(this->dataArray[i][j]);
+		}
+	}
+}
+
+void SplineGrid::initialize(int mode) {
+	for (int i = 0; i < this->nRows; i++) {
+		this->splineVectorArray[mode].push_back(Spline());
+		this->splineVectorArray[mode].back().create(mode, this->dataArray[i], this->nCols);
+	}
+
+	if (mode == SplineGrid::MODE_LINEAR or mode == SplineGrid::MODE_QUADRATIC) {
+		float* tempArray = new float[this->nRows];
+		for (int j = 0; j < this->nCols; j++) {
+			for (int i = 0; i < this->nRows; i++) {
+				tempArray[i] = this->dataArray[i][j];
+			}
+			this->splineVectorArray[mode].push_back(Spline());
+			this->splineVectorArray[mode].back().create(mode, tempArray, this->nCols);
+		}
+	}
+
+	// for (vector<Spline>::iterator it = this->splineVectorArray[mode].begin(); it != this->splineVectorArray[mode].end(); ++it) {
+
+	// }
+
+
+	this->initialized[mode] = true;
 }
 
 void SplineGrid::display() {
 	int x, y, z;
 
-	glColor3f(0.4f, 0.6f, 0.4f);
-	// glColor3i(151, 212, 148);
+	glColor3f(0.6f, 0.83f, 0.6f);
 	if (this->mode == SplineGrid::MODE_KNOTS) {
 		glBegin(GL_POINTS);
 		for (int row = 0; row < this->nRows; row++) {
@@ -348,4 +433,35 @@ void SplineGrid::display() {
 			glEnd();
 		}
 	}
+}
+
+// -------------------------------------------------------------------------------------------
+
+Spline::Spline() {
+	this->pArray = NULL;
+}
+
+Spline::~Spline() {
+	delete[] this->pArray;
+}
+
+void Spline::create(int mode, float array[], int length) {
+	this->length = length;
+
+	if (pArray)
+		delete[] pArray;
+
+	this->pArray = new float[this->length];
+	for (int i = 0; i < length; i++) {
+		this->pArray[i] = array[i];
+	}
+}
+
+void Spline::display() {
+	if (this->type == Spline::TYPE_KNOTS)
+		glBegin(GL_POINTS);
+	for (int i = 0; i < this->length; i++) {
+
+	}
+	glEnd();
 }
