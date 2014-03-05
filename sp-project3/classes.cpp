@@ -66,12 +66,40 @@ Vec3f& Vec3f::operator*=(Matrix44f matrix) {
 	this->x = tempVec[0];
 	this->y = tempVec[1];
 	this->z = tempVec[2];
+
+	return (*this);
+}
+
+Vec3f& Vec3f::operator*=(float multiplier) {
+	this->x *= multiplier;
+	this->y *= multiplier;
+	this->z *= multiplier;
+
+	return (*this);
 }
 
 Vec3f& Vec3f::operator=(const Vec3f& other) {
 	this->x = other.x;
 	this->y = other.y;
 	this->z = other.z;
+
+	return (*this);
+}
+
+Vec3f Vec3f::operator-(const Vec3f& other) {
+	return Vec3f(this->x - other.x, this->y - other.y, this->z - other.z);
+}
+
+Vec3f Vec3f::operator+(const Vec3f& other) {
+	return Vec3f(this->x + other.x, this->y + other.y, this->z + other.z);
+}
+
+Vec3f& Vec3f::operator+=(const Vec3f& other) {
+	this->x += other.x;
+	this->y += other.y;
+	this->z += other.z;
+
+	return (*this);
 }
 
 float Vec3f::operator[](int i) {
@@ -177,13 +205,11 @@ void Camera::setFocus(float fX, float fY, float fZ) {
 void Camera::setRotationRadius(int r) {
 	float radiusRatio = (float)r / this->rotationRadius;
 
-	this->origPos.x *= radiusRatio;
-	this->origPos.y *= radiusRatio;
-	this->origPos.z *= radiusRatio;
+	Vec3f distFromFocus = this->origPos - this->focus;
 
-	this->pos.x *= radiusRatio;
-	this->pos.y *= radiusRatio;
-	this->pos.z *= radiusRatio;
+	distFromFocus *= radiusRatio;
+	this->origPos = distFromFocus + this->focus;
+	this->rotate(0, 0); // Call a dummy rotate to update the camera's position
 
 	this->rotationRadius = r;
 	this->depthOfView = 2 * this->rotationRadius;
@@ -261,7 +287,7 @@ void Spline::create(int mode, float array[], int length, int gridRow, int cellSi
 		this->length = length;
 	}
 	else if (mode == SplineGrid::MODE_QUADRATIC) {
-		this->length = length * cellSize;
+		this->length = (length - 1) * cellSize + 1; // Have to add that last point so the grid connects to the border
 	}
 
 	this->pArray = new Vec3f[this->length];
@@ -282,16 +308,16 @@ void Spline::create(int mode, float array[], int length, int gridRow, int cellSi
 
 	}
 	else if (mode == SplineGrid::MODE_QUADRATIC) {
-		float* tempArray = new float[cellSize-1];
+		float* betweenPoints = new float[cellSize-1];
 
 		for (int i = 0, j = 0; i < length - 1; i++, j = i * cellSize) {
 			if (i == 0) {
 				// cout << "First segment of quadratic spline, linearly interpolating: " << endl;
-				tempArray = this->interpolate(array[i], array[i+1], cellSize, true);
+				betweenPoints = this->interpolate(array[i], array[i+1], cellSize, true);
 			}
 			else {
 				// cout << "Further segments of quadratic spline, not linearly interpolating: " << endl;
-				tempArray = this->interpolate(array[i], array[i+1], cellSize);
+				betweenPoints = this->interpolate(array[i], array[i+1], cellSize);
 			}
 
 			if (crossWays) {
@@ -305,14 +331,19 @@ void Spline::create(int mode, float array[], int length, int gridRow, int cellSi
 
 			for (int k = 0; k < cellSize; k++) {
 				if (crossWays)
-					this->pArray[j+k] = Vec3f(x+k, tempArray[k], z);
+					this->pArray[j+k] = Vec3f(x+k, betweenPoints[k], z);
 				else
-					this->pArray[j+k] = Vec3f(x, tempArray[k], z+k);
+					this->pArray[j+k] = Vec3f(x, betweenPoints[k], z+k);
 			}
-
 		}
 
-		delete[] tempArray;
+		 // Manually adding the last point to it connects to border
+		if (crossWays)
+			this->pArray[this->length-1] = Vec3f(x+cellSize, array[length-1], z);
+		else
+			this->pArray[this->length-1] = Vec3f(x, array[length-1], z+cellSize);
+
+		delete[] betweenPoints;
 	}
 }
 
@@ -356,8 +387,7 @@ void Spline::display(float heightFactor) {
 		glBegin(GL_LINE_STRIP);
 
 	for (int i = 0; i < this->length; i++) {
-		if ( !(pArray[i].x == 0.0f and pArray[i].z == 0.0f) )
-			glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
+		glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
 	}
 
 	glEnd();
