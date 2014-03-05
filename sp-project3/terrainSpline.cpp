@@ -12,7 +12,8 @@
 
 using namespace std;
 
-string DEMFileName = "mt257.dem.grd";
+string DEMFileName = "test.dem.grd";
+// string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
 int initialWindowWidth = 1000;

@@ -87,14 +87,15 @@ public:
 	static const int TYPE_LINEAR = 1;
 	static const int TYPE_QUADRATIC = 2;
 
-	float* pArray;
+	Vec3f* pArray;
 	int type;
 	int length;
 
 	Spline();
 	~Spline();
 
-	void create(int, float[], int);
+	void create(int, float[], int, int, int, bool crossWays=false);
+	void display(float heightFactor=1.0f);
 };
 
 class SplineGrid {
@@ -124,9 +125,9 @@ public:
 	void setMode(int);
 	void changeGridElevation(float);
 
-	void initializeKnots(bool forLinear=false);
-	void initializeLinear();
-	void initializeQuadratic();
+	// void initializeKnots(bool forLinear=false);
+	// void initializeLinear();
+	// void initializeQuadratic();
 
 	void readFromESRIFile(string);
 	void initialize(int);
