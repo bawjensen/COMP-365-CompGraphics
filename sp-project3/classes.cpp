@@ -164,7 +164,6 @@ void Camera::setPos(float pX, float pY, float pZ) {
 	this->pos = this->origPos;
 	this->rotationRadius = max(pX, pZ);
 	this->depthOfView = 2 * this->rotationRadius;
-	// cout << "Creating camera at: " << pX << "," << pY << "," << pZ << " at radius " << this->rotationRadius << endl;
 }
 
 void Camera::setViewDir(float vX, float vY, float vZ) {
@@ -176,7 +175,6 @@ void Camera::setFocus(float fX, float fY, float fZ) {
 }
 
 void Camera::setRotationRadius(int r) {
-	// cout << "Old:new ratio: " << ((float)r / this->rotationRadius) << endl;
 	float radiusRatio = (float)r / this->rotationRadius;
 
 	this->origPos.x *= radiusRatio;
@@ -189,8 +187,6 @@ void Camera::setRotationRadius(int r) {
 
 	this->rotationRadius = r;
 	this->depthOfView = 2 * this->rotationRadius;
-
-	// cout << "Setting camera at: " << this->pos.x << "," << this->pos.y << "," << this->pos.z << " at radius " << this->rotationRadius << endl;
 }
 
 void Camera::rotateTo(float hAngle, float vAngle) {
@@ -246,7 +242,10 @@ Spline::~Spline() {
 		// delete[] this->pArray;
 }
 
-void Spline::create(int mode, float array[], int length, int splineRow, int cellSize, bool crossWays) {
+void Spline::create(int mode, float array[], int length, int gridRow, int cellSize, bool crossWays) {
+	if (this->pArray)
+		delete[] pArray;
+
 	switch(mode) {
 		case SplineGrid::MODE_KNOTS: this->type = Spline::TYPE_KNOT;
 			break;
@@ -256,20 +255,96 @@ void Spline::create(int mode, float array[], int length, int splineRow, int cell
 			break;
 	}
 
-	this->length = length;
+	float x, y, z;
 
-	if (this->pArray)
-		delete[] pArray;
-
-	this->pArray = new Vec3f[this->length];
-	for (int i = 0; i < length; i++) {
-		if (crossWays)
-			this->pArray[i] = Vec3f((i - length / 2) * cellSize, array[i], splineRow * cellSize);
-		else
-			this->pArray[i] = Vec3f(splineRow * cellSize, array[i], (i - length / 2) * cellSize);
+	if (mode == SplineGrid::MODE_KNOTS or mode == SplineGrid::MODE_LINEAR) {
+		this->length = length;
+	}
+	else if (mode == SplineGrid::MODE_QUADRATIC) {
+		this->length = length * cellSize;
 	}
 
-	cout << "Created spline from " << this->pArray[0] << " to " << this->pArray[length - 1] << endl;
+	this->pArray = new Vec3f[this->length];
+
+
+	if (mode == SplineGrid::MODE_KNOTS or mode == SplineGrid::MODE_LINEAR) {
+		for (int i = 0; i < length; i++) {
+			if (crossWays) {
+				x = (i - length / 2) * cellSize;
+				z = gridRow * cellSize;
+			}
+			else {
+				x = gridRow * cellSize;
+				z = (i - length / 2) * cellSize;
+			}
+			this->pArray[i] = Vec3f(x, array[i], z);
+		}
+
+	}
+	else if (mode == SplineGrid::MODE_QUADRATIC) {
+		float* tempArray = new float[cellSize-1];
+
+		for (int i = 0, j = 0; i < length - 1; i++, j = i * cellSize) {
+			if (i == 0) {
+				// cout << "First segment of quadratic spline, linearly interpolating: " << endl;
+				tempArray = this->interpolate(array[i], array[i+1], cellSize, true);
+			}
+			else {
+				// cout << "Further segments of quadratic spline, not linearly interpolating: " << endl;
+				tempArray = this->interpolate(array[i], array[i+1], cellSize);
+			}
+
+			if (crossWays) {
+				x = (i - length / 2) * cellSize;
+				z = gridRow * cellSize;
+			}
+			else {
+				x = gridRow * cellSize;
+				z = (i - length / 2) * cellSize;
+			} 
+
+			for (int k = 0; k < cellSize; k++) {
+				if (crossWays)
+					this->pArray[j+k] = Vec3f(x+k, tempArray[k], z);
+				else
+					this->pArray[j+k] = Vec3f(x, tempArray[k], z+k);
+			}
+
+		}
+
+		delete[] tempArray;
+	}
+}
+
+float* Spline::interpolate(int start, int end, int numPoints, bool linear) {
+	float* tempArray = new float[numPoints];
+	
+	if (linear) {
+		float a, b;
+
+		a = (end - start) / (float)numPoints;
+		b = start;
+
+		for (int i = 0; i < numPoints; i++) {
+			tempArray[i] = (a * i) + b;
+		}
+
+		this->prevSlope = a;
+	}
+	else {
+		float a, b, c;
+
+		a = (float)(end - start - numPoints * this->prevSlope) / (float)(numPoints*numPoints);
+		b = this->prevSlope;
+		c = start;
+
+		for (int i = 0; i < numPoints; i++) {
+			tempArray[i] = (a * i * i) + (b * i) + c;
+		}
+		this->prevSlope = (2 * a * numPoints) + b;
+	}
+
+	return tempArray;
 }
 
 void Spline::display(float heightFactor) {
@@ -277,9 +352,10 @@ void Spline::display(float heightFactor) {
 		glBegin(GL_POINTS);
 	else if (this->type == Spline::TYPE_LINEAR)
 		glBegin(GL_LINE_STRIP);
+	else if (this->type == Spline::TYPE_QUADRATIC)
+		glBegin(GL_POINTS);
 
 	for (int i = 0; i < this->length; i++) {
-		// cout << "Drawing point at: " << pArray[i] << endl;
 		glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
 	}
 
@@ -291,7 +367,7 @@ void Spline::display(float heightFactor) {
 SplineGrid::SplineGrid() {
 	this->splineVectorArray = new vector<Spline>[SplineGrid::NUM_MODES];
 
-	this->mode = SplineGrid::MODE_KNOTS;
+	this->mode = SplineGrid::MODE_QUADRATIC;
 
 	this->elevFactor = 1;
 }
@@ -375,7 +451,6 @@ void SplineGrid::readFromESRIFile(string filename) {
 }
 
 void SplineGrid::initialize(int mode) {
-	// cout << "Mode: " << mode << " is not initialized. Fixing." << endl;
 	for (int i = 0; i < this->nRows; i++) {
 		this->splineVectorArray[mode].push_back(Spline());
 		this->splineVectorArray[mode].back().create(mode, this->dataArray[i], this->nCols, i - (this->nRows / 2), this->cellSize);
@@ -390,9 +465,8 @@ void SplineGrid::initialize(int mode) {
 			this->splineVectorArray[mode].push_back(Spline());
 			this->splineVectorArray[mode].back().create(mode, tempArray, this->nRows, j - (this->nCols / 2), this->cellSize, true);
 		}
+		delete[] tempArray;
 	}
-
-	// cout << "Finished creating spline of size: " << this->splineVectorArray[mode].size() << endl;
 
 	this->initialized[mode] = true;
 }

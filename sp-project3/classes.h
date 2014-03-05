@@ -90,11 +90,13 @@ public:
 	Vec3f* pArray;
 	int type;
 	int length;
+	float prevSlope;
 
 	Spline();
 	~Spline();
 
 	void create(int, float[], int, int, int, bool crossWays=false);
+	float* interpolate(int, int, int, bool linear=false);
 	void display(float heightFactor=1.0f);
 };
 
