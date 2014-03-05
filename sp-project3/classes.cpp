@@ -353,10 +353,11 @@ void Spline::display(float heightFactor) {
 	else if (this->type == Spline::TYPE_LINEAR)
 		glBegin(GL_LINE_STRIP);
 	else if (this->type == Spline::TYPE_QUADRATIC)
-		glBegin(GL_POINTS);
+		glBegin(GL_LINE_STRIP);
 
 	for (int i = 0; i < this->length; i++) {
-		glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
+		if ( !(pArray[i].x == 0.0f and pArray[i].z == 0.0f) )
+			glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
 	}
 
 	glEnd();

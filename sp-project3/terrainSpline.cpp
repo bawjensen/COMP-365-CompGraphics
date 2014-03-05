@@ -13,8 +13,8 @@
 using namespace std;
 
 // string DEMFileName = "test.dem.grd";
-string DEMFileName = "test2.dem.grd";
-// string DEMFileName = "mt257.dem.grd";
+// string DEMFileName = "test2.dem.grd";
+string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
 int initialWindowWidth = 1000;
@@ -43,7 +43,7 @@ void printUserInstructions() {
 	cout << "\t2 - Rotate Down" << endl;
 	cout << "\tq / esc - Quit" << endl;
 
-	cout << "Can also use mouse to pan/rotate, and right click will activate a menu with more options." << endl;
+	cout << "You may also use mouse to pan/rotate, and right click will activate a menu with more options." << endl;
 
 }
 
