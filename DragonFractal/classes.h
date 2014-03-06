@@ -21,7 +21,6 @@ public:
 	int getY() const { return this->y; };
 
 	void set(int, int);
-	void shift(int);
 	Coord rotate(float, Coord);
 
 	bool operator==(const Coord&);
@@ -31,7 +30,7 @@ public:
 
 class Fractal {
 private:
-	Coord pivotPoint, startingPos;
+	Coord pivotPoint;
 	int startingLength, numIterations, direction, startColor;
 	bool started, visible;
 	vector<Coord> points;
