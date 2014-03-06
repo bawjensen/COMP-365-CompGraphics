@@ -1,2 +1,5 @@
 # Code from textbook - probably shouldn't share.
 Code/*
+
+# Mac OSX folder config ignoring
+*.DS_Store
