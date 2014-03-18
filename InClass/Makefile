@@ -10,6 +10,9 @@ helloclass:	helloclass.cpp
 menu:		menu.cpp
 		g++ menu.cpp -o menu $(CFLAGS)
 
+circle:		circle.cpp
+		g++ circle.cpp -o circle $(CFLAGS)
+
 square:		square.cpp
 		g++ square.cpp -o square $(CFLAGS)
 

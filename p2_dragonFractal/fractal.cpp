@@ -1,3 +1,21 @@
+/*	Name: Bryan Jensen
+	Date: 2/19/14
+	Filename: fractal.cpp
+
+	Description: This program provides a graphical user interface for displaying a "Dragon Curve"
+				 fractal, along with various configuration choices. To achieve this, OpenGL along
+				 with GLUT are used to create a graphics window wherein the program executes and
+				 displays.
+
+	Input: All input is achieved through user clicks inside the graphics window. Various inputs
+		   have differing effects. Quitting the program is achieved with the letter q or the
+		   escape key.
+
+	Output:	The program will display any and all output as graphical output in the GLUT window
+			context, as well as secondary feedback messages into the stdio output (aka the terminal
+			window).
+*/
+
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 #elif __linux
@@ -10,20 +28,21 @@
 
 using namespace std;
 
-static int initialWindowWidth = 500;
-static int initialWindowHeight = 500;
-static int userWindowWidth = initialWindowWidth;
-static int userWindowHeight = initialWindowHeight;
-static float windowRatio = 2;
-static int windowWidth = initialWindowWidth * windowRatio; // Refers to the GL window
-static int windowHeight = initialWindowHeight * windowRatio; // Refers to the GL window
-static int widthOffset = 0;
-static int heightOffset = 0;
+static int initialWindowWidth = 500; // Starting window size - useful for resizing ratios
+static int initialWindowHeight = 500; // Starting window size - useful for resizing ratios
+static int userWindowWidth = initialWindowWidth; // Variable for current graphical window size
+static int userWindowHeight = initialWindowHeight; // Variable for current graphical window size
+static float windowRatio = 2; // Ratio of initial window to initial ortho dimensions
+static int windowWidth = initialWindowWidth * windowRatio; // Refers to the OpenGL Ortho window
+static int windowHeight = initialWindowHeight * windowRatio; // Refers to the OpenGL Ortho window
+static int widthOffset = 0; // Initial offset for ortho dimensions
+static int heightOffset = 0; // Initial offset for ortho dimensions
 
-static Fractal dFractal;
+static Fractal dFractal; // The fractal to be created and drawn
 
-static const int KEY_ESCAPE = 27;
+static const int KEY_ESCAPE = 27; // The integer value for the keyboard key "esc"
 
+// Callback for keyboard key press
 void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are from cursor
 	switch(key) {
 		case KEY_ESCAPE:
@@ -31,9 +50,11 @@ void keyDownCallback(unsigned char key, int x, int y) { // Note: x and y are fro
 	}
 }
 
+// Callback for mouse click
 void mouseCallback(int button, int state, int x, int y) {
 	if (state == GLUT_UP or button == GLUT_RIGHT_BUTTON) return;
 
+	// Normalize the click coordinates to the ortho coordinates
 	y = userWindowHeight - y;
 
 	x *= windowRatio;
@@ -42,31 +63,39 @@ void mouseCallback(int button, int state, int x, int y) {
 	x += widthOffset;
 	y += heightOffset;
 
+	// Pass the coordinates into the fractal with the desired behavior
 	if (dFractal.begun()) dFractal.incrementIterations();
 	else dFractal.begin(x, y);
 }
 
+// Callback for graphical window resizing
 void resize(int width, int height) {
+	// Update globals
 	userWindowWidth = width;
 	userWindowHeight = height;
 
 	widthOffset = initialWindowWidth - width;
 	heightOffset = initialWindowHeight - height;
 
+	// Update viewport to full size
 	glViewport(0, 0, width, height);
 
+	// Calculate the offsets and such
 	int left = initialWindowWidth - width;
 	int right = left + (width * windowRatio);
 
 	int bottom = initialWindowHeight - height;
 	int top = bottom + (height * windowRatio);
 
+	// Reset the ortho
 	glLoadIdentity();
 	gluOrtho2D(left, right, bottom, top);
 
+	// And finally redisplay
 	glutPostRedisplay();
 }
 
+// Callback for a menu event (triggered by the menu-bound click event)
 void menuCallback(int choice) {
 	switch (choice) {
 		case -9:keyDownCallback('q', 0, 0); // Redirect call - mimic hitting 'q'
@@ -95,6 +124,7 @@ void menuCallback(int choice) {
 	}
 }
 
+// Initialization function for menu and options
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
@@ -116,6 +146,7 @@ void initMenu() {
 	glutAttachMenu (GLUT_RIGHT_BUTTON);
 }
 
+// General initialization for OpenGL
 void init() {
 	glClearColor(0.875, 0.875, 1.0, 1.0);
 
@@ -125,24 +156,20 @@ void init() {
 	initMenu();
 
 	gluOrtho2D(0.0, windowWidth, 0.0, windowHeight);
+
+	cout << "Program initialized. NOTE: q or esc will quit the program." << endl;
 }
 
+// Display loop function (called by GLUT)
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	// glBegin(GL_POLYGON);
-	// 	glColor3f(1.0, 0.0, 0.0);
-	// 	glVertex2i(0, 0);
-	// 	glVertex2i(0, 1000);
-	// 	glVertex2i(1000, 1000);
-	// 	glVertex2i(1000, 0);
-	// glEnd();
 
 	dFractal.draw();
 
 	glFlush();
 }
 
+// Main function
 int main(int argc, char** argv) {
 	// Initialize GLUT.
 	glutInit(&argc, argv);
