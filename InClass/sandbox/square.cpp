@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////
 
 #include <iostream>
+#include <fstream>
 
 #ifdef __APPLE__
 #  include <GLUT/glut.h>
@@ -16,6 +17,17 @@
 
 using namespace std;
 
+float array[1000] = {0};
+int currI = 0;
+int state = GL_POLYGON;
+
+void addPoint(int x, int y) {
+   cout << "Adding point at: " << x/5 << ", " << (500-y)/5 << endl;
+   array[currI++] = x/5;
+   array[currI++] = (500-y)/5;
+   glutPostRedisplay();
+}
+
 // Drawing (display) routine.
 void drawScene(void)
 {
@@ -23,44 +35,19 @@ void drawScene(void)
    glClear(GL_COLOR_BUFFER_BIT);
 
    // Set foreground (or drawing) color.
+   glBegin(state);
    glColor3f(0.0, 0.0, 1.0);
 
+
+   for (int i = 0; i < 1000; i += 2) {
+      if (array[i] != 0)
+         glVertex3f(array[i], array[i+1], 0.0);
+   }
+   
+   glEnd();
+
    // Draw a polygon with specified vertices.
-   glBegin(GL_POLYGON);
-      glVertex3f(10.0, 10.0, 0.0);
-      glVertex3f(40.0, 10.0, 0.0);
-      glVertex3f(40.0, 40.0, 0.0);
-      glVertex3f(10.0, 40.0, 0.0);
-   glEnd();
 
-   glColor3f(1.0, 0.0, 0.0); // Red
-   glBegin(GL_TRIANGLES);
-      glVertex3f(60.0, 60.0, 0.0);
-      glVertex3f(90.0, 60.0, 0.0);
-      glVertex3f(90.0, 90.0, 0.0);
-   glColor3f(0.0, 1.0, 0.0); // Green
-      glVertex3f(60.0, 60.0, 0.0);
-      glVertex3f(60.0, 90.0, 0.0);
-      glVertex3f(90.0, 90.0, 0.0);
-   glEnd();
-   
-   glColor3f(1.0, 1.0, 0.0); // Yellow
-   glBegin(GL_TRIANGLE_FAN);
-      glVertex3f(10.0, 60.0, 0.0);
-      glVertex3f(10.0, 90.0, 0.0);
-      glVertex3f(40.0, 90.0, 0.0);
-      glVertex3f(40.0, 60.0, 0.0);
-   glEnd();
-
-
-   glColor3f(0.0, 1.0, 1.0); // Cyan
-   glBegin(GL_TRIANGLE_FAN);
-      glVertex3f(85.0, 10.0, 0.0);
-      glVertex3f(85.0, 40.0, 0.0);
-      glVertex3f(115.0, 40.0, 0.0);
-      glVertex3f(115.0, 10.0, 0.0);
-   glEnd();
-   
    // Flush created objects to the screen, i.e., force rendering.
    glFlush(); 
 }
@@ -70,6 +57,23 @@ void setup(void)
 {
    // Set background (or clearing) color.
    glClearColor(1.0, 1.0, 1.0, 0.0); 
+
+   ifstream inFile;
+   float x, y;
+
+   inFile.open("points.txt");
+
+   if (!inFile) exit(1);
+   int i = 0;
+
+   inFile >> x >> y;
+   while (inFile) {
+      array[i++] = x;
+      array[i++] = y;
+      inFile >> x >> y;
+   }
+
+   currI = i;
 }
 
 // OpenGL window reshape routine.
@@ -101,6 +105,16 @@ void keyInput(unsigned char key, int x, int y)
    switch(key) 
    {
 	  // Press escape to exit.
+      case 'a':
+         addPoint(x, y);
+         break;
+      case 'z':
+         state = GL_POLYGON;
+         break;
+      case 'x':
+         state = GL_LINE_STRIP;
+         break;
+
       case 27:
          exit(0);
          break;
@@ -133,6 +147,7 @@ int main(int argc, char **argv)
    
    // Register display routine.
    glutDisplayFunc(drawScene); 
+   glutIdleFunc(drawScene); 
    
    // Register reshape routine.
    glutReshapeFunc(resize);  
