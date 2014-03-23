@@ -51,7 +51,7 @@ void resize(int w, int h) {
 	glViewport(0, 0, w, h);
 
 	// Set the correct perspective
-	gluPerspective(60.0f, ratio, 0.1f, 1000);
+	gluPerspective(60.0f, ratio, 0.1f, mCam.depthOfView);
 
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
@@ -98,7 +98,7 @@ void display() {
 				// mCam.focus.x, 				mCam.focus.y, 				mCam.focus.z,
 				0.0f, 						1.0f,  						0.0f);
 
-	drawReferenceGrid();
+	// drawReferenceGrid();
 
 	ground.display();
 
@@ -204,9 +204,11 @@ void initMenu() {
 }
 
 void init() {
-	// glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	ground.readFromESRIFile(DEMFileName);
+
+	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 1.5);
 
 	initMenu();
 
@@ -216,7 +218,7 @@ void init() {
 int main(int argc, char** argv) {
 	// Init GLUT and create window
 	glutInit(&argc, argv);
-	glutInitDisplayMode(/*GLUT_DEPTH |*/ GLUT_DOUBLE | GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	glutInitWindowPosition(100, 100); 
 	glutCreateWindow("Terrain Splines");

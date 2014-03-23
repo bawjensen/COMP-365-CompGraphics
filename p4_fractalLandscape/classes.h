@@ -89,6 +89,7 @@ public:
 	void setViewDir(float, float, float);
 	void setFocus(float, float, float);
 	void setRotationRadius(int);
+	void setDepthOfView(float);
 
 	void update();
 	void move(int);
@@ -108,6 +109,7 @@ public:
 	int xOffset, yOffset;
 	int greaterDimension;
 	float highest, lowest;
+	float firstDelimiter, secondDelimiter;
 	float elevFactor;
 	float xllCorner, yllCorner;
 	float cellSize;

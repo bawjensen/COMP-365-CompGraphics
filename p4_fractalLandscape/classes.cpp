@@ -189,7 +189,7 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 // -------------------------------------------------------------------------------------------
 
 Camera::Camera() {
-	this->pos = Vec3f(0.0f, 0.5f, 0.0f); // Camera position
+	this->pos = Vec3f(0.0f, 100.0f, 0.0f); // Camera position
 	this->origViewDir = Vec3f(-1.0f, 0.0f, 0.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
@@ -229,8 +229,12 @@ void Camera::setRotationRadius(int r) {
 	this->depthOfView = 2 * this->rotationRadius;
 }
 
+void Camera::setDepthOfView(float dist) {
+	this->depthOfView = dist;
+}
+
 void Camera::update() {
-	float moveSpeedFactor = 2.0;
+	float moveSpeedFactor = 10.0;
 	if (this->moving[Camera::FORWARD]) {
 		this->pos += this->viewDir * moveSpeedFactor;
 	}
@@ -369,24 +373,38 @@ void Ground::readFromESRIFile(string filename) {
 	this->yOffset = -this->cellSize * this->nCols / 2;
 
 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
+
+	this->firstDelimiter = (this->highest - this->lowest) / 5;
+	this->secondDelimiter = 4 * (this->highest - this->lowest) / 5;
 }
 
 void Ground::display() {
 	int xPos, zPos;
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0, 1.0, 1.0);
+
 	for (int i = 0; i < (this->nRows - 1); i++) {
 		for (int j = 0; j < this->nCols; j++) {
-			xPos = i * this->cellSize;
-			zPos = j * this->cellSize;
+			xPos = (i - this->nRows / 2) * this->cellSize;
+			zPos = (j - this->nCols / 2) * this->cellSize;
 
-			if (i != this->nRows - 1) {
+			if (this->pointGrid[i][j] > this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
+				glColor3f(0.0, 1.0, 0.0);
+			}
+			else if (this->pointGrid[i][j] > this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
+				glColor3f(0.3, 0.3, 0.3);
+			}
+			else if (this->pointGrid[i][j] > this->secondDelimiter and this->pointGrid[i][j] < this->highest) {
+				glColor3f(1.0, 1.0, 1.0);
+			}
+
+			if (j != this->nRows - 1) {
 				glVertex3f(xPos, this->pointGrid[i][j], zPos);
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
 				glVertex3f(xPos, this->pointGrid[i][j+1], zPos+this->cellSize);
 			}
 
-			if (i != 0) {
+			if (j != 0) {
 				glVertex3f(xPos, this->pointGrid[i][j], zPos);
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j-1], zPos-this->cellSize);
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
