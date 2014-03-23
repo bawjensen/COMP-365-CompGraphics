@@ -90,8 +90,7 @@ void display() {
 	// Reset transformations
 	glLoadIdentity();
 
-	cout << "Camera position: " << mCam.pos << endl;
-	cout << "Camera view direction: " << mCam.viewDir << endl;
+	mCam.update();
 
 	// Set the camera
 	gluLookAt(	mCam.pos.x,					mCam.pos.y,	 				mCam.pos.z,
@@ -111,9 +110,33 @@ void idle() {
 	display();
 }
 
+void keyUpCallback(unsigned char key, int x, int y) {
+	switch(key) {
+		case 27:	quit();
+					break;
+		case 'q':	mCam.stopMove(Camera::UP);
+					break;
+		case 'z':	mCam.stopMove(Camera::DOWN);
+					break;
+		case 's':
+		case '2':	mCam.stopMove(Camera::BACKWARD);
+					break;
+		case 'w':
+		case '8':	mCam.stopMove(Camera::FORWARD);
+					break;
+		case 'a':
+		case '4':	mCam.stopMove(Camera::LEFT);
+					break;
+		case 'd':
+		case '6':	mCam.stopMove(Camera::RIGHT);
+					break;
+	}
+}
+
 void keyDownCallback(unsigned char key, int x, int y) {
 	switch(key) {
 		case 27:	quit();
+					break;
 		case 'q':	mCam.move(Camera::UP);
 					break;
 		case 'z':	mCam.move(Camera::DOWN);
@@ -131,7 +154,7 @@ void keyDownCallback(unsigned char key, int x, int y) {
 		case '6':	mCam.move(Camera::RIGHT);
 					break;
 	}
-} 
+}
 
 void specialDownCallback(int key, int x, int y) {
 	switch (key) {
@@ -196,12 +219,7 @@ void initMenu() {
 void init() {
 	// glEnable(GL_DEPTH_TEST);
 
-	// mCam.setPos(rotationRadius, 0, 0);
-
 	spGrid.readFromESRIFile(DEMFileName);
-
-	// mCam.setRotationRadius(spGrid.greaterDimension);
-	// mCam.setFocus(0, (float)(spGrid.highest + spGrid.lowest) / 2, 0);
 
 	initMenu();
 
@@ -224,8 +242,9 @@ int main(int argc, char** argv) {
 	glutMouseFunc(mouseCallback); // Mouse up/down
 	glutMotionFunc(mouseMoveCallback); // Mouse movement
 
-	// glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
+	glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
 	glutKeyboardFunc(keyDownCallback); // Key down
+	glutKeyboardUpFunc(keyUpCallback); // Key up
 	glutSpecialFunc(specialDownCallback); // Special key down
 	glutSpecialUpFunc(specialUpCallback); // Special key up
 

@@ -188,6 +188,7 @@ Camera::Camera() {
 	this->pos = Vec3f(0.0f, 0.5f, 0.0f); // Camera position
 	this->origViewDir = Vec3f(-1.0f, 0.0f, 0.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
+	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
 
 	this->isFocusing = false; // Whether or not the camera is "viewing" or "focusing"
 	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
@@ -224,19 +225,35 @@ void Camera::setRotationRadius(int r) {
 	this->depthOfView = 2 * this->rotationRadius;
 }
 
-void Camera::move(int direction) {
-	if (direction == Camera::FORWARD) {
+void Camera::update() {
+	if (this->moving[Camera::FORWARD]) {
 		this->pos += this->viewDir;
 	}
-	else if (direction == Camera::BACKWARD) {
+	if (this->moving[Camera::BACKWARD]) {
 		this->pos -= this->viewDir;
 	}
-	else if (direction == Camera::UP) {
-		this->pos += Vec3f(0.0, 1.0, 0.0);
+	if (this->moving[Camera::LEFT]) {
+		cout << "Moving left along " << strafeVec << endl;
+		this->pos += this->strafeVec;
 	}
-	else if (direction == Camera::DOWN) {
-		this->pos -= Vec3f(0.0, 1.0, 0.0);
+	if (this->moving[Camera::RIGHT]) {
+		cout << "Moving right along " << strafeVec << endl;
+		this->pos -= this->strafeVec;
 	}
+	if (this->moving[Camera::UP]) {
+		this->pos += Camera::UP_VECT;
+	}
+	if (this->moving[Camera::DOWN]) {
+		this->pos -= Camera::UP_VECT;
+	}
+}
+
+void Camera::stopMove(int direction) {
+	this->moving[direction] = false;
+}
+
+void Camera::move(int direction) {
+	this->moving[direction] = true;
 }
 
 void Camera::rotateTo(float hAngle, float vAngle) {
@@ -250,23 +267,13 @@ void Camera::rotate(float hAngle, float vAngle) {
 	this->horizAngle += hAngle;
 	this->vertAngle += vAngle;
 
-	if (this->vertAngle > (M_PI / 2)) this->vertAngle = M_PI / 2;
-	else if (this->vertAngle < -(M_PI / 2)) this->vertAngle = -M_PI / 2;
-	else cout << "It's not out of range: " << this->vertAngle << endl;
+	float angleLimit = (M_PI / 2) - .01;
 
-	cout << "Vert angle: " << this->vertAngle << endl;
-	cout << "Horiz angle: " << this->horizAngle << endl;
-
-	Vec3f tempVec = this->origViewDir;
-	cout << "Original: " << tempVec << endl;
-
-	tempVec = tempVec.rotateZ(this->vertAngle);
-	cout << "Rotated down: " << tempVec << endl;
-
-	tempVec = tempVec.rotateY(this->horizAngle);
-	cout << "Rotated around: " << tempVec << endl;
+	if (this->vertAngle > angleLimit) this->vertAngle = angleLimit;
+	else if (this->vertAngle < -angleLimit) this->vertAngle = -angleLimit;
 
 	this->viewDir = this->origViewDir.rotateZ(this->vertAngle).rotateY(this->horizAngle);
+	this->strafeVec = this->strafeVec.rotateY(hAngle);
 }
 
 void Camera::handleClick(int button, int state, int x, int y) {

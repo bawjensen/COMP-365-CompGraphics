@@ -20,7 +20,7 @@ class Matrix44f; // Forward definition to allow use in Vec3f
 class Vec3f {
 private:
 public:
-	float x, y, z, origX, origY, origZ; // Maybe these should be private, but we have global variables, why not public data members
+	float x, y, z; // Maybe these should be private, but we have global variables, why not public data members
 	float xzAngle;
 
 	Vec3f();
@@ -67,11 +67,15 @@ public:
 	static const int UP = 4;
 	static const int DOWN = 5;
 
-	Vec3f pos, origPos;
-	Vec3f focus;
-	Vec3f viewDir, origViewDir;
+	const Vec3f UP_VECT = Vec3f(0.0, 1.0, 0.0);
+
+	Vec3f pos, origPos; 		// Position and original position vectors
+	Vec3f focus;				// Where the camera is focus-looking (aka the focus doesn't move, the camera rotates around)
+	Vec3f viewDir, origViewDir; // Where the camera is looking, and the original value
+	Vec3f strafeVec;			//
 	Vec3f pOrigin;
-	bool isFocusing, panActive;
+	bool isFocusing, panActive; // Booleans for whether or not the camera is a certain mode
+	bool moving[10]; 			// Boolean array for status of movement in up to 10 directions
 	float horizAngle, vertAngle;
 	float deltaHorizAngle, deltaVertAngle;
 	float angularScrollSpeed;
@@ -85,7 +89,9 @@ public:
 	void setFocus(float, float, float);
 	void setRotationRadius(int);
 
+	void update();
 	void move(int);
+	void stopMove(int);
 
 	void rotateTo(float, float);
 	void rotate(float, float);
