@@ -305,260 +305,61 @@ void Camera::handleMovement(int x, int y) {
 
 // -------------------------------------------------------------------------------------------
 
-Spline::Spline() {
-	this->pArray = NULL;
-}
+// void SplineGrid::readFromESRIFile(string filename) {
+// 	if (this->dataArray) {
+// 		for (int row = 0; row < nRows; row++) {
+// 			if (this->dataArray[row])
+// 				delete[] this->dataArray[row];
+// 		}
+// 		delete[] this->dataArray;
+// 	}
 
-Spline::~Spline() {
-	// if (this->pArray != NULL)
-		// cout << "pArray: " << this->pArray << endl;
-		// delete[] this->pArray;
-}
+// 	ifstream inFile;
 
-void Spline::create(int mode, float array[], int length, int gridRow, int cellSize, bool crossWays) {
-	if (this->pArray)
-		delete[] pArray;
+// 	inFile.open(filename.c_str());
 
-	switch(mode) {
-		case SplineGrid::MODE_KNOTS: this->type = Spline::TYPE_KNOT;
-			break;
-		case SplineGrid::MODE_LINEAR: this->type = Spline::TYPE_LINEAR;
-			break;
-		case SplineGrid::MODE_QUADRATIC: this->type = Spline::TYPE_QUADRATIC;
-			break;
-	}
+// 	if (!inFile) {
+// 		cout << "File " << filename << " didn't exist" << endl;
+// 		exit(1);
+// 	}
 
-	float x, y, z;
+// 	string labelTrash;
+// 	float labelValue;
 
-	if (mode == SplineGrid::MODE_KNOTS or mode == SplineGrid::MODE_LINEAR) {
-		this->length = length;
-	}
-	else if (mode == SplineGrid::MODE_QUADRATIC) {
-		this->length = (length - 1) * cellSize + 1; // Have to add that last point so the grid connects to the border
-	}
+// 	inFile >> labelTrash >> labelValue;
+// 	this->nCols = (int)labelValue;
 
-	this->pArray = new Vec3f[this->length];
+// 	inFile >> labelTrash >> labelValue;
+// 	this->nRows = (int)labelValue;
 
+// 	inFile >> labelTrash >> labelValue;
+// 	this->xllCorner = labelValue;
 
-	if (mode == SplineGrid::MODE_KNOTS or mode == SplineGrid::MODE_LINEAR) {
-		for (int i = 0; i < length; i++) {
-			if (crossWays) {
-				x = (i - length / 2) * cellSize;
-				z = gridRow * cellSize;
-			}
-			else {
-				x = gridRow * cellSize;
-				z = (i - length / 2) * cellSize;
-			}
-			this->pArray[i] = Vec3f(x, array[i], z);
-		}
+// 	inFile >> labelTrash >> labelValue;
+// 	this->yllCorner = labelValue;
 
-	}
-	else if (mode == SplineGrid::MODE_QUADRATIC) {
-		float* betweenPoints = new float[cellSize-1];
+// 	inFile >> labelTrash >> labelValue;
+// 	this->cellSize = labelValue;
 
-		for (int i = 0, j = 0; i < length - 1; i++, j = i * cellSize) {
-			if (i == 0) {
-				// cout << "First segment of quadratic spline, linearly interpolating: " << endl;
-				betweenPoints = this->interpolate(array[i], array[i+1], cellSize, true);
-			}
-			else {
-				// cout << "Further segments of quadratic spline, not linearly interpolating: " << endl;
-				betweenPoints = this->interpolate(array[i], array[i+1], cellSize);
-			}
+// 	this->dataArray = new float*[nRows];
+// 	for (int row = 0; row < nRows; row++) {
+// 		this->dataArray[row] = new float[nCols];
+// 	}
 
-			if (crossWays) {
-				x = (i - length / 2) * cellSize;
-				z = gridRow * cellSize;
-			}
-			else {
-				x = gridRow * cellSize;
-				z = (i - length / 2) * cellSize;
-			} 
+// 	float cellData;
+// 	for (int i = 0; i < nRows; i++) {
+// 		for (int j = 0; j < nCols; j++) {
+// 			inFile >> cellData;
+// 			if (cellData > highest) highest = cellData;
+// 			if (cellData < lowest) lowest = cellData;
+// 			this->dataArray[i][j] = cellData;
+// 		}
+// 	}
 
-			for (int k = 0; k < cellSize; k++) {
-				if (crossWays)
-					this->pArray[j+k] = Vec3f(x+k, betweenPoints[k], z);
-				else
-					this->pArray[j+k] = Vec3f(x, betweenPoints[k], z+k);
-			}
-		}
+// 	this->xOffset = -this->cellSize * this->nRows / 2;
+// 	this->yOffset = -this->cellSize * this->nCols / 2;
 
-		 // Manually adding the last point to it connects to border
-		if (crossWays)
-			this->pArray[this->length-1] = Vec3f(x+cellSize, array[length-1], z);
-		else
-			this->pArray[this->length-1] = Vec3f(x, array[length-1], z+cellSize);
+// 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
 
-		delete[] betweenPoints;
-	}
-}
-
-float* Spline::interpolate(int start, int end, int numPoints, bool linear) {
-	float* tempArray = new float[numPoints];
-	
-	if (linear) {
-		float a, b;
-
-		a = (end - start) / (float)numPoints;
-		b = start;
-
-		for (int i = 0; i < numPoints; i++) {
-			tempArray[i] = (a * i) + b;
-		}
-
-		this->prevSlope = a;
-	}
-	else {
-		float a, b, c;
-
-		a = (float)(end - start - numPoints * this->prevSlope) / (float)(numPoints*numPoints);
-		b = this->prevSlope;
-		c = start;
-
-		for (int i = 0; i < numPoints; i++) {
-			tempArray[i] = (a * i * i) + (b * i) + c;
-		}
-		this->prevSlope = (2 * a * numPoints) + b;
-	}
-
-	return tempArray;
-}
-
-void Spline::display(float heightFactor) {
-	if (this->type == Spline::TYPE_KNOT)
-		glBegin(GL_POINTS);
-	else if (this->type == Spline::TYPE_LINEAR)
-		glBegin(GL_LINE_STRIP);
-	else if (this->type == Spline::TYPE_QUADRATIC)
-		glBegin(GL_LINE_STRIP);
-
-	for (int i = 0; i < this->length; i++) {
-		glVertex3f(pArray[i].x, pArray[i].y * heightFactor, pArray[i].z);
-	}
-
-	glEnd();
-}
-
-// -------------------------------------------------------------------------------------------
-
-SplineGrid::SplineGrid() {
-	this->splineVectorArray = new vector<Spline>[SplineGrid::NUM_MODES];
-
-	this->mode = SplineGrid::MODE_QUADRATIC;
-
-	this->elevFactor = 1;
-}
-
-SplineGrid::~SplineGrid() {
-	if (this->dataArray)
-		delete[] this->dataArray;
-}
-
-void SplineGrid::setMode(int nMode) {
-	if (!initialized[nMode]) {
-		this->initialize(nMode);
-	}
-	this->mode = nMode;
-}
-
-void SplineGrid::changeGridElevation(float factor) {
-	this->elevFactor *= factor;
-	if (this->elevFactor == 0) {
-		this->elevFactor = 1;
-	}
-}
-
-void SplineGrid::readFromESRIFile(string filename) {
-	if (this->dataArray) {
-		for (int row = 0; row < nRows; row++) {
-			if (this->dataArray[row])
-				delete[] this->dataArray[row];
-		}
-		delete[] this->dataArray;
-	}
-
-	ifstream inFile;
-
-	inFile.open(filename.c_str());
-
-	if (!inFile) {
-		cout << "File " << filename << " didn't exist" << endl;
-		exit(1);
-	}
-
-	string labelTrash;
-	float labelValue;
-
-	inFile >> labelTrash >> labelValue;
-	this->nCols = (int)labelValue;
-
-	inFile >> labelTrash >> labelValue;
-	this->nRows = (int)labelValue;
-
-	inFile >> labelTrash >> labelValue;
-	this->xllCorner = labelValue;
-
-	inFile >> labelTrash >> labelValue;
-	this->yllCorner = labelValue;
-
-	inFile >> labelTrash >> labelValue;
-	this->cellSize = labelValue;
-
-	this->dataArray = new float*[nRows];
-	for (int row = 0; row < nRows; row++) {
-		this->dataArray[row] = new float[nCols];
-	}
-
-	float cellData;
-	for (int i = 0; i < nRows; i++) {
-		for (int j = 0; j < nCols; j++) {
-			inFile >> cellData;
-			if (cellData > highest) highest = cellData;
-			if (cellData < lowest) lowest = cellData;
-			this->dataArray[i][j] = cellData;
-		}
-	}
-
-	this->xOffset = -this->cellSize * this->nRows / 2;
-	this->yOffset = -this->cellSize * this->nCols / 2;
-
-	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
-
-	this->initialize(this->mode);
-}
-
-void SplineGrid::initialize(int mode) {
-	for (int i = 0; i < this->nRows; i++) {
-		this->splineVectorArray[mode].push_back(Spline());
-		this->splineVectorArray[mode].back().create(mode, this->dataArray[i], this->nCols, i - (this->nRows / 2), this->cellSize);
-	}
-
-	if (mode == SplineGrid::MODE_LINEAR or mode == SplineGrid::MODE_QUADRATIC) {
-		float* tempArray = new float[this->nRows];
-		for (int j = 0; j < this->nCols; j++) {
-			for (int i = 0; i < this->nRows; i++) {
-				tempArray[i] = this->dataArray[i][j];
-			}
-			this->splineVectorArray[mode].push_back(Spline());
-			this->splineVectorArray[mode].back().create(mode, tempArray, this->nRows, j - (this->nCols / 2), this->cellSize, true);
-		}
-		delete[] tempArray;
-	}
-
-	this->initialized[mode] = true;
-}
-
-void SplineGrid::display() {
-	int x, y, z;
-
-	glColor3f(0.6f, 0.83f, 0.6f);
-
-	if (!this->initialized[this->mode]) {
-		this->initialize(this->mode);
-	}
-
-	for (vector<Spline>::iterator it = this->splineVectorArray[this->mode].begin(); it != this->splineVectorArray[this->mode].end(); it++) {
-		it->display(this->elevFactor);
-	}
-}
+// 	this->initialize(this->mode);
+// }
