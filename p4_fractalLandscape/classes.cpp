@@ -94,6 +94,10 @@ Vec3f Vec3f::operator+(const Vec3f& other) {
 	return Vec3f(this->x + other.x, this->y + other.y, this->z + other.z);
 }
 
+Vec3f Vec3f::operator*(const float scalar) const {
+	return Vec3f(this->x * scalar, this->y * scalar, this->z * scalar);
+}
+
 Vec3f& Vec3f::operator+=(const Vec3f& other) {
 	this->x += other.x;
 	this->y += other.y;
@@ -226,25 +230,26 @@ void Camera::setRotationRadius(int r) {
 }
 
 void Camera::update() {
+	float moveSpeedFactor = 2.0;
 	if (this->moving[Camera::FORWARD]) {
-		this->pos += this->viewDir;
+		this->pos += this->viewDir * moveSpeedFactor;
 	}
 	if (this->moving[Camera::BACKWARD]) {
-		this->pos -= this->viewDir;
+		this->pos -= this->viewDir * moveSpeedFactor;
 	}
 	if (this->moving[Camera::LEFT]) {
 		cout << "Moving left along " << strafeVec << endl;
-		this->pos += this->strafeVec;
+		this->pos += this->strafeVec * moveSpeedFactor;
 	}
 	if (this->moving[Camera::RIGHT]) {
 		cout << "Moving right along " << strafeVec << endl;
-		this->pos -= this->strafeVec;
+		this->pos -= this->strafeVec * moveSpeedFactor;
 	}
 	if (this->moving[Camera::UP]) {
-		this->pos += Camera::UP_VECT;
+		this->pos += Camera::UP_VECT * moveSpeedFactor;
 	}
 	if (this->moving[Camera::DOWN]) {
-		this->pos -= Camera::UP_VECT;
+		this->pos -= Camera::UP_VECT * moveSpeedFactor;
 	}
 }
 
@@ -305,61 +310,88 @@ void Camera::handleMovement(int x, int y) {
 
 // -------------------------------------------------------------------------------------------
 
-// void SplineGrid::readFromESRIFile(string filename) {
-// 	if (this->dataArray) {
-// 		for (int row = 0; row < nRows; row++) {
-// 			if (this->dataArray[row])
-// 				delete[] this->dataArray[row];
-// 		}
-// 		delete[] this->dataArray;
-// 	}
+Ground::Ground() {
 
-// 	ifstream inFile;
+}
 
-// 	inFile.open(filename.c_str());
+void Ground::readFromESRIFile(string filename) {
+	if (this->pointGrid) {
+		for (int row = 0; row < nRows; row++) {
+			if (this->pointGrid[row])
+				delete[] this->pointGrid[row];
+		}
+		delete[] this->pointGrid;
+	}
 
-// 	if (!inFile) {
-// 		cout << "File " << filename << " didn't exist" << endl;
-// 		exit(1);
-// 	}
+	ifstream inFile;
 
-// 	string labelTrash;
-// 	float labelValue;
+	inFile.open(filename.c_str());
 
-// 	inFile >> labelTrash >> labelValue;
-// 	this->nCols = (int)labelValue;
+	if (!inFile) {
+		cout << "File " << filename << " didn't exist" << endl;
+		exit(1);
+	}
 
-// 	inFile >> labelTrash >> labelValue;
-// 	this->nRows = (int)labelValue;
+	string labelTrash;
+	float labelValue;
 
-// 	inFile >> labelTrash >> labelValue;
-// 	this->xllCorner = labelValue;
+	inFile >> labelTrash >> labelValue;
+	this->nCols = (int)labelValue;
 
-// 	inFile >> labelTrash >> labelValue;
-// 	this->yllCorner = labelValue;
+	inFile >> labelTrash >> labelValue;
+	this->nRows = (int)labelValue;
 
-// 	inFile >> labelTrash >> labelValue;
-// 	this->cellSize = labelValue;
+	inFile >> labelTrash >> labelValue;
+	this->xllCorner = labelValue;
 
-// 	this->dataArray = new float*[nRows];
-// 	for (int row = 0; row < nRows; row++) {
-// 		this->dataArray[row] = new float[nCols];
-// 	}
+	inFile >> labelTrash >> labelValue;
+	this->yllCorner = labelValue;
 
-// 	float cellData;
-// 	for (int i = 0; i < nRows; i++) {
-// 		for (int j = 0; j < nCols; j++) {
-// 			inFile >> cellData;
-// 			if (cellData > highest) highest = cellData;
-// 			if (cellData < lowest) lowest = cellData;
-// 			this->dataArray[i][j] = cellData;
-// 		}
-// 	}
+	inFile >> labelTrash >> labelValue;
+	this->cellSize = labelValue;
 
-// 	this->xOffset = -this->cellSize * this->nRows / 2;
-// 	this->yOffset = -this->cellSize * this->nCols / 2;
+	this->pointGrid = new float*[nRows];
+	for (int row = 0; row < nRows; row++) {
+		this->pointGrid[row] = new float[nCols];
+	}
 
-// 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
+	float cellData;
+	for (int i = 0; i < nRows; i++) {
+		for (int j = 0; j < nCols; j++) {
+			inFile >> cellData;
+			if (cellData > highest) highest = cellData;
+			if (cellData < lowest) lowest = cellData;
+			this->pointGrid[i][j] = cellData;
+		}
+	}
 
-// 	this->initialize(this->mode);
-// }
+	this->xOffset = -this->cellSize * this->nRows / 2;
+	this->yOffset = -this->cellSize * this->nCols / 2;
+
+	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
+}
+
+void Ground::display() {
+	int xPos, zPos;
+	glBegin(GL_TRIANGLES);
+	glColor3f(1.0, 1.0, 1.0);
+	for (int i = 0; i < (this->nRows - 1); i++) {
+		for (int j = 0; j < this->nCols; j++) {
+			xPos = i * this->cellSize;
+			zPos = j * this->cellSize;
+
+			if (i != this->nRows - 1) {
+				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
+				glVertex3f(xPos, this->pointGrid[i][j+1], zPos+this->cellSize);
+			}
+
+			if (i != 0) {
+				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j-1], zPos-this->cellSize);
+				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
+			}
+		}
+	}
+	glEnd();
+}

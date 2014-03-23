@@ -36,6 +36,7 @@ public:
 	Vec3f& operator=(const Vec3f&);
 	Vec3f operator-(const Vec3f&);
 	Vec3f operator+(const Vec3f&);
+	Vec3f operator*(const float) const;
 	Vec3f& operator+=(const Vec3f&);
 	Vec3f& operator-=(const Vec3f&);
 	float operator[](int);
@@ -97,6 +98,24 @@ public:
 	void rotate(float, float);
 	void handleClick(int, int, int, int);
 	void handleMovement(int, int);
+};
+
+class Ground {
+private:
+public:
+	float** pointGrid;
+	int nCols, nRows;
+	int xOffset, yOffset;
+	int greaterDimension;
+	float highest, lowest;
+	float elevFactor;
+	float xllCorner, yllCorner;
+	float cellSize;
+
+	Ground();
+
+	void readFromESRIFile(string);
+	void display();
 };
 
 #endif

@@ -27,7 +27,7 @@ int gridBoundary = gridWidth / 2;
 int rotationRadius = 1250;
 
 Camera mCam;
-SplineGrid spGrid;
+Ground ground;
 
 void quit() {
 	exit(1);
@@ -100,7 +100,7 @@ void display() {
 
 	drawReferenceGrid();
 
-	// spGrid.display();
+	ground.display();
 
 	// Swap the buffers - flushing the current buffer
 	glutSwapBuffers();
@@ -184,19 +184,6 @@ void menuCallback(int choice) {
 	switch(choice) {
 		case 0: quit();
 				break;
-		case 1:	spGrid.setMode(SplineGrid::MODE_LINEAR);
-				break;
-		case 2:	spGrid.setMode(SplineGrid::MODE_QUADRATIC);
-				break;
-		case 3:	spGrid.setMode(SplineGrid::MODE_KNOTS);
-				break;
-		case 4:	spGrid.changeGridElevation(2);
-				break;
-		case 5:	spGrid.changeGridElevation(.5);
-				break;
-		case 6:	spGrid.setMode(SplineGrid::MODE_KNOTS);
-				spGrid.changeGridElevation(0);
-				break;
 	}
 }
 
@@ -219,7 +206,7 @@ void initMenu() {
 void init() {
 	// glEnable(GL_DEPTH_TEST);
 
-	spGrid.readFromESRIFile(DEMFileName);
+	ground.readFromESRIFile(DEMFileName);
 
 	initMenu();
 
