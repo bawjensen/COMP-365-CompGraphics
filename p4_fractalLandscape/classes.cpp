@@ -242,11 +242,9 @@ void Camera::update() {
 		this->pos -= this->viewDir * moveSpeedFactor;
 	}
 	if (this->moving[Camera::LEFT]) {
-		cout << "Moving left along " << strafeVec << endl;
 		this->pos += this->strafeVec * moveSpeedFactor;
 	}
 	if (this->moving[Camera::RIGHT]) {
-		cout << "Moving right along " << strafeVec << endl;
 		this->pos -= this->strafeVec * moveSpeedFactor;
 	}
 	if (this->moving[Camera::UP]) {
@@ -389,7 +387,7 @@ void Ground::display() {
 			zPos = (j - this->nCols / 2) * this->cellSize;
 
 			if (this->pointGrid[i][j] > this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
-				glColor3f(0.0, 1.0, 0.0);
+				glColor3f(0.0, 0.2, 0.0);
 			}
 			else if (this->pointGrid[i][j] > this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
 				glColor3f(0.3, 0.3, 0.3);
