@@ -386,25 +386,81 @@ void Ground::display() {
 			xPos = (i - this->nRows / 2) * this->cellSize;
 			zPos = (j - this->nCols / 2) * this->cellSize;
 
-			if (this->pointGrid[i][j] > this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
-				glColor3f(0.0, 0.2, 0.0);
-			}
-			else if (this->pointGrid[i][j] > this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
-				glColor3f(0.3, 0.3, 0.3);
-			}
-			else if (this->pointGrid[i][j] > this->secondDelimiter and this->pointGrid[i][j] < this->highest) {
-				glColor3f(1.0, 1.0, 1.0);
-			}
-
 			if (j != this->nRows - 1) {
+				if (this->pointGrid[i][j] >= this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i][j] >= this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i][j] >= this->secondDelimiter and this->pointGrid[i][j] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+
+
+
+				if (this->pointGrid[i+1][j] >= this->lowest and this->pointGrid[i+1][j] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i+1][j] >= this->firstDelimiter and this->pointGrid[i+1][j] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i+1][j] >= this->secondDelimiter and this->pointGrid[i+1][j] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
+
+
+
+				if (this->pointGrid[i][j+1] >= this->lowest and this->pointGrid[i][j+1] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i][j+1] >= this->firstDelimiter and this->pointGrid[i][j+1] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i][j+1] >= this->secondDelimiter and this->pointGrid[i][j+1] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos, this->pointGrid[i][j+1], zPos+this->cellSize);
 			}
 
 			if (j != 0) {
+				if (this->pointGrid[i][j] >= this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i][j] >= this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i][j] >= this->secondDelimiter and this->pointGrid[i][j] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+
+
+
+				if (this->pointGrid[i+1][j-1] >= this->lowest and this->pointGrid[i+1][j-1] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i+1][j-1] >= this->firstDelimiter and this->pointGrid[i+1][j-1] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i+1][j-1] >= this->secondDelimiter and this->pointGrid[i+1][j-1] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j-1], zPos-this->cellSize);
+
+
+
+				if (this->pointGrid[i+1][j] >= this->lowest and this->pointGrid[i+1][j] < this->firstDelimiter) {
+					glColor3f(0.0, 0.2, 0.0);
+				}
+				else if (this->pointGrid[i+1][j] >= this->firstDelimiter and this->pointGrid[i+1][j] < this->secondDelimiter) {
+					glColor3f(0.3, 0.3, 0.3);
+				}
+				else if (this->pointGrid[i+1][j] >= this->secondDelimiter and this->pointGrid[i+1][j] <= this->highest) {
+					glColor3f(1.0, 1.0, 1.0);
+				}
 				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
 			}
 		}

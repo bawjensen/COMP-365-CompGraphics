@@ -398,7 +398,8 @@ void Spline::display(float heightFactor) {
 SplineGrid::SplineGrid() {
 	this->splineVectorArray = new vector<Spline>[SplineGrid::NUM_MODES];
 
-	this->mode = SplineGrid::MODE_QUADRATIC;
+	// this->mode = SplineGrid::MODE_QUADRATIC;
+	this->mode = SplineGrid::MODE_LINEAR;
 
 	this->elevFactor = 1;
 }
