@@ -17,17 +17,6 @@
 
 using namespace std;
 
-float array[1000] = {0};
-int currI = 0;
-int state = GL_POLYGON;
-
-void addPoint(int x, int y) {
-   cout << "Adding point at: " << x/5 << ", " << (500-y)/5 << endl;
-   array[currI++] = x/5;
-   array[currI++] = (500-y)/5;
-   glutPostRedisplay();
-}
-
 // Drawing (display) routine.
 void drawScene(void)
 {
@@ -35,15 +24,27 @@ void drawScene(void)
    glClear(GL_COLOR_BUFFER_BIT);
 
    // Set foreground (or drawing) color.
-   glBegin(state);
-   glColor3f(0.0, 0.0, 1.0);
+   glPolygonMode(GL_FRONT, GL_LINE);
+   glPolygonMode(GL_BACK, GL_FILL);
+
+   // glPolygonMode(GL_BACK, GL_LINE);
+   // glPolygonMode(GL_FRONT, GL_FILL);
 
 
-   for (int i = 0; i < 1000; i += 2) {
-      if (array[i] != 0)
-         glVertex3f(array[i], array[i+1], 0.0);
-   }
-   
+   glBegin(GL_POLYGON);
+      glColor3f(0, 0, 1);
+      glVertex3f(20, 20, 0);
+      glVertex3f(80, 20, 0);
+      glVertex3f(80, 80, 0);
+      glVertex3f(20, 80, 0);
+   glEnd();
+
+   glBegin(GL_POLYGON);
+      glColor3f(1, 0, 0);
+      glVertex3f(20, 70, 0);
+      glVertex3f(70, 70, 0);
+      glVertex3f(70, 20, 0);
+      glVertex3f(20, 20, 0);
    glEnd();
 
    // Draw a polygon with specified vertices.
@@ -56,24 +57,7 @@ void drawScene(void)
 void setup(void) 
 {
    // Set background (or clearing) color.
-   glClearColor(1.0, 1.0, 1.0, 0.0); 
-
-   ifstream inFile;
-   float x, y;
-
-   inFile.open("points.txt");
-
-   if (!inFile) exit(1);
-   int i = 0;
-
-   inFile >> x >> y;
-   while (inFile) {
-      array[i++] = x;
-      array[i++] = y;
-      inFile >> x >> y;
-   }
-
-   currI = i;
+   glClearColor(1.0, 1.0, 1.0, 0.0);
 }
 
 // OpenGL window reshape routine.
@@ -102,19 +86,7 @@ void resize(int w, int h)
 // Keyboard input processing routine.
 void keyInput(unsigned char key, int x, int y)
 {
-   switch(key) 
-   {
-	  // Press escape to exit.
-      case 'a':
-         addPoint(x, y);
-         break;
-      case 'z':
-         state = GL_POLYGON;
-         break;
-      case 'x':
-         state = GL_LINE_STRIP;
-         break;
-
+   switch(key) {
       case 27:
          exit(0);
          break;
