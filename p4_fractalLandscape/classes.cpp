@@ -234,7 +234,7 @@ void Camera::setDepthOfView(float dist) {
 }
 
 void Camera::update() {
-	float moveSpeedFactor = 10.0;
+	float moveSpeedFactor = 2.0;
 	if (this->moving[Camera::FORWARD]) {
 		this->pos += this->viewDir * moveSpeedFactor;
 	}
@@ -466,4 +466,197 @@ void Ground::display() {
 		}
 	}
 	glEnd();
+}
+
+// -------------------------------------------------------------------------------------------
+
+Plant::Plant() {
+	
+}
+
+Plant::Plant(int x, int y, int z, string plantString) {
+	this->startPos = Vec3f(x, y, z);
+
+	this->plantString = plantString;
+}
+
+void Plant::rotateX(string followingSubstr) {
+	for (int i = 0; i < followingSubstr.length(); i++) {
+		if (followingSubstr[i] == '+') {
+			glRotatef(10.0, 1.0, 0.0, 0.0);
+		}
+		else if (followingSubstr[i] == '-') {
+			glRotatef(-10.0, 1.0, 0.0, 0.0);
+		}
+		else {
+			break;
+		}
+	}
+}
+
+void Plant::rotateY(string followingSubstr) {
+	for (int i = 0; i < followingSubstr.length(); i++) {
+		if (followingSubstr[i] == '+') {
+			glRotatef(10.0, 0.0, 1.0, 0.0);
+		}
+		else if (followingSubstr[i] == '-') {
+			glRotatef(-10.0, 0.0, 1.0, 0.0);
+		}
+		else {
+			break;
+		}
+	}
+}
+
+void Plant::display() {
+	glPushMatrix();
+	for (int i = 0; i < this->plantString.length(); i++) {
+		switch(plantString[i]) {
+			case 'B':	this->drawBranch();
+						break;
+			case 'F':	this->drawFlower();
+						break;
+			case 'L':	this->drawLeaf();
+						break;
+			case 'X':	this->rotateX(plantString.substr(i+1, 6));
+						break;
+			case 'Y':	this->rotateY(plantString.substr(i+1, 6));
+						break;
+		}
+	}
+	glPopMatrix();
+}
+
+void Plant::drawBranch() {
+	glPushMatrix();
+
+	glScalef(1.0, 10.0, 1.0);
+	glRotatef(-90, 1, 0, 0);
+	gluCylinder(gluNewQuadric(), 1, 1, 1, 20, 1);
+
+	glPopMatrix();
+
+	glTranslatef(0.0, 10.0, 0.0);
+}
+
+void Plant::drawFlower() {
+	glPushMatrix();
+
+	gluSphere(gluNewQuadric(), 2, 20, 20);
+
+	glPopMatrix();
+}
+
+void Plant::drawLeaf() {
+	glPushMatrix();
+
+	glTranslatef(0.0, 0.5, 0.0);
+	glutSolidTeapot(2.0);
+
+	glPopMatrix();
+}
+
+// -------------------------------------------------------------------------------------------
+
+PlantLandscape::PlantLandscape() {
+	this->nGrammars = 0;
+
+	srand(time(NULL));
+}
+
+void PlantLandscape::display() {
+	// for (int i = 0; i < this->nPlants; i++) {
+	for (vector<Plant>::iterator it = this->plantVec.begin(); it != this->plantVec.end(); ++it) {
+		it->display();
+	}
+}
+
+void PlantLandscape::loadGrammar(string filename) {
+	ifstream inFile;
+
+	inFile.open(filename.c_str());
+
+	if (!inFile) {
+		cout << "Grammar file " << filename << " doesn't exist." << endl;
+		exit(1);
+	}
+
+	char symbol;
+	string line, replacement;
+
+
+	getline(inFile, line);
+	while (inFile) {
+		symbol = line[0];
+
+		replacement = line.substr(3, 10);
+
+		this->grammarArray[this->nGrammars][symbol].push_back(replacement);
+
+		getline(inFile, line);
+	}
+
+	this->nGrammars++;
+}
+
+string PlantLandscape::generatePlantString(int type) {
+	map< char, vector<string> > grammar = this->grammarArray[type];
+
+	string plantString = "s";
+	string temp = "";
+
+	bool finished = false;
+	int breaker = 0;
+
+	while (!finished) {
+		finished = true;
+
+		for (int i = 0; i < plantString.length(); i++) {
+			char plantChar = plantString[i];
+
+			if (islower(plantChar)) {
+				finished = false;
+
+				vector<string> rules = grammar[plantChar];
+
+				int randomIndex = rand() % rules.size();
+
+				string replacement = rules[randomIndex];
+				if (replacement != "0") {
+					temp += rules[randomIndex];
+				}
+			}
+			else {
+				temp += plantChar;
+
+				if ((plantChar == 'X' or plantChar == 'Y') and (plantString[i+1] != '+' and plantString[i+1] != '-')) {
+					char c;
+					if (rand() % 2) { // Random true or false
+						c = '-';
+					}
+					else {
+						c = '+';
+					}
+					temp += string((rand() % 6 + 1), c);
+				}
+			}
+		}
+
+		plantString = temp;
+		temp = "";
+	}
+
+	return plantString;
+}
+
+void PlantLandscape::addPlant(int x, int y, int z, int type) {
+	string plantString = this->generatePlantString(type);
+	
+	this->plantVec.push_back(Plant(x, y, z, plantString));
+}
+
+void PlantLandscape::handleClick(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON and state == GLUT_DOWN) { // only start motion if the left button is pressed
+		this->addPlant(0, 0, 0, 0);
+	}
 }

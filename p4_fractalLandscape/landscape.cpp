@@ -17,6 +17,8 @@ using namespace std;
 string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
+string grammarFileName = "test.gram";
+
 int initialWindowWidth = 1000;
 int initialWindowHeight = 1000;
 
@@ -28,6 +30,7 @@ int rotationRadius = 1250;
 
 Camera mCam;
 Ground ground;
+PlantLandscape pLand;
 
 void quit() {
 	exit(1);
@@ -98,9 +101,10 @@ void display() {
 				// mCam.focus.x, 				mCam.focus.y, 				mCam.focus.z,
 				0.0f, 						1.0f,  						0.0f);
 
-	// drawReferenceGrid();
+	drawReferenceGrid();
 
-	ground.display();
+	// ground.display();
+	pLand.display();
 
 	// Swap the buffers - flushing the current buffer
 	glutSwapBuffers();
@@ -178,6 +182,8 @@ void mouseMoveCallback(int x, int y) {
 
 void mouseCallback(int button, int state, int x, int y) {
 	mCam.handleClick(button, state, x, y);
+
+	pLand.handleClick(button, state, x, y);
 }
 
 void menuCallback(int choice) {
@@ -207,6 +213,7 @@ void init() {
 	glEnable(GL_DEPTH_TEST);
 
 	ground.readFromESRIFile(DEMFileName);
+	pLand.loadGrammar(grammarFileName);
 
 	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 1.5);
 

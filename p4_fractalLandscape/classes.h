@@ -11,6 +11,8 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <map>
+#include <random>
 #include <vector>
 
 using namespace std;
@@ -118,6 +120,39 @@ public:
 
 	void readFromESRIFile(string);
 	void display();
+};
+
+class Plant {
+private:
+public:
+	Vec3f startPos;
+	string plantString;
+
+	Plant();
+	Plant(int, int, int, string);
+
+	void display();
+	void rotateX(string);
+	void rotateY(string);
+	void drawBranch();
+	void drawFlower();
+	void drawLeaf();
+};
+
+class PlantLandscape {
+private:
+public:
+	vector<Plant> plantVec;
+	map< char, vector<string> > grammarArray[5];
+	int nGrammars;
+
+	PlantLandscape();
+
+	void display();
+	void loadGrammar(string);
+	string generatePlantString(int);
+	void addPlant(int, int, int, int);
+	void handleClick(int, int, int, int);
 };
 
 #endif
