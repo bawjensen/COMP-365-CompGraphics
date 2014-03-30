@@ -122,14 +122,28 @@ public:
 	void display();
 };
 
+class PlantGrammar {
+private:
+public:
+	int depthLimit;
+	float angle;
+	string start;
+	map< char, vector<string> > grammarMap;
+
+	PlantGrammar();
+
+	void loadFromFile(string);
+};
+
 class Plant {
 private:
 public:
 	Vec3f startPos;
 	string plantString;
+	float angle;
 
 	Plant();
-	Plant(int, int, int, string);
+	Plant(int, int, int, string, float);
 
 	void display();
 	void rotateX(string);
@@ -143,7 +157,7 @@ class PlantLandscape {
 private:
 public:
 	vector<Plant> plantVec;
-	map< char, vector<string> > grammarArray[5];
+	PlantGrammar grammarArray[10];
 	int nGrammars;
 
 	PlantLandscape();

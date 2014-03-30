@@ -470,23 +470,74 @@ void Ground::display() {
 
 // -------------------------------------------------------------------------------------------
 
+PlantGrammar::PlantGrammar() {
+
+}
+
+void PlantGrammar::loadFromFile(string filename) {
+	ifstream inFile;
+
+	inFile.open(filename.c_str());
+
+	if (!inFile) {
+		cout << "Grammar file " << filename << " doesn't exist." << endl;
+		exit(1);
+	}
+
+	char symbol;
+	char trash;
+	float value;
+	string start;
+	string line, replacement;
+
+	inFile >> trash;
+	inFile >> value;
+
+	this->depthLimit = value;
+
+	inFile >> trash;
+	inFile >> value;
+
+	this->angle = value;
+
+	inFile >> trash;
+	inFile >> start;
+
+	this->start = start;
+
+	getline(inFile, line); // Trash the remaining remnants of the previous line
+
+	getline(inFile, line); // Start the line-getting
+	while (inFile) {
+		symbol = line[0];
+
+		replacement = line.substr(3, 999);
+
+		this->grammarMap[symbol].push_back(replacement);
+
+		getline(inFile, line);
+	}
+}
+
+// -------------------------------------------------------------------------------------------
+
 Plant::Plant() {
 	
 }
 
-Plant::Plant(int x, int y, int z, string plantString) {
+Plant::Plant(int x, int y, int z, string plantString, float angle) {
 	this->startPos = Vec3f(x, y, z);
-
 	this->plantString = plantString;
+	this->angle = angle;
 }
 
 void Plant::rotateX(string followingSubstr) {
 	for (int i = 0; i < followingSubstr.length(); i++) {
 		if (followingSubstr[i] == '+') {
-			glRotatef(10.0, 1.0, 0.0, 0.0);
+			glRotatef(this->angle, 1.0, 0.0, 0.0);
 		}
 		else if (followingSubstr[i] == '-') {
-			glRotatef(-10.0, 1.0, 0.0, 0.0);
+			glRotatef(-this->angle, 1.0, 0.0, 0.0);
 		}
 		else {
 			break;
@@ -497,10 +548,10 @@ void Plant::rotateX(string followingSubstr) {
 void Plant::rotateY(string followingSubstr) {
 	for (int i = 0; i < followingSubstr.length(); i++) {
 		if (followingSubstr[i] == '+') {
-			glRotatef(10.0, 0.0, 1.0, 0.0);
+			glRotatef(this->angle, 0.0, 1.0, 0.0);
 		}
 		else if (followingSubstr[i] == '-') {
-			glRotatef(-10.0, 0.0, 1.0, 0.0);
+			glRotatef(-this->angle, 0.0, 1.0, 0.0);
 		}
 		else {
 			break;
@@ -510,6 +561,7 @@ void Plant::rotateY(string followingSubstr) {
 
 void Plant::display() {
 	glPushMatrix();
+	glScalef(0.1, 0.1, 0.1);
 	for (int i = 0; i < this->plantString.length(); i++) {
 		switch(plantString[i]) {
 			case 'B':	this->drawBranch();
@@ -523,7 +575,7 @@ void Plant::display() {
 			case 'Y':	this->rotateY(plantString.substr(i+1, 6));
 						break;
 			case '[':	glPushMatrix();
-						glScalef(0.75, 0.75, 0.75);
+						glScalef(0.5, 0.5, 0.5);
 						break;
 			case ']':	glPopMatrix();
 						break;
@@ -577,93 +629,102 @@ void PlantLandscape::display() {
 }
 
 void PlantLandscape::loadGrammar(string filename) {
-	ifstream inFile;
 
-	inFile.open(filename.c_str());
-
-	if (!inFile) {
-		cout << "Grammar file " << filename << " doesn't exist." << endl;
-		exit(1);
-	}
-
-	char symbol;
-	string line, replacement;
-
-
-	getline(inFile, line);
-	while (inFile) {
-		symbol = line[0];
-
-		replacement = line.substr(3, 10);
-
-		this->grammarArray[this->nGrammars][symbol].push_back(replacement);
-
-		getline(inFile, line);
-	}
+	this->grammarArray[this->nGrammars++].loadFromFile(filename);
 
 	this->nGrammars++;
 }
 
 string PlantLandscape::generatePlantString(int type) {
-	map< char, vector<string> > grammar = this->grammarArray[type];
+	PlantGrammar grammar = this->grammarArray[type];
 
-	string plantString = "s";
-	string temp = "";
+	int limit = grammar.depthLimit;
+	float angle = grammar.angle;
 
-	bool finished = false;
-	int breaker = 0;
+	string plantString = grammar.start;
+	string tempString = "";
 
-	while (!finished) {
-		finished = true;
-
+	for (int n = 0; n < limit; n++) {
 		for (int i = 0; i < plantString.length(); i++) {
 			char plantChar = plantString[i];
 
-			if (islower(plantChar)) {
-				finished = false;
-
-				vector<string> rules = grammar[plantChar];
-
-				int randomIndex = rand() % rules.size();
-
-				string replacement = rules[randomIndex];
-				if (replacement != "0") {
-					temp += rules[randomIndex];
-				}
+			if (grammar.grammarMap.find(plantChar) == grammar.grammarMap.end()) {
+				tempString += plantChar;
 			}
 			else {
-				if (plantChar == 'R') {
-					char direction;
-
-					if (rand() % 2) direction = '-';
-					else direction = '+';
-
-					temp += 'Y';
-					temp += string((rand() % 6 + 1), direction);
-
-					if (rand() % 2) direction = '-';
-					else direction = '+';
-
-					temp += 'X';
-					temp += string((rand() % 6 + 1), direction);
-				}
-				else {
-					temp += plantChar;
-				}
+				vector<string> rules = grammar.grammarMap[plantChar];
+				int randomIndex = rand() % rules.size();
+				string replacement = rules[randomIndex];
+				tempString += replacement;
 			}
 		}
 
-		plantString = temp;
-		temp = "";
+		plantString = tempString;
+		tempString = "";
 	}
 
+	// bool finished = false;
+	// int breaker = 0;
+
+	// // int i = 0;
+	// for (int i = 0; i < n; i++) {
+	// 	for (int i = 0; i < plantString.length(); i++) {
+	// 		char plantChar = plantString[i];
+
+	// 		// if (plantChar == '[' or plantChar == ']') {
+	// 		// 	temp += plantChar;
+	// 		// }
+	// 		/*else*/ if (islower(plantChar)) {
+	// 			finished = false;
+
+	// 			vector<string> rules = grammar[plantChar];
+
+	// 			int randomIndex = rand() % rules.size();
+
+	// 			string replacement = rules[randomIndex];
+	// 			if (replacement != "0") {
+	// 				temp += rules[randomIndex];
+	// 			}
+	// 		}
+	// 		else {
+	// 			if (plantChar == 'R') {
+	// 				char direction;
+
+	// 				if (rand() % 2) direction = '-';
+	// 				else direction = '+';
+
+	// 				temp += 'Y';
+	// 				temp += string((rand() % 6 + 1), direction);
+
+	// 				if (rand() % 2) direction = '-';
+	// 				else direction = '+';
+
+	// 				temp += 'X';
+	// 				temp += string((rand() % 6 + 1), direction);
+	// 			}
+	// 			else {
+	// 				temp += plantChar;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	plantString = temp;
+	// 	temp = "";
+
+	// 	cout << "Plant string: " << plantString << endl;
+	// }
+
 	return plantString;
+	// return "BFX+BX+B";
+	// return "BFX+B[X+B][X-B]";
+	// return "B[X+B][X-B[X-B]B]B[X+B][X-B]";
 }
 
 void PlantLandscape::addPlant(int x, int y, int z, int type) {
 	string plantString = this->generatePlantString(type);
+	float angle = this->grammarArray[type].angle;
 	
-	this->plantVec.push_back(Plant(x, y, z, plantString));
+	this->plantVec.push_back(Plant(x, y, z, plantString, angle));
 }
 
 void PlantLandscape::handleClick(int button, int state, int x, int y) {
