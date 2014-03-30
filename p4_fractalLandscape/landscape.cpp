@@ -220,6 +220,10 @@ void init() {
 	initMenu();
 
 	printUserInstructions();
+
+	// for (int i = 0; i < 100; i++) {
+	// 	cout << pLand.generatePlantString(0) << endl;
+	// }
 }
 
 int main(int argc, char** argv) {

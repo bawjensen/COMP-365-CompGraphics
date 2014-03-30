@@ -522,6 +522,11 @@ void Plant::display() {
 						break;
 			case 'Y':	this->rotateY(plantString.substr(i+1, 6));
 						break;
+			case '[':	glPushMatrix();
+						glScalef(0.75, 0.75, 0.75);
+						break;
+			case ']':	glPopMatrix();
+						break;
 		}
 	}
 	glPopMatrix();
@@ -627,17 +632,23 @@ string PlantLandscape::generatePlantString(int type) {
 				}
 			}
 			else {
-				temp += plantChar;
+				if (plantChar == 'R') {
+					char direction;
 
-				if ((plantChar == 'X' or plantChar == 'Y') and (plantString[i+1] != '+' and plantString[i+1] != '-')) {
-					char c;
-					if (rand() % 2) { // Random true or false
-						c = '-';
-					}
-					else {
-						c = '+';
-					}
-					temp += string((rand() % 6 + 1), c);
+					if (rand() % 2) direction = '-';
+					else direction = '+';
+
+					temp += 'Y';
+					temp += string((rand() % 6 + 1), direction);
+
+					if (rand() % 2) direction = '-';
+					else direction = '+';
+
+					temp += 'X';
+					temp += string((rand() % 6 + 1), direction);
+				}
+				else {
+					temp += plantChar;
 				}
 			}
 		}
