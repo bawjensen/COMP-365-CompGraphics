@@ -120,6 +120,9 @@ public:
 
 	void readFromESRIFile(string);
 	void display();
+	void setGreen();
+	void setGray();
+	void setWhite();
 };
 
 class PlantGrammar {
@@ -167,6 +170,23 @@ public:
 	string generatePlantString(int);
 	void addPlant(int, int, int, int);
 	void handleClick(int, int, int, int);
+};
+
+class Minimap {
+private:
+public:
+	int width, height;
+	Ground* groundPointer;
+	PlantLandscape* plantLandPointer;
+	Vec3f indicator;
+
+	Minimap();
+	Minimap(int, int, Ground*, PlantLandscape*);
+
+	void display();
+	void displayIndicator();
+	void handleClick(int, int, int, int);
+	void handleMovement(int, int);
 };
 
 #endif

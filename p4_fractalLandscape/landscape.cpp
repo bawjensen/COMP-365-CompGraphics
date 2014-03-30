@@ -19,8 +19,8 @@ string DEMFileName = "mt257.dem.grd";
 
 string grammarFileName = "test.gram";
 
-int initialWindowWidth = 1000;
-int initialWindowHeight = 1000;
+int initialWindowWidth = 800;
+int initialWindowHeight = 800;
 
 int gridWidth = 1200;
 int gridBoundary = gridWidth / 2;
@@ -31,6 +31,7 @@ int rotationRadius = 1250;
 Camera mCam;
 Ground ground;
 PlantLandscape pLand;
+Minimap minimap(200, 200, &ground, &pLand);
 
 void quit() {
 	exit(1);
@@ -101,10 +102,27 @@ void display() {
 				// mCam.focus.x, 				mCam.focus.y, 				mCam.focus.z,
 				0.0f, 						1.0f,  						0.0f);
 
-	drawReferenceGrid();
+	// drawReferenceGrid();
 
-	// ground.display();
+	ground.display();
 	pLand.display();
+	minimap.displayIndicator();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, initialWindowWidth, 0, initialWindowHeight, -1.0, 1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	minimap.display();
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 
 	// Swap the buffers - flushing the current buffer
 	glutSwapBuffers();
@@ -176,6 +194,10 @@ void specialDownCallback(int key, int x, int y) {
 void specialUpCallback(int key, int x, int y) { 	
 }
 
+void mousePassiveMoveCallback(int x, int y) {
+	minimap.handleMovement(x, y);
+}
+
 void mouseMoveCallback(int x, int y) {
 	mCam.handleMovement(x, y);
 }
@@ -183,7 +205,8 @@ void mouseMoveCallback(int x, int y) {
 void mouseCallback(int button, int state, int x, int y) {
 	mCam.handleClick(button, state, x, y);
 
-	pLand.handleClick(button, state, x, y);
+	// pLand.handleClick(button, state, x, y);
+	minimap.handleClick(button, state, x, y);
 }
 
 void menuCallback(int choice) {
@@ -241,6 +264,7 @@ int main(int argc, char** argv) {
 
 	glutMouseFunc(mouseCallback); // Mouse up/down
 	glutMotionFunc(mouseMoveCallback); // Mouse movement
+	glutPassiveMotionFunc(mousePassiveMoveCallback); // Mouse movement
 
 	glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
 	glutKeyboardFunc(keyDownCallback); // Key down

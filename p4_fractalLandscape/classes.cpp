@@ -376,8 +376,20 @@ void Ground::readFromESRIFile(string filename) {
 	this->secondDelimiter = 4 * (this->highest - this->lowest) / 5;
 }
 
+void Ground::setGreen() {
+	glColor3f(0.1, 0.3, 0.1);
+}
+
+void Ground::setGray() {
+	glColor3f(0.3, 0.3, 0.3);
+}
+
+void Ground::setWhite() {
+	glColor3f(1.0, 1.0, 1.0);
+}
+
 void Ground::display() {
-	int xPos, zPos;
+	int xPos, zPos, index1, index2, tempX, tempZ;
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0, 1.0, 1.0);
 
@@ -387,81 +399,75 @@ void Ground::display() {
 			zPos = (j - this->nCols / 2) * this->cellSize;
 
 			if (j != this->nRows - 1) {
-				if (this->pointGrid[i][j] >= this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
-				}
-				else if (this->pointGrid[i][j] >= this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i][j] >= this->secondDelimiter and this->pointGrid[i][j] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+				for (int n = 0; n < 3; n++) {
+					switch (n) {
+						case 0:	index1 = i;
+								index2 = j;
+								tempX = xPos;
+								tempZ = zPos;
+								break;
+						case 1:	index1 = i+1;
+								index2 = j;
+								tempX = xPos + this->cellSize;
+								tempZ = zPos;
+								break;
+						case 2:	index1 = i;
+								index2 = j+1;
+								tempX = xPos;
+								tempZ = zPos + this->cellSize;
+								break;
+					}
 
+					float point = this->pointGrid[index1][index2];
 
+					if (point >= this->lowest and point < this->firstDelimiter) {
+						this->setGreen();
+					}
+					else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
+						this->setGray();
+					}
+					else {
+						this->setWhite();
+					}
 
-				if (this->pointGrid[i+1][j] >= this->lowest and this->pointGrid[i+1][j] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
+					glVertex3f(tempX, point, tempZ);
 				}
-				else if (this->pointGrid[i+1][j] >= this->firstDelimiter and this->pointGrid[i+1][j] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i+1][j] >= this->secondDelimiter and this->pointGrid[i+1][j] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
-
-
-
-				if (this->pointGrid[i][j+1] >= this->lowest and this->pointGrid[i][j+1] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
-				}
-				else if (this->pointGrid[i][j+1] >= this->firstDelimiter and this->pointGrid[i][j+1] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i][j+1] >= this->secondDelimiter and this->pointGrid[i][j+1] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos, this->pointGrid[i][j+1], zPos+this->cellSize);
 			}
 
 			if (j != 0) {
-				if (this->pointGrid[i][j] >= this->lowest and this->pointGrid[i][j] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
-				}
-				else if (this->pointGrid[i][j] >= this->firstDelimiter and this->pointGrid[i][j] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i][j] >= this->secondDelimiter and this->pointGrid[i][j] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos, this->pointGrid[i][j], zPos);
+				for (int n = 0; n < 3; n++) {
+					switch (n) {
+						case 0:	index1 = i;
+								index2 = j;
+								tempX = xPos;
+								tempZ = zPos;
+								break;
+						case 1:	index1 = i+1;
+								index2 = j-1;
+								tempX = xPos + this->cellSize;
+								tempZ = zPos - this->cellSize;
+								break;
+						case 2:	index1 = i+1;
+								index2 = j;
+								tempX = xPos + this->cellSize;
+								tempZ = zPos;
+								break;
+					}
 
+					float point = this->pointGrid[index1][index2];
 
+					if (point >= this->lowest and point < this->firstDelimiter) {
+						this->setGreen();
+					}
+					else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
+						this->setGray();
+					}
+					else {
+						this->setWhite();
+					}
 
-				if (this->pointGrid[i+1][j-1] >= this->lowest and this->pointGrid[i+1][j-1] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
+					glVertex3f(tempX, point, tempZ);
 				}
-				else if (this->pointGrid[i+1][j-1] >= this->firstDelimiter and this->pointGrid[i+1][j-1] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i+1][j-1] >= this->secondDelimiter and this->pointGrid[i+1][j-1] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j-1], zPos-this->cellSize);
-
-
-
-				if (this->pointGrid[i+1][j] >= this->lowest and this->pointGrid[i+1][j] < this->firstDelimiter) {
-					glColor3f(0.0, 0.2, 0.0);
-				}
-				else if (this->pointGrid[i+1][j] >= this->firstDelimiter and this->pointGrid[i+1][j] < this->secondDelimiter) {
-					glColor3f(0.3, 0.3, 0.3);
-				}
-				else if (this->pointGrid[i+1][j] >= this->secondDelimiter and this->pointGrid[i+1][j] <= this->highest) {
-					glColor3f(1.0, 1.0, 1.0);
-				}
-				glVertex3f(xPos+this->cellSize, this->pointGrid[i+1][j], zPos);
 			}
 		}
 	}
@@ -560,7 +566,9 @@ void Plant::rotateY(string followingSubstr) {
 }
 
 void Plant::display() {
+	glColor3f(0.55, 0.275, 0.1);
 	glPushMatrix();
+	glTranslatef(this->startPos.x, this->startPos.y, this->startPos.z);
 	glScalef(0.1, 0.1, 0.1);
 	for (int i = 0; i < this->plantString.length(); i++) {
 		switch(plantString[i]) {
@@ -663,61 +671,7 @@ string PlantLandscape::generatePlantString(int type) {
 		tempString = "";
 	}
 
-	// bool finished = false;
-	// int breaker = 0;
-
-	// // int i = 0;
-	// for (int i = 0; i < n; i++) {
-	// 	for (int i = 0; i < plantString.length(); i++) {
-	// 		char plantChar = plantString[i];
-
-	// 		// if (plantChar == '[' or plantChar == ']') {
-	// 		// 	temp += plantChar;
-	// 		// }
-	// 		/*else*/ if (islower(plantChar)) {
-	// 			finished = false;
-
-	// 			vector<string> rules = grammar[plantChar];
-
-	// 			int randomIndex = rand() % rules.size();
-
-	// 			string replacement = rules[randomIndex];
-	// 			if (replacement != "0") {
-	// 				temp += rules[randomIndex];
-	// 			}
-	// 		}
-	// 		else {
-	// 			if (plantChar == 'R') {
-	// 				char direction;
-
-	// 				if (rand() % 2) direction = '-';
-	// 				else direction = '+';
-
-	// 				temp += 'Y';
-	// 				temp += string((rand() % 6 + 1), direction);
-
-	// 				if (rand() % 2) direction = '-';
-	// 				else direction = '+';
-
-	// 				temp += 'X';
-	// 				temp += string((rand() % 6 + 1), direction);
-	// 			}
-	// 			else {
-	// 				temp += plantChar;
-	// 			}
-	// 		}
-	// 	}
-
-	// 	plantString = temp;
-	// 	temp = "";
-
-	// 	cout << "Plant string: " << plantString << endl;
-	// }
-
 	return plantString;
-	// return "BFX+BX+B";
-	// return "BFX+B[X+B][X-B]";
-	// return "B[X+B][X-B[X-B]B]B[X+B][X-B]";
 }
 
 void PlantLandscape::addPlant(int x, int y, int z, int type) {
@@ -730,5 +684,86 @@ void PlantLandscape::addPlant(int x, int y, int z, int type) {
 void PlantLandscape::handleClick(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON and state == GLUT_DOWN) { // only start motion if the left button is pressed
 		this->addPlant(0, 0, 0, 0);
+	}
+}
+
+// -------------------------------------------------------------------------------------------
+
+Minimap::Minimap() {
+
+}
+
+Minimap::Minimap(int w, int h, Ground* gP, PlantLandscape* pLP) {
+	this->width = w;
+	this->height = h;
+	this->groundPointer = gP;
+	this->plantLandPointer = pLP;
+}
+
+void Minimap::display() {
+	int upperRightX = 800;
+	int upperRightY = 800;
+
+	int right = upperRightX;
+	int left = upperRightX - width;
+
+	int top = upperRightY;
+	int bottom = upperRightY - height;
+
+	glColor3f(0, 1, 1);
+	for (int i = left; i <= right; i += 10) {
+		glBegin(GL_LINES);
+			glVertex3f(i, bottom, 0);
+			glVertex3f(i, top, 0);
+		glEnd();
+	}
+
+	for (int i = bottom; i <= top; i += 10) {
+		glBegin(GL_LINES);
+			glVertex3f(left, i, 0);
+			glVertex3f(right, i, 0);
+		glEnd();
+	}
+}
+
+void Minimap::displayIndicator() {
+	glColor3f(1, 1, 0);
+	glPointSize(10.0);
+	glBegin(GL_POINTS);
+		glVertex3f(indicator.x, indicator.y, indicator.z);
+	glEnd();
+}
+
+void Minimap::handleClick(int button, int state, int x, int y) {
+	this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z, 0);
+}
+
+void Minimap::handleMovement(int x, int y) {
+	int upperRightX = 800;
+	int upperRightY = 800;
+
+	int right = upperRightX;
+	int left = upperRightX - width;
+
+	int top = upperRightY;
+	int bottom = upperRightY - height;
+
+	y = upperRightY - y;
+
+	if (x >= left and x <= right and y >= bottom and y <= top) {
+		float newX = (float)(x - left) / 200;
+		newX = 1.0 - newX; // Invert 
+		newX *= groundPointer->nRows;
+
+		float newY = (float)(y - bottom) / 200;
+		newY *= groundPointer->nCols;
+
+		int i = newX;
+		int j = newY;
+
+		float xDrawPos = (newX - (groundPointer->nRows / 2)) * groundPointer->cellSize;
+		float yDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
+
+		indicator = Vec3f(xDrawPos, groundPointer->pointGrid[i][j], yDrawPos);
 	}
 }
