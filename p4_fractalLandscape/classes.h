@@ -129,7 +129,7 @@ class PlantGrammar {
 private:
 public:
 	int depthLimit;
-	float angle;
+	float angle, length;
 	string start;
 	map< char, vector<string> > grammarMap;
 
@@ -143,10 +143,10 @@ private:
 public:
 	Vec3f startPos;
 	string plantString;
-	float angle;
+	float angle, length;
 
 	Plant();
-	Plant(int, int, int, string, float);
+	Plant(int, int, int, string, float, float);
 
 	void display();
 	void rotateX(string);
@@ -176,12 +176,15 @@ class Minimap {
 private:
 public:
 	int width, height;
+	int upperRightX, upperRightY;
+	int left, right;
+	int top, bottom;
 	Ground* groundPointer;
 	PlantLandscape* plantLandPointer;
 	Vec3f indicator;
 
 	Minimap();
-	Minimap(int, int, Ground*, PlantLandscape*);
+	Minimap(int, int, int, int, Ground*, PlantLandscape*);
 
 	void display();
 	void displayIndicator();

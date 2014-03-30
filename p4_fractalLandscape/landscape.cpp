@@ -13,8 +13,8 @@
 using namespace std;
 
 // string DEMFileName = "test.dem.grd";
-// string DEMFileName = "test2.dem.grd";
-string DEMFileName = "mt257.dem.grd";
+string DEMFileName = "test2.dem.grd";
+// string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
 string grammarFileName = "test.gram";
@@ -31,7 +31,7 @@ int rotationRadius = 1250;
 Camera mCam;
 Ground ground;
 PlantLandscape pLand;
-Minimap minimap(200, 200, &ground, &pLand);
+Minimap minimap(200, 200, initialWindowWidth, initialWindowHeight, &ground, &pLand);
 
 void quit() {
 	exit(1);
@@ -136,9 +136,9 @@ void keyUpCallback(unsigned char key, int x, int y) {
 	switch(key) {
 		case 27:	quit();
 					break;
-		case 'q':	mCam.stopMove(Camera::UP);
+		case ' ':	mCam.stopMove(Camera::UP);
 					break;
-		case 'z':	mCam.stopMove(Camera::DOWN);
+		case 'x':	mCam.stopMove(Camera::DOWN);
 					break;
 		case 's':
 		case '2':	mCam.stopMove(Camera::BACKWARD);
@@ -159,9 +159,9 @@ void keyDownCallback(unsigned char key, int x, int y) {
 	switch(key) {
 		case 27:	quit();
 					break;
-		case 'q':	mCam.move(Camera::UP);
+		case ' ':	mCam.move(Camera::UP);
 					break;
-		case 'z':	mCam.move(Camera::DOWN);
+		case 'x':	mCam.move(Camera::DOWN);
 					break;
 		case 's':
 		case '2':	mCam.move(Camera::BACKWARD);

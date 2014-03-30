@@ -507,6 +507,11 @@ void PlantGrammar::loadFromFile(string filename) {
 	this->angle = value;
 
 	inFile >> trash;
+	inFile >> value;
+
+	this->length = value;
+
+	inFile >> trash;
 	inFile >> start;
 
 	this->start = start;
@@ -531,10 +536,11 @@ Plant::Plant() {
 	
 }
 
-Plant::Plant(int x, int y, int z, string plantString, float angle) {
+Plant::Plant(int x, int y, int z, string plantString, float angle, float length) {
 	this->startPos = Vec3f(x, y, z);
 	this->plantString = plantString;
 	this->angle = angle;
+	this->length = length;
 }
 
 void Plant::rotateX(string followingSubstr) {
@@ -595,13 +601,13 @@ void Plant::display() {
 void Plant::drawBranch() {
 	glPushMatrix();
 
-	glScalef(1.0, 10.0, 1.0);
+	glScalef(1.0, this->length, 1.0);
 	glRotatef(-90, 1, 0, 0);
 	gluCylinder(gluNewQuadric(), 1, 1, 1, 20, 1);
 
 	glPopMatrix();
 
-	glTranslatef(0.0, 10.0, 0.0);
+	glTranslatef(0.0, this->length, 0.0);
 }
 
 void Plant::drawFlower() {
@@ -677,8 +683,9 @@ string PlantLandscape::generatePlantString(int type) {
 void PlantLandscape::addPlant(int x, int y, int z, int type) {
 	string plantString = this->generatePlantString(type);
 	float angle = this->grammarArray[type].angle;
+	float length = this->grammarArray[type].length;
 	
-	this->plantVec.push_back(Plant(x, y, z, plantString, angle));
+	this->plantVec.push_back(Plant(x, y, z, plantString, angle, length));
 }
 
 void PlantLandscape::handleClick(int button, int state, int x, int y) {
@@ -693,23 +700,24 @@ Minimap::Minimap() {
 
 }
 
-Minimap::Minimap(int w, int h, Ground* gP, PlantLandscape* pLP) {
+Minimap::Minimap(int w, int h, int uRX, int uRY, Ground* gP, PlantLandscape* pLP) {
 	this->width = w;
 	this->height = h;
+
+	this->upperRightX = uRX;
+	this->upperRightY = uRY;
+
+	this->right = this->upperRightX;
+	this->left = this->upperRightX - this->width;
+
+	this->top = upperRightY;
+	this->bottom = upperRightY - this->height;
+
 	this->groundPointer = gP;
 	this->plantLandPointer = pLP;
 }
 
 void Minimap::display() {
-	int upperRightX = 800;
-	int upperRightY = 800;
-
-	int right = upperRightX;
-	int left = upperRightX - width;
-
-	int top = upperRightY;
-	int bottom = upperRightY - height;
-
 	glColor3f(0, 1, 1);
 	for (int i = left; i <= right; i += 10) {
 		glBegin(GL_LINES);
@@ -735,19 +743,14 @@ void Minimap::displayIndicator() {
 }
 
 void Minimap::handleClick(int button, int state, int x, int y) {
-	this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z, 0);
+	y = upperRightY - y;
+
+	if (x >= left and x <= right and y >= bottom and y <= top and state == GLUT_DOWN) {
+		this->plantLandPointer->addPlant(indicator.x, indicator.y - 2, indicator.z, 0);
+	}
 }
 
 void Minimap::handleMovement(int x, int y) {
-	int upperRightX = 800;
-	int upperRightY = 800;
-
-	int right = upperRightX;
-	int left = upperRightX - width;
-
-	int top = upperRightY;
-	int bottom = upperRightY - height;
-
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top) {
@@ -765,5 +768,8 @@ void Minimap::handleMovement(int x, int y) {
 		float yDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
 
 		indicator = Vec3f(xDrawPos, groundPointer->pointGrid[i][j], yDrawPos);
+	}
+	else {
+		indicator = Vec3f(0, 0, 0);
 	}
 }
