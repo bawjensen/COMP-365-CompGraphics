@@ -12,7 +12,7 @@
 
 using namespace std;
 
-string DEMFileName = "my4.dem.grd";
+string DEMFileName = "my5.dem.grd";
 // string DEMFileName = "my2.dem.grd";
 // string DEMFileName = "test.dem.grd";
 // string DEMFileName = "test2.dem.grd";
