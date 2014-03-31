@@ -12,10 +12,11 @@
 
 using namespace std;
 
+string DEMFileName = "my3.dem.grd";
 // string DEMFileName = "my2.dem.grd";
 // string DEMFileName = "test.dem.grd";
 // string DEMFileName = "test2.dem.grd";
-string DEMFileName = "mt257.dem.grd";
+// string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
 string grammarFileName = "test.gram";

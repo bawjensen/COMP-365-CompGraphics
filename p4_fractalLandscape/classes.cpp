@@ -25,10 +25,10 @@ void Vec3f::set(float nX, float nY, float nZ) {
 
 Vec3f Vec3f::rotateX(float radians) {
 	Vec3f tempVec = (*this);
-	float rotationArray[4][4] = { 	{cos(radians),	0, 		-sin(radians), 	0}, 
-									{0, 			1, 		0, 				0},
-									{sin(radians), 	0, 		cos(radians), 	0},
-									{0, 			0, 		0, 				1}
+	float rotationArray[4][4] = { 	{0,				0, 				0, 				0}, 
+									{0, 			cos(radians), 	sin(radians), 	0},
+									{0, 			-sin(radians), 	cos(radians), 	0},
+									{0, 			0, 				0, 				1}
 								};
 
 	Matrix44f rMatrix(rotationArray);
@@ -39,10 +39,10 @@ Vec3f Vec3f::rotateX(float radians) {
 
 Vec3f Vec3f::rotateY(float radians) {
 	Vec3f tempVec = (*this);
-	float rotationArray[4][4] = { 	{cos(radians),	0, 		-sin(radians), 	0}, 
-									{0, 			1, 		0, 				0},
-									{sin(radians), 	0, 		cos(radians), 	0},
-									{0, 			0, 		0, 				1}
+	float rotationArray[4][4] = { 	{cos(radians),	0, 				-sin(radians), 	0}, 
+									{0, 			1, 				0, 				0},
+									{sin(radians), 	0, 				cos(radians), 	0},
+									{0, 			0, 				0, 				1}
 								};
 
 	Matrix44f rMatrix(rotationArray);
@@ -53,10 +53,10 @@ Vec3f Vec3f::rotateY(float radians) {
 
 Vec3f Vec3f::rotateZ(float radians) {
 	Vec3f tempVec = (*this);
-	float rotationArray[4][4] = { 	{cos(radians),	sin(radians), 	0, 	0}, 
-									{-sin(radians), cos(radians), 	0, 	0},
-									{0, 			0,				1, 	0},
-									{0, 			0,				0, 	1}
+	float rotationArray[4][4] = { 	{cos(radians),	sin(radians), 	0, 				0}, 
+									{-sin(radians), cos(radians), 	0, 				0},
+									{0, 			0,				1, 				0},
+									{0, 			0,				0, 				1}
 								};
 
 	Matrix44f rMatrix(rotationArray);
@@ -204,7 +204,7 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 
 Camera::Camera() {
 	this->pos = Vec3f(0.0f, 100.0f, 0.0f); // Camera position
-	this->origViewDir = Vec3f(-1.0f, 0.0f, 0.0f); // View direction
+	this->origViewDir = Vec3f(0.0f, 0.0f, 1.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
 
@@ -293,7 +293,7 @@ void Camera::rotate(float hAngle, float vAngle) {
 	if (this->vertAngle > angleLimit) this->vertAngle = angleLimit;
 	else if (this->vertAngle < -angleLimit) this->vertAngle = -angleLimit;
 
-	this->viewDir = this->origViewDir.rotateZ(this->vertAngle).rotateY(this->horizAngle);
+	this->viewDir = this->origViewDir.rotateX(this->vertAngle).rotateY(this->horizAngle);
 	this->strafeVec = this->strafeVec.rotateY(hAngle);
 }
 
@@ -386,8 +386,8 @@ void Ground::readFromESRIFile(string filename) {
 
 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
 
-	this->firstDelimiter = (this->highest - this->lowest) / 5;
-	this->secondDelimiter = 4 * (this->highest - this->lowest) / 5;
+	this->firstDelimiter = (this->highest - this->lowest) / 4;
+	this->secondDelimiter = 3 * (this->highest - this->lowest) / 4;
 }
 
 void Ground::setGreen() {
@@ -760,7 +760,7 @@ void Minimap::handleClick(int button, int state, int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top and state == GLUT_DOWN) {
-		this->plantLandPointer->addPlant(indicator.x, indicator.y - 2, indicator.z, 0);
+		this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z, 0);
 	}
 }
 
@@ -778,8 +778,8 @@ void Minimap::handleMovement(int x, int y) {
 		int i = newX;
 		int j = newY;
 
-		float xDrawPos = (newX - (groundPointer->nRows / 2)) * groundPointer->cellSize;
-		float yDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
+		float xDrawPos = (i - (groundPointer->nRows / 2)) * groundPointer->cellSize;
+		float yDrawPos = (j - (groundPointer->nCols / 2)) * groundPointer->cellSize;
 
 		indicator = Vec3f(xDrawPos, groundPointer->pointGrid[i][j], yDrawPos);
 	}
