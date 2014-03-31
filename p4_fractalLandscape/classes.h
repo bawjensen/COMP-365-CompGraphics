@@ -30,8 +30,9 @@ public:
 
 	void set(float, float, float);
 
-	Vec3f rotateZ(float);
+	Vec3f rotateX(float);
 	Vec3f rotateY(float);
+	Vec3f rotateZ(float);
 
 	Vec3f& operator*=(Matrix44f);
 	Vec3f& operator*=(float);

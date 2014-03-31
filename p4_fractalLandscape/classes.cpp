@@ -23,12 +23,12 @@ void Vec3f::set(float nX, float nY, float nZ) {
 	this->xzAngle = 0.0f;
 }
 
-Vec3f Vec3f::rotateZ(float radians) {
+Vec3f Vec3f::rotateX(float radians) {
 	Vec3f tempVec = (*this);
-	float rotationArray[4][4] = { 	{cos(radians),	sin(radians), 	0, 	0}, 
-									{-sin(radians), cos(radians), 	0, 	0},
-									{0, 			0,				1, 	0},
-									{0, 			0,				0, 	1}
+	float rotationArray[4][4] = { 	{cos(radians),	0, 		-sin(radians), 	0}, 
+									{0, 			1, 		0, 				0},
+									{sin(radians), 	0, 		cos(radians), 	0},
+									{0, 			0, 		0, 				1}
 								};
 
 	Matrix44f rMatrix(rotationArray);
@@ -43,6 +43,20 @@ Vec3f Vec3f::rotateY(float radians) {
 									{0, 			1, 		0, 				0},
 									{sin(radians), 	0, 		cos(radians), 	0},
 									{0, 			0, 		0, 				1}
+								};
+
+	Matrix44f rMatrix(rotationArray);
+	tempVec *= rMatrix;
+
+	return tempVec;
+}
+
+Vec3f Vec3f::rotateZ(float radians) {
+	Vec3f tempVec = (*this);
+	float rotationArray[4][4] = { 	{cos(radians),	sin(radians), 	0, 	0}, 
+									{-sin(radians), cos(radians), 	0, 	0},
+									{0, 			0,				1, 	0},
+									{0, 			0,				0, 	1}
 								};
 
 	Matrix44f rMatrix(rotationArray);
