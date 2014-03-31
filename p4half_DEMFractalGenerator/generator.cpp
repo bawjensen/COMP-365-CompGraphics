@@ -6,7 +6,7 @@
 
 using namespace std;
 
-string outFileName = "my3.dem.grd";
+string outFileName = "my4.dem.grd";
 float roughnessFactor = 2.2;
 default_random_engine generator;
 normal_distribution<float> distribution(0.0, 0.5);
@@ -60,7 +60,7 @@ float** generateGrid(int width) {
 }
 
 int main() {
-	int n = 6;
+	int n = 5;
 
 	int width = pow(2, n) + 1;
 
