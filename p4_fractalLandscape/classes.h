@@ -34,14 +34,16 @@ public:
 	Vec3f rotateY(float);
 	Vec3f rotateZ(float);
 
+	Vec3f cross(const Vec3f&) const;
+
 	Vec3f& operator*=(Matrix44f);
 	Vec3f& operator*=(float);
-	Vec3f& operator=(const Vec3f&);
-	Vec3f operator-(const Vec3f&);
-	Vec3f operator+(const Vec3f&);
-	Vec3f operator*(const float) const;
 	Vec3f& operator+=(const Vec3f&);
 	Vec3f& operator-=(const Vec3f&);
+	Vec3f& operator=(const Vec3f&);
+	Vec3f operator-(const Vec3f&) const;
+	Vec3f operator+(const Vec3f&) const;
+	Vec3f operator*(const float) const;
 	float operator[](int);
 
 	friend ostream& operator<<(ostream&, Vec3f&);

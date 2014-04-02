@@ -65,6 +65,12 @@ Vec3f Vec3f::rotateZ(float radians) {
 	return tempVec;
 }
 
+Vec3f Vec3f::cross(const Vec3f& other) const {
+	return Vec3f(this->y * other.z - this->z * other.y,
+				 this->z * other.x - this->x * other.z,
+				 this->x * other.y - this->y * other.x);
+}
+
 Vec3f& Vec3f::operator*=(Matrix44f matrix) {
 	float vec4[4] = { this->x, this->y, this->z, 1 };
 	float tempVec[3] = { 0, 0, 0 };
@@ -92,26 +98,6 @@ Vec3f& Vec3f::operator*=(float multiplier) {
 	return (*this);
 }
 
-Vec3f& Vec3f::operator=(const Vec3f& other) {
-	this->x = other.x;
-	this->y = other.y;
-	this->z = other.z;
-
-	return (*this);
-}
-
-Vec3f Vec3f::operator-(const Vec3f& other) {
-	return Vec3f(this->x - other.x, this->y - other.y, this->z - other.z);
-}
-
-Vec3f Vec3f::operator+(const Vec3f& other) {
-	return Vec3f(this->x + other.x, this->y + other.y, this->z + other.z);
-}
-
-Vec3f Vec3f::operator*(const float scalar) const {
-	return Vec3f(this->x * scalar, this->y * scalar, this->z * scalar);
-}
-
 Vec3f& Vec3f::operator+=(const Vec3f& other) {
 	this->x += other.x;
 	this->y += other.y;
@@ -126,6 +112,26 @@ Vec3f& Vec3f::operator-=(const Vec3f& other) {
 	this->z -= other.z;
 
 	return (*this);
+}
+
+Vec3f& Vec3f::operator=(const Vec3f& other) {
+	this->x = other.x;
+	this->y = other.y;
+	this->z = other.z;
+
+	return (*this);
+}
+
+Vec3f Vec3f::operator-(const Vec3f& other) const {
+	return Vec3f(this->x - other.x, this->y - other.y, this->z - other.z);
+}
+
+Vec3f Vec3f::operator+(const Vec3f& other) const {
+	return Vec3f(this->x + other.x, this->y + other.y, this->z + other.z);
+}
+
+Vec3f Vec3f::operator*(const float scalar) const {
+	return Vec3f(this->x * scalar, this->y * scalar, this->z * scalar);
 }
 
 float Vec3f::operator[](int i) {
@@ -497,13 +503,17 @@ float Ground::heightAt(float x, float y) {
 	int j = y;
 
 	if ((x - (int)x) > (y - (int)y)) {
-		int p1X = i;
-		int p1Y = j;
-		int p2X = i+1;
-		int p2Y = j;
-		int p3X = i;
-		int p3Y = j+1;
+		Vec3f p(i, this->pointGrid[i][j], j);
+		Vec3f q(i+1, this->pointGrid[i+1][j], j);
+		Vec3f r(i, this->pointGrid[i][j+1], j+1);
+
+		Vec3f pq = p - q;
+		Vec3f pr = p - r;
+
+		Vec3f cross = pq.cross(pr);
 	}
+
+	return this->pointGrid[i][j];
 }
 
 // -------------------------------------------------------------------------------------------
@@ -790,21 +800,19 @@ void Minimap::handleMovement(int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top) {
-		float newX = (float)(x - left) / 200;
+		float newX = (float)(x - left) / this->width;
 		newX = 1.0 - newX; // Invert 
 		newX *= groundPointer->nRows;
 
-		float newY = (float)(y - bottom) / 200;
+		float newY = (float)(y - bottom) / this->width;
 		newY *= groundPointer->nCols;
 
-		int i = newX;
-		int j = newY;
-
 		float xDrawPos = (newX - (groundPointer->nRows / 2)) * groundPointer->cellSize;
+		float yDrawPos = groundPointer->heightAt(newX, newY);
 		float zDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
 
 		// float yDrawPos = (float)(groundPointer->pointGrid[i][j] + groundPointer->pointGrid[i+1][j] + groundPointer->pointGrid[i][j+1] + groundPointer->pointGrid[i+1][j+1]) / 4;
-		float yDrawPos = (groundPointer->pointGrid[i][j]);
+		// float yDrawPos = (groundPointer->pointGrid[i][j]);
 
 		indicator = Vec3f(xDrawPos, yDrawPos, zDrawPos);
 	}
