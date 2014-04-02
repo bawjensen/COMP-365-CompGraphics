@@ -258,7 +258,7 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	glutInitWindowPosition(100, 100); 
-	glutCreateWindow("Terrain Splines");
+	glutCreateWindow("Fractal Landscape");
 
 	// Register callbacks
 	glutDisplayFunc(display);
