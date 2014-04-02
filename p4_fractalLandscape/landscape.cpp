@@ -12,10 +12,9 @@
 
 using namespace std;
 
-string DEMFileName = "my5.dem.grd";
-// string DEMFileName = "my2.dem.grd";
+// string DEMFileName = "small.dem.grd";
 // string DEMFileName = "test.dem.grd";
-// string DEMFileName = "test2.dem.grd";
+string DEMFileName = "test2.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
@@ -107,8 +106,8 @@ void display() {
 	// drawReferenceGrid();
 
 	ground.display();
-	pLand.display();
 	minimap.displayIndicator();
+	pLand.display();
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -240,11 +239,13 @@ void init() {
 	ground.readFromESRIFile(DEMFileName);
 	pLand.loadGrammar(grammarFileName);
 
-	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 1.5);
+	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 2.5);
 
 	initMenu();
 
 	printUserInstructions();
+
+	mCam.pos = Vec3f(0, 55, -75);
 
 	// for (int i = 0; i < 1; i++) {
 	// 	cout << pLand.generatePlantString(0) << endl;

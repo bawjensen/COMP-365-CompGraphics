@@ -208,6 +208,10 @@ Camera::Camera() {
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
 
+	// Hard coding values for original view
+	this->vertAngle = -M_PI / 6;
+	this->viewDir = this->viewDir.rotateX(-M_PI / 6);
+
 	this->isFocusing = false; // Whether or not the camera is "viewing" or "focusing"
 	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
 
@@ -248,7 +252,7 @@ void Camera::setDepthOfView(float dist) {
 }
 
 void Camera::update() {
-	float moveSpeedFactor = 2.0;
+	float moveSpeedFactor = 0.5;
 	if (this->moving[Camera::FORWARD]) {
 		this->pos += this->viewDir * moveSpeedFactor;
 	}
@@ -488,6 +492,20 @@ void Ground::display() {
 	glEnd();
 }
 
+float Ground::heightAt(float x, float y) {
+	int i = x;
+	int j = y;
+
+	if ((x - (int)x) > (y - (int)y)) {
+		int p1X = i;
+		int p1Y = j;
+		int p2X = i+1;
+		int p2Y = j;
+		int p3X = i;
+		int p3Y = j+1;
+	}
+}
+
 // -------------------------------------------------------------------------------------------
 
 PlantGrammar::PlantGrammar() {
@@ -586,7 +604,13 @@ void Plant::rotateY(string followingSubstr) {
 }
 
 void Plant::display() {
-	glColor3f(0.55, 0.275, 0.1);
+	float red = 0.45;
+	float green = 0.275;
+	float blue = 0.15;
+	float incr = 0.05;
+
+	glColor3f(red, green + incr, blue);
+
 	glPushMatrix();
 	glTranslatef(this->startPos.x, this->startPos.y, this->startPos.z);
 	glScalef(0.1, 0.1, 0.1);
@@ -603,9 +627,13 @@ void Plant::display() {
 			case 'Y':	this->rotateY(plantString.substr(i+1, 6));
 						break;
 			case '[':	glPushMatrix();
-						glScalef(0.5, 0.5, 0.5);
+						glScalef(0.75, 0.75, 0.75);
+						incr *= 1.5;
+						glColor3f(red, green + incr, blue);
 						break;
 			case ']':	glPopMatrix();
+						incr /= 1.5;
+						glColor3f(red, green + incr, blue);
 						break;
 		}
 	}
@@ -617,7 +645,7 @@ void Plant::drawBranch() {
 
 	glScalef(1.0, this->length, 1.0);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 1, 1, 1, 20, 1);
+	gluCylinder(gluNewQuadric(), 1, 1, 1, 4, 1);
 
 	glPopMatrix();
 
@@ -625,20 +653,11 @@ void Plant::drawBranch() {
 }
 
 void Plant::drawFlower() {
-	glPushMatrix();
-
-	gluSphere(gluNewQuadric(), 2, 20, 20);
-
-	glPopMatrix();
+	gluSphere(gluNewQuadric(), 2, 8, 8);
 }
 
 void Plant::drawLeaf() {
-	glPushMatrix();
-
-	glTranslatef(0.0, 0.5, 0.0);
 	glutSolidTeapot(2.0);
-
-	glPopMatrix();
 }
 
 // -------------------------------------------------------------------------------------------
@@ -750,10 +769,13 @@ void Minimap::display() {
 
 void Minimap::displayIndicator() {
 	glColor3f(1, 1, 0);
-	glPointSize(10.0);
-	glBegin(GL_POINTS);
-		glVertex3f(indicator.x, indicator.y, indicator.z);
-	glEnd();
+	glPushMatrix();
+
+	glTranslatef(indicator.x, indicator.y, indicator.z);
+	glRotatef(-90, 1, 0, 0);
+	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 8, 1);
+
+	glPopMatrix();
 }
 
 void Minimap::handleClick(int button, int state, int x, int y) {
@@ -778,12 +800,15 @@ void Minimap::handleMovement(int x, int y) {
 		int i = newX;
 		int j = newY;
 
-		float xDrawPos = (i - (groundPointer->nRows / 2)) * groundPointer->cellSize;
-		float yDrawPos = (j - (groundPointer->nCols / 2)) * groundPointer->cellSize;
+		float xDrawPos = (newX - (groundPointer->nRows / 2)) * groundPointer->cellSize;
+		float zDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
 
-		indicator = Vec3f(xDrawPos, groundPointer->pointGrid[i][j], yDrawPos);
+		// float yDrawPos = (float)(groundPointer->pointGrid[i][j] + groundPointer->pointGrid[i+1][j] + groundPointer->pointGrid[i][j+1] + groundPointer->pointGrid[i+1][j+1]) / 4;
+		float yDrawPos = (groundPointer->pointGrid[i][j]);
+
+		indicator = Vec3f(xDrawPos, yDrawPos, zDrawPos);
 	}
 	else {
-		indicator = Vec3f(0, 0, 0);
+		indicator = Vec3f(-100000, -100000, -100000);
 	}
 }

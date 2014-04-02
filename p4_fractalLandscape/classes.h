@@ -124,6 +124,8 @@ public:
 	void setGreen();
 	void setGray();
 	void setWhite();
+
+	float heightAt(float, float);
 };
 
 class PlantGrammar {
