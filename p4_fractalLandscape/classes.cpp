@@ -793,7 +793,7 @@ void Minimap::displayIndicator() {
 
 	glTranslatef(indicator.x, indicator.y, indicator.z);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 8, 1);
+	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 4, 1);
 
 	glPopMatrix();
 }
