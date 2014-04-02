@@ -209,14 +209,14 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 // -------------------------------------------------------------------------------------------
 
 Camera::Camera() {
-	this->pos = Vec3f(0.0f, 100.0f, 0.0f); // Camera position
-	this->origViewDir = Vec3f(0.0f, 0.0f, 1.0f); // View direction
+	this->pos = Vec3f(-100.0f, 50.0f, 0.0f); // Camera position
+	this->origViewDir = Vec3f(1.0f, 0.0f, 0.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
 
 	// Hard coding values for original view
-	this->vertAngle = -M_PI / 6;
-	this->viewDir = this->viewDir.rotateX(-M_PI / 6);
+	// this->vertAngle = -M_PI / 6;
+	// this->viewDir = this->viewDir.rotateX(-M_PI / 6);
 
 	this->isFocusing = false; // Whether or not the camera is "viewing" or "focusing"
 	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
@@ -303,7 +303,7 @@ void Camera::rotate(float hAngle, float vAngle) {
 	if (this->vertAngle > angleLimit) this->vertAngle = angleLimit;
 	else if (this->vertAngle < -angleLimit) this->vertAngle = -angleLimit;
 
-	this->viewDir = this->origViewDir.rotateX(this->vertAngle).rotateY(this->horizAngle);
+	this->viewDir = this->origViewDir.rotateZ(-this->vertAngle).rotateY(this->horizAngle);
 	this->strafeVec = this->strafeVec.rotateY(hAngle);
 }
 
@@ -391,8 +391,8 @@ void Ground::readFromESRIFile(string filename) {
 		}
 	}
 
-	this->xOffset = -this->cellSize * this->nRows / 2;
-	this->yOffset = -this->cellSize * this->nCols / 2;
+	this->iOffset = -(this->nRows - 1) / (float)2;
+	this->jOffset = -(this->nCols - 1) / (float)2;
 
 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
 
@@ -413,16 +413,17 @@ void Ground::setWhite() {
 }
 
 void Ground::display() {
+	// cout << endl << endl;
 	int xPos, zPos, index1, index2, tempX, tempZ;
 	glBegin(GL_TRIANGLES);
-	glColor3f(1.0, 1.0, 1.0);
 
 	for (int i = 0; i < (this->nRows - 1); i++) {
 		for (int j = 0; j < this->nCols; j++) {
-			xPos = (i - this->nRows / 2) * this->cellSize;
-			zPos = (j - this->nCols / 2) * this->cellSize;
+			xPos = (i + this->iOffset) * this->cellSize;
+			zPos = (j + this->jOffset) * this->cellSize;
 
 			if (j != this->nRows - 1) {
+				// cout << "Drawing first half triangle: ";
 				for (int n = 0; n < 3; n++) {
 					switch (n) {
 						case 0:	index1 = i;
@@ -453,12 +454,14 @@ void Ground::display() {
 					else {
 						this->setWhite();
 					}
-
+					// cout << tempX << ", " << tempZ << " to ";
 					glVertex3f(tempX, point, tempZ);
 				}
+				// cout << endl;
 			}
 
 			if (j != 0) {
+				// cout << "Drawing first half triangle: ";
 				for (int n = 0; n < 3; n++) {
 					switch (n) {
 						case 0:	index1 = i;
@@ -490,8 +493,10 @@ void Ground::display() {
 						this->setWhite();
 					}
 
+					// cout << tempX << ", " << tempZ << " to ";
 					glVertex3f(tempX, point, tempZ);
 				}
+				// cout << endl;
 			}
 		}
 	}
@@ -502,18 +507,28 @@ float Ground::heightAt(float x, float y) {
 	int i = x;
 	int j = y;
 
+	float result;
+
+	if (i+1 >= this->nRows or j+1 >= this->nCols) return 0;
+
 	if ((x - (int)x) > (y - (int)y)) {
-		Vec3f p(i, this->pointGrid[i][j], j);
-		Vec3f q(i+1, this->pointGrid[i+1][j], j);
-		Vec3f r(i, this->pointGrid[i][j+1], j+1);
 
-		Vec3f pq = p - q;
-		Vec3f pr = p - r;
+		float v1 = this->pointGrid[i][j];
+		float v2 = this->pointGrid[i][j+1];
+		float v3 = this->pointGrid[i+1][j+1];
+		// float v3 = this->pointGrid[i][j+1];
 
-		Vec3f cross = pq.cross(pr);
+		// cout << "Interpolating between " << v1 << ", " << v2 << " and " << v3 << ": ";
+
+		result = v1 + (v2 - v1)*(x - i) + (v3 - v1)*(y - j);
+
+		// cout << result << endl;
+	}
+	else {
+		result = 0;
 	}
 
-	return this->pointGrid[i][j];
+	return result;
 }
 
 // -------------------------------------------------------------------------------------------
@@ -800,16 +815,15 @@ void Minimap::handleMovement(int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top) {
-		float newX = (float)(x - left) / this->width;
-		newX = 1.0 - newX; // Invert 
-		newX *= groundPointer->nRows;
+		float scaledX = (float)(x - left) / this->width;
+		scaledX *= groundPointer->nRows;
 
-		float newY = (float)(y - bottom) / this->width;
-		newY *= groundPointer->nCols;
+		float scaledY = (float)(y - bottom) / this->width;
+		scaledY *= groundPointer->nCols;
 
-		float xDrawPos = (newX - (groundPointer->nRows / 2)) * groundPointer->cellSize;
-		float yDrawPos = groundPointer->heightAt(newX, newY);
-		float zDrawPos = (newY - (groundPointer->nCols / 2)) * groundPointer->cellSize;
+		float xDrawPos = (scaledY - ((float)groundPointer->nRows / 2)) * groundPointer->cellSize;
+		float yDrawPos = groundPointer->heightAt(scaledX, scaledY);
+		float zDrawPos = (scaledX - ((float)groundPointer->nCols / 2)) * groundPointer->cellSize;
 
 		// float yDrawPos = (float)(groundPointer->pointGrid[i][j] + groundPointer->pointGrid[i+1][j] + groundPointer->pointGrid[i][j+1] + groundPointer->pointGrid[i+1][j+1]) / 4;
 		// float yDrawPos = (groundPointer->pointGrid[i][j]);

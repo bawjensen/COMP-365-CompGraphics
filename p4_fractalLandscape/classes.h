@@ -111,7 +111,7 @@ private:
 public:
 	float** pointGrid;
 	int nCols, nRows;
-	int xOffset, yOffset;
+	float iOffset, jOffset;
 	int greaterDimension;
 	float highest, lowest;
 	float firstDelimiter, secondDelimiter;

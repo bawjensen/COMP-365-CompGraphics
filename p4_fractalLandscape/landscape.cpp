@@ -12,9 +12,9 @@
 
 using namespace std;
 
-// string DEMFileName = "small.dem.grd";
+string DEMFileName = "small.dem.grd";
 // string DEMFileName = "test.dem.grd";
-string DEMFileName = "test2.dem.grd";
+// string DEMFileName = "test2.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
@@ -62,6 +62,44 @@ void resize(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
+void drawAxes() {
+	// Draw axes
+	glBegin(GL_LINES);
+	glColor3f(1, 1, 1);
+		glVertex3f(0, 0, 0);
+		glVertex3f(-1000, 0, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, -1000, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, -1000);
+
+	glColor3f(1, 0, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(1000, 0, 0);
+	glColor3f(0, 1, 0);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 1000, 0);
+	glColor3f(0, 0, 1);
+		glVertex3f(0, 0, 0);
+		glVertex3f(0, 0, 1000);
+	glEnd();
+
+	// // Draw grid on "ground"
+	// glColor3f(0.9f, 0.9f, 0.9f);
+	// glLineWidth(1);
+	// glBegin(GL_LINES);
+	// int gridIterator = gridBoundary / 10;
+	// for (int i = -gridBoundary; i <= gridBoundary; i += gridIterator) {
+	// 	glVertex3f(i, 0, -gridBoundary);
+	// 	glVertex3f(i, 0, gridBoundary);
+	// }
+	// for (int j = -gridBoundary; j <= gridBoundary; j += gridIterator) {
+	// 	glVertex3f(-gridBoundary, 0, j);
+	// 	glVertex3f(gridBoundary, 0, j);
+	// }
+	// glEnd();
+}
+
 void drawReferenceGrid() {
 	// Draw axes
 	glLineWidth(4);
@@ -104,6 +142,7 @@ void display() {
 				0.0f, 						1.0f,  						0.0f);
 
 	// drawReferenceGrid();
+	drawAxes();
 
 	ground.display();
 	minimap.displayIndicator();
@@ -244,8 +283,6 @@ void init() {
 	initMenu();
 
 	printUserInstructions();
-
-	mCam.pos = Vec3f(0, 55, -75);
 
 	// for (int i = 0; i < 1; i++) {
 	// 	cout << pLand.generatePlantString(0) << endl;
