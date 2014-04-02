@@ -418,114 +418,109 @@ void Ground::display() {
 	glBegin(GL_TRIANGLES);
 
 	for (int i = 0; i < (this->nRows - 1); i++) {
-		for (int j = 0; j < this->nCols; j++) {
+		for (int j = 0; j < (this->nCols - 1); j++) {
 			xPos = (i + this->iOffset) * this->cellSize;
 			zPos = (j + this->jOffset) * this->cellSize;
 
-			if (j != this->nRows - 1) {
-				// cout << "Drawing first half triangle: ";
-				for (int n = 0; n < 3; n++) {
-					switch (n) {
-						case 0:	index1 = i;
-								index2 = j;
-								tempX = xPos;
-								tempZ = zPos;
-								break;
-						case 1:	index1 = i+1;
-								index2 = j;
-								tempX = xPos + this->cellSize;
-								tempZ = zPos;
-								break;
-						case 2:	index1 = i;
-								index2 = j+1;
-								tempX = xPos;
-								tempZ = zPos + this->cellSize;
-								break;
-					}
-
-					float point = this->pointGrid[index1][index2];
-
-					if (point >= this->lowest and point < this->firstDelimiter) {
-						this->setGreen();
-					}
-					else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
-						this->setGray();
-					}
-					else {
-						this->setWhite();
-					}
-					// cout << tempX << ", " << tempZ << " to ";
-					glVertex3f(tempX, point, tempZ);
+			for (int n = 0; n < 3; n++) {
+				switch (n) {
+					case 0:	index1 = i;
+							index2 = j;
+							tempX = xPos;
+							tempZ = zPos;
+							break;
+					case 1:	index1 = i;
+							index2 = j+1;
+							tempX = xPos;
+							tempZ = zPos + this->cellSize;
+							break;
+					case 2:	index1 = i+1;
+							index2 = j+1;
+							tempX = xPos + this->cellSize;
+							tempZ = zPos + this->cellSize;
+							break;
 				}
-				// cout << endl;
-			}
 
-			if (j != 0) {
-				// cout << "Drawing first half triangle: ";
-				for (int n = 0; n < 3; n++) {
-					switch (n) {
-						case 0:	index1 = i;
-								index2 = j;
-								tempX = xPos;
-								tempZ = zPos;
-								break;
-						case 1:	index1 = i+1;
-								index2 = j-1;
-								tempX = xPos + this->cellSize;
-								tempZ = zPos - this->cellSize;
-								break;
-						case 2:	index1 = i+1;
-								index2 = j;
-								tempX = xPos + this->cellSize;
-								tempZ = zPos;
-								break;
-					}
+				float point = this->pointGrid[index1][index2];
 
-					float point = this->pointGrid[index1][index2];
-
-					if (point >= this->lowest and point < this->firstDelimiter) {
-						this->setGreen();
-					}
-					else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
-						this->setGray();
-					}
-					else {
-						this->setWhite();
-					}
-
-					// cout << tempX << ", " << tempZ << " to ";
-					glVertex3f(tempX, point, tempZ);
+				if (point >= this->lowest and point < this->firstDelimiter) {
+					this->setGreen();
 				}
-				// cout << endl;
+				else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
+					this->setGray();
+				}
+				else {
+					this->setWhite();
+				}
+				// cout << tempX << ", " << tempZ << " to ";
+				glVertex3f(tempX, point, tempZ);
 			}
+			// cout << endl;
+
+
+			// cout << "Drawing second half triangle: ";
+			for (int n = 0; n < 3; n++) {
+				switch (n) {
+					case 0:	index1 = i;
+							index2 = j;
+							tempX = xPos;
+							tempZ = zPos;
+							break;
+					case 1:	index1 = i+1;
+							index2 = j+1;
+							tempX = xPos + this->cellSize;
+							tempZ = zPos + this->cellSize;
+							break;
+					case 2:	index1 = i+1;
+							index2 = j;
+							tempX = xPos + this->cellSize;
+							tempZ = zPos;
+							break;
+				}
+
+				float point = this->pointGrid[index1][index2];
+
+				if (point >= this->lowest and point < this->firstDelimiter) {
+					this->setGreen();
+				}
+				else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
+					this->setGray();
+				}
+				else {
+					this->setWhite();
+				}
+
+				// cout << tempX << ", " << tempZ << " to ";
+				glVertex3f(tempX, point, tempZ);
+			}
+			// cout << endl;
 		}
 	}
 	glEnd();
 }
 
 float Ground::heightAt(float x, float y) {
-	int i = x;
-	int j = y;
-
+	// Note: i is y, not x, and vice versa with j
 	float result;
+
+	float iPrime = y;
+	float jPrime = x;
+
+	int i = iPrime;
+	int j = jPrime;
 
 	if (i+1 >= this->nRows or j+1 >= this->nCols) return 0;
 
-	if ((x - (int)x) > (y - (int)y)) {
+	float v1 = this->pointGrid[i][j];
+	float v2 = this->pointGrid[i][j+1];
+	float v3 = this->pointGrid[i+1][j+1];
+	float v4 = this->pointGrid[i+1][j];
 
-		float v1 = this->pointGrid[i][j];
-		float v2 = this->pointGrid[i][j+1];
-		float v3 = this->pointGrid[i+1][j+1];
-		// float v3 = this->pointGrid[i][j+1];
-
-		// cout << "Interpolating between " << v1 << ", " << v2 << " and " << v3 << ": ";
-
-		result = v1 + (v2 - v1)*(x - i) + (v3 - v1)*(y - j);
-
-		// cout << result << endl;
+	if ((iPrime - (int)iPrime) < (jPrime - (int)jPrime)) {
+		result = v1 + (v3 - v2)*(iPrime - i) + (v2 - v1)*(jPrime - j);
 	}
 	else {
-		result = 0;
+		result = v1 + (v4 - v1)*(iPrime - i) + (v3 - v4)*(jPrime - j);
 	}
 
 	return result;
@@ -816,19 +811,14 @@ void Minimap::handleMovement(int x, int y) {
 
 	if (x >= left and x <= right and y >= bottom and y <= top) {
 		float normalizedX = (float)(x - left) / this->width;
-		float scaledI = normalizedX * groundPointer->nRows;
-		scaledI += groundPointer->iOffset;
+		float scaledX = normalizedX * (groundPointer->nRows - 1);
 
 		float normalizedY = (float)(y - bottom) / this->width;
-		float scaledJ = normalizedY * groundPointer->nRows;
-		scaledJ += groundPointer->jOffset;
+		float scaledY = normalizedY * (groundPointer->nCols - 1);
 
-		float xDrawPos = scaledJ * groundPointer->cellSize;
-		float yDrawPos = groundPointer->heightAt(scaledI, scaledJ);
-		float zDrawPos = scaledI * groundPointer->cellSize;
-
-		// float yDrawPos = (float)(groundPointer->pointGrid[i][j] + groundPointer->pointGrid[i+1][j] + groundPointer->pointGrid[i][j+1] + groundPointer->pointGrid[i+1][j+1]) / 4;
-		// float yDrawPos = (groundPointer->pointGrid[i][j]);
+		float xDrawPos = (scaledY + groundPointer->jOffset) * groundPointer->cellSize;
+		float yDrawPos = groundPointer->heightAt(scaledX, scaledY);
+		float zDrawPos = (scaledX + groundPointer->iOffset) * groundPointer->cellSize;
 
 		indicator = Vec3f(xDrawPos, yDrawPos, zDrawPos);
 	}
