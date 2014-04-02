@@ -815,15 +815,17 @@ void Minimap::handleMovement(int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top) {
-		float scaledX = (float)(x - left) / this->width;
-		scaledX *= groundPointer->nRows;
+		float normalizedX = (float)(x - left) / this->width;
+		float scaledI = normalizedX * groundPointer->nRows;
+		scaledI += groundPointer->iOffset;
 
-		float scaledY = (float)(y - bottom) / this->width;
-		scaledY *= groundPointer->nCols;
+		float normalizedY = (float)(y - bottom) / this->width;
+		float scaledJ = normalizedY * groundPointer->nRows;
+		scaledJ += groundPointer->jOffset;
 
-		float xDrawPos = (scaledY - ((float)groundPointer->nRows / 2)) * groundPointer->cellSize;
-		float yDrawPos = groundPointer->heightAt(scaledX, scaledY);
-		float zDrawPos = (scaledX - ((float)groundPointer->nCols / 2)) * groundPointer->cellSize;
+		float xDrawPos = scaledJ * groundPointer->cellSize;
+		float yDrawPos = groundPointer->heightAt(scaledI, scaledJ);
+		float zDrawPos = scaledI * groundPointer->cellSize;
 
 		// float yDrawPos = (float)(groundPointer->pointGrid[i][j] + groundPointer->pointGrid[i+1][j] + groundPointer->pointGrid[i][j+1] + groundPointer->pointGrid[i+1][j+1]) / 4;
 		// float yDrawPos = (groundPointer->pointGrid[i][j]);
