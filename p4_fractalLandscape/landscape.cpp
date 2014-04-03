@@ -7,18 +7,21 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 #include "classes.h"
 
 using namespace std;
 
-string DEMFileName = "small.dem.grd";
+// string DEMFileName = "small.dem.grd";
 // string DEMFileName = "test.dem.grd";
-// string DEMFileName = "test2.dem.grd";
+string DEMFileName = "test2.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
-string grammarFileName = "test.gram";
+string grammarFileName1 = "test1.gram";
+string grammarFileName2 = "test2.gram";
+string grammarFileName3 = "test3.gram";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -36,6 +39,14 @@ Minimap minimap(200, 200, initialWindowWidth, initialWindowHeight, &ground, &pLa
 
 void quit() {
 	exit(1);
+}
+
+string convertNum(int x) {
+	ostringstream convert;
+
+	convert << x;
+
+	return convert.str();
 }
 
 void printUserInstructions() {
@@ -251,32 +262,45 @@ void mouseCallback(int button, int state, int x, int y) {
 
 void menuCallback(int choice) {
 	switch(choice) {
-		case 0: quit();
-				break;
+		case -1: 	quit();
+					break;
 	}
 }
 
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
-	glutAddMenuEntry("Choices:", -1);
-	glutAddMenuEntry("", -1);
-	glutAddMenuEntry("Mode: Linear Splines", 1);
-	glutAddMenuEntry("Mode: Quadratic Splines", 2);
-	glutAddMenuEntry("Mode: No Splines", 3);
-	glutAddMenuEntry("Increase Grid Elevation", 4);
-	glutAddMenuEntry("Decrease Grid Elevation", 5);
-	glutAddMenuEntry("Reset Grid", 6);
-	glutAddMenuEntry("Quit", 0);
+	int n = 0;
+
+	glutAddMenuEntry("Choices:", 0);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Prebuilt Grammar 1", n++); // 1
+	glutAddMenuEntry("Prebuilt Grammar 2", n++); // 2
+	glutAddMenuEntry("Prebuilt Grammar 3", n++); // 3
+
+	string entryLabel;
+	for (int i = 0; i < pLand.nGrammars - 3; i++) {
+		entryLabel = "Custom Grammar " + convertNum(i+1);
+		glutAddMenuEntry(entryLabel.c_str(), n + (i + 1));
+		n++;
+	}
+	glutAddMenuEntry("Quit", -1);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void init() {
+void init(int numArgs, char** argArray) {
 	glEnable(GL_DEPTH_TEST);
 
 	ground.readFromESRIFile(DEMFileName);
-	pLand.loadGrammar(grammarFileName);
+	pLand.loadGrammar(grammarFileName1);
+	pLand.loadGrammar(grammarFileName2);
+	pLand.loadGrammar(grammarFileName3);
+
+	for (int i = 1; i < numArgs; i++) {
+		pLand.loadGrammar(argArray[i]);
+		// cout << argArray[i] << endl;
+	}
 
 	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 2.5);
 
@@ -313,7 +337,7 @@ int main(int argc, char** argv) {
 	glutSpecialUpFunc(specialUpCallback); // Special key up
 
 	// Custom init
-	init();
+	init(argc, argv);
 
 	// Begin processing.
 	glutMainLoop();

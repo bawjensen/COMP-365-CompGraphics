@@ -27,5 +27,11 @@ sphereInBox1:	sphereInBox1.cpp
 glutObjects:	glutObjects.cpp
 			g++ glutObjects.cpp -o glutObjects -w $(CFLAGS)
 
+lightAndMaterial1:	lightAndMaterial1.cpp
+			g++ lightAndMaterial1.cpp -o lightAndMaterial1 -w $(CFLAGS)
+
+lightAndMaterial2:	lightAndMaterial2.cpp
+			g++ lightAndMaterial2.cpp -o lightAndMaterial2 -w $(CFLAGS)
+
 clean:
 			rm *.o

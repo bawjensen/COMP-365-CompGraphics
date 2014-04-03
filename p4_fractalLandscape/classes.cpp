@@ -413,7 +413,6 @@ void Ground::setWhite() {
 }
 
 void Ground::display() {
-	// cout << endl << endl;
 	int xPos, zPos, index1, index2, tempX, tempZ;
 	glBegin(GL_TRIANGLES);
 
@@ -452,13 +451,9 @@ void Ground::display() {
 				else {
 					this->setWhite();
 				}
-				// cout << tempX << ", " << tempZ << " to ";
 				glVertex3f(tempX, point, tempZ);
 			}
-			// cout << endl;
 
-
-			// cout << "Drawing second half triangle: ";
 			for (int n = 0; n < 3; n++) {
 				switch (n) {
 					case 0:	index1 = i;
@@ -490,10 +485,8 @@ void Ground::display() {
 					this->setWhite();
 				}
 
-				// cout << tempX << ", " << tempZ << " to ";
 				glVertex3f(tempX, point, tempZ);
 			}
-			// cout << endl;
 		}
 	}
 	glEnd();
@@ -506,8 +499,8 @@ float Ground::heightAt(float x, float y) {
 	float iPrime = y;
 	float jPrime = x;
 
-	int i = iPrime;
-	int j = jPrime;
+	int i = (int)iPrime;
+	int j = (int)jPrime;
 
 	if (i+1 >= this->nRows or j+1 >= this->nCols) return 0;
 
@@ -665,7 +658,7 @@ void Plant::drawBranch() {
 
 	glScalef(1.0, this->length, 1.0);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 1, 1, 1, 4, 1);
+	gluCylinder(gluNewQuadric(), 1, 1, 1, 3, 1);
 
 	glPopMatrix();
 
@@ -684,12 +677,10 @@ void Plant::drawLeaf() {
 
 PlantLandscape::PlantLandscape() {
 	this->nGrammars = 0;
-
-	srand(time(NULL));
+	this->currPlantType = 0;
 }
 
 void PlantLandscape::display() {
-	// for (int i = 0; i < this->nPlants; i++) {
 	for (vector<Plant>::iterator it = this->plantVec.begin(); it != this->plantVec.end(); ++it) {
 		it->display();
 	}
@@ -697,7 +688,7 @@ void PlantLandscape::display() {
 
 void PlantLandscape::loadGrammar(string filename) {
 
-	this->grammarArray[this->nGrammars++].loadFromFile(filename);
+	this->grammarArray[this->nGrammars].loadFromFile(filename);
 
 	this->nGrammars++;
 }
@@ -733,18 +724,13 @@ string PlantLandscape::generatePlantString(int type) {
 	return plantString;
 }
 
-void PlantLandscape::addPlant(int x, int y, int z, int type) {
+void PlantLandscape::addPlant(int x, int y, int z) {
+	int& type = this->currPlantType;
 	string plantString = this->generatePlantString(type);
 	float angle = this->grammarArray[type].angle;
 	float length = this->grammarArray[type].length;
 	
 	this->plantVec.push_back(Plant(x, y, z, plantString, angle, length));
-}
-
-void PlantLandscape::handleClick(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON and state == GLUT_DOWN) { // only start motion if the left button is pressed
-		this->addPlant(0, 0, 0, 0);
-	}
 }
 
 // -------------------------------------------------------------------------------------------
@@ -793,7 +779,7 @@ void Minimap::displayIndicator() {
 
 	glTranslatef(indicator.x, indicator.y, indicator.z);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 4, 1);
+	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 3, 1);
 
 	glPopMatrix();
 }
@@ -802,7 +788,7 @@ void Minimap::handleClick(int button, int state, int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top and state == GLUT_DOWN) {
-		this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z, 0);
+		this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z);
 	}
 }
 
