@@ -1,4 +1,4 @@
-**PLANT CREATOR: USER GUIDE**
+**PLANT Generator: USER GUIDE**
 ------------------------------------
 ##### Bryan Jensen and Devin Delfino
 =============================
