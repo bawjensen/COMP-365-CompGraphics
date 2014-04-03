@@ -101,5 +101,36 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 * **Berry** : A purple berry that remains the same size throughout the plant
 
 ## __Sample Input Files__
+* **tree.gram** </br>
+n 6 </br>
+a 25.0</br>
+L 40</br>
+s A</br>
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA][Y-X-BLA]g </br>
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA]g </br>
+A: G[Y+X+BLA][Y+X-BLA][Y-X-BLA]g </br>
+A: G[Y+X+BLA][Y-X+BLA][Y-X-BLA]g </br>
+A: G[Y+X-BLA][Y-X+BLA][Y-X-BLA]g </br>
+
+* **bush.gram** </br>
+n 6 </br>
+a 30.0 </br>
+L 10 </br>
+s A </br>
+A: [Y+X+BLA][Y+X-BLA][Y-X+BLA] </br>
+A: [Y+X+BLA][Y+X-BLA][Y+X-BLA] </br>
+A: [Y+X+BEA][Y+X-BLA][Y-X+BLA] </br>
+A: [Y+X+BLA][Y+X-BEA][Y-X+BLA] </br>
+A: [Y+X+BLA][Y+X-BLA][Y-X+BEA] </br>
+
+* **twig.gram** </br>
+n 4 </br>
+a 22.5 </br>
+L 2 </br>
+s B </br>
+B: BY+BX-[X-BX+BX+BF]X+[X+BX-BX-B] </br>
+B: BY+BX-[X-BX+BX+B]X+[X+BX-BX-B] </br>
 
 ## __Sample Output__
+
+![allThree](./AllThree.png)
