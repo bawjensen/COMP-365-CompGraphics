@@ -156,9 +156,10 @@ public:
 	void display();
 	void rotateX(string);
 	void rotateY(string);
-	void drawBranch();
-	void drawFlower();
-	void drawLeaf();
+	void drawBranch(float, float, float);
+	void drawFlower(int);
+	void drawBerry(int);
+	void drawLeaf(int);
 };
 
 class PlantLandscape {
@@ -167,14 +168,16 @@ public:
 	vector<Plant> plantVec;
 	PlantGrammar grammarArray[10];
 	int nGrammars;
+	int currPlantType;
 
 	PlantLandscape();
 
 	void display();
 	void loadGrammar(string);
 	string generatePlantString(int);
-	void addPlant(int, int, int, int);
-	void handleClick(int, int, int, int);
+	void addPlant(int, int, int);
+	void defaultScene();
+	void clear();
 };
 
 class Minimap {

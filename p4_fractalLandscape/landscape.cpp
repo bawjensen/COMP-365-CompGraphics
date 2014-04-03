@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 #include "classes.h"
 
@@ -18,7 +19,9 @@ string DEMFileName = "small.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
-string grammarFileName = "test.gram";
+string grammarFileName1 = "test1.gram";
+string grammarFileName2 = "test2.gram";
+string grammarFileName3 = "test3.gram";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -36,6 +39,14 @@ Minimap minimap(200, 200, initialWindowWidth, initialWindowHeight, &ground, &pLa
 
 void quit() {
 	exit(1);
+}
+
+string convertNum(int x) {
+	ostringstream convert;
+
+	convert << x;
+
+	return convert.str();
 }
 
 void printUserInstructions() {
@@ -83,26 +94,11 @@ void drawAxes() {
 		glVertex3f(0, 0, 0);
 		glVertex3f(0, 0, 1000);
 	glEnd();
-
-	// // Draw grid on "ground"
-	// glColor3f(0.9f, 0.9f, 0.9f);
-	// glLineWidth(1);
-	// glBegin(GL_LINES);
-	// int gridIterator = gridBoundary / 10;
-	// for (int i = -gridBoundary; i <= gridBoundary; i += gridIterator) {
-	// 	glVertex3f(i, 0, -gridBoundary);
-	// 	glVertex3f(i, 0, gridBoundary);
-	// }
-	// for (int j = -gridBoundary; j <= gridBoundary; j += gridIterator) {
-	// 	glVertex3f(-gridBoundary, 0, j);
-	// 	glVertex3f(gridBoundary, 0, j);
-	// }
-	// glEnd();
 }
 
 void drawReferenceGrid() {
 	// Draw axes
-	glLineWidth(4);
+	glLineWidth(10);
 	glBegin(GL_LINES);
 		glVertex3f(-gridBoundary * 1.1, 0, 	0);
 		glVertex3f(gridBoundary * 1.1, 	0, 	0);
@@ -250,43 +246,74 @@ void mouseCallback(int button, int state, int x, int y) {
 }
 
 void menuCallback(int choice) {
+	if (choice >= 100) { // Choosing a custom grammar
+		pLand.currPlantType = (choice - 100 + 3); // Choice shifted over 100, and add 3 for the 3 built in
+		return;
+	}
+
 	switch(choice) {
-		case 0: quit();
-				break;
+		case -1: 	quit();
+					break;
+		case 1: 	pLand.currPlantType = 0;
+					break;
+		case 2: 	pLand.currPlantType = 1;
+					break;
+		case 3: 	pLand.currPlantType = 2;
+					break;
+		case 4: 	pLand.defaultScene();
+					break;
+		// case 5: 	pLand.random();
+					// break;
+		case 6: 	pLand.clear();
+					break;
 	}
 }
 
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
-	glutAddMenuEntry("Choices:", -1);
-	glutAddMenuEntry("", -1);
-	glutAddMenuEntry("Mode: Linear Splines", 1);
-	glutAddMenuEntry("Mode: Quadratic Splines", 2);
-	glutAddMenuEntry("Mode: No Splines", 3);
-	glutAddMenuEntry("Increase Grid Elevation", 4);
-	glutAddMenuEntry("Decrease Grid Elevation", 5);
-	glutAddMenuEntry("Reset Grid", 6);
-	glutAddMenuEntry("Quit", 0);
+	glutAddMenuEntry("Choices:", 0);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Build Default Scene", 4);
+	glutAddMenuEntry("Randomly Place 3 Of The Current Plant", 5);
+	glutAddMenuEntry("Randomly Place 5 Random Plants", 5);
+	glutAddMenuEntry("Clear The Scene", 6);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Choose: Grammar (Testing)", 1); // 1
+	glutAddMenuEntry("Choose: Grammar (Tree)", 2); // 2
+	glutAddMenuEntry("Choose: Grammar (Bush)", 3); // 3
+
+	int n = 100; // The starting number for the custom grammars
+	string entryLabel;
+	for (int i = 0; i < pLand.nGrammars - 3; i++) {
+		entryLabel = "Choose: Custom Grammar " + convertNum(i+1);
+		glutAddMenuEntry(entryLabel.c_str(), n + i);
+		n++;
+	}
+
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Quit", -1);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void init() {
+void init(int numArgs, char** argArray) {
 	glEnable(GL_DEPTH_TEST);
 
 	ground.readFromESRIFile(DEMFileName);
-	pLand.loadGrammar(grammarFileName);
+	pLand.loadGrammar(grammarFileName1);
+	pLand.loadGrammar(grammarFileName2);
+	pLand.loadGrammar(grammarFileName3);
+
+	for (int i = 1; i < numArgs; i++) {
+		pLand.loadGrammar(argArray[i]);
+	}
 
 	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 2.5);
 
 	initMenu();
 
 	printUserInstructions();
-
-	// for (int i = 0; i < 1; i++) {
-	// 	cout << pLand.generatePlantString(0) << endl;
-	// }
 }
 
 int main(int argc, char** argv) {
@@ -313,7 +340,7 @@ int main(int argc, char** argv) {
 	glutSpecialUpFunc(specialUpCallback); // Special key up
 
 	// Custom init
-	init();
+	init(argc, argv);
 
 	// Begin processing.
 	glutMainLoop();

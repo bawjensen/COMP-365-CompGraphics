@@ -413,7 +413,6 @@ void Ground::setWhite() {
 }
 
 void Ground::display() {
-	// cout << endl << endl;
 	int xPos, zPos, index1, index2, tempX, tempZ;
 	glBegin(GL_TRIANGLES);
 
@@ -452,13 +451,9 @@ void Ground::display() {
 				else {
 					this->setWhite();
 				}
-				// cout << tempX << ", " << tempZ << " to ";
 				glVertex3f(tempX, point, tempZ);
 			}
-			// cout << endl;
 
-
-			// cout << "Drawing second half triangle: ";
 			for (int n = 0; n < 3; n++) {
 				switch (n) {
 					case 0:	index1 = i;
@@ -490,10 +485,8 @@ void Ground::display() {
 					this->setWhite();
 				}
 
-				// cout << tempX << ", " << tempZ << " to ";
 				glVertex3f(tempX, point, tempZ);
 			}
-			// cout << endl;
 		}
 	}
 	glEnd();
@@ -506,8 +499,8 @@ float Ground::heightAt(float x, float y) {
 	float iPrime = y;
 	float jPrime = x;
 
-	int i = iPrime;
-	int j = jPrime;
+	int i = (int)iPrime;
+	int j = (int)jPrime;
 
 	if (i+1 >= this->nRows or j+1 >= this->nCols) return 0;
 
@@ -629,6 +622,8 @@ void Plant::display() {
 	float blue = 0.15;
 	float incr = 0.05;
 
+	int depth = 0;
+
 	glColor3f(red, green + incr, blue);
 
 	glPushMatrix();
@@ -636,60 +631,83 @@ void Plant::display() {
 	glScalef(0.1, 0.1, 0.1);
 	for (int i = 0; i < this->plantString.length(); i++) {
 		switch(plantString[i]) {
-			case 'B':	this->drawBranch();
+			case 'B':	this->drawBranch(red, green + incr, blue);
 						break;
-			case 'F':	this->drawFlower();
+			case 'F':	this->drawFlower(depth);
 						break;
-			case 'L':	this->drawLeaf();
+			case 'E':	this->drawBerry(depth);
+						break;
+			case 'L':	this->drawLeaf(depth);
 						break;
 			case 'X':	this->rotateX(plantString.substr(i+1, 6));
 						break;
 			case 'Y':	this->rotateY(plantString.substr(i+1, 6));
 						break;
+			case 'G': 	incr *= 1.32;
+						break;
+			case 'g':	incr /= 1.32;
+						break;
 			case '[':	glPushMatrix();
-						glScalef(0.75, 0.75, 0.75);
-						incr *= 1.5;
-						glColor3f(red, green + incr, blue);
+						glScalef(0.9, 0.9, 0.9);
+						depth++;
 						break;
 			case ']':	glPopMatrix();
-						incr /= 1.5;
-						glColor3f(red, green + incr, blue);
+						depth--;
 						break;
 		}
 	}
 	glPopMatrix();
 }
 
-void Plant::drawBranch() {
+void Plant::drawBranch(float red, float green, float blue) {
 	glPushMatrix();
 
+	glColor3f(red, green, blue);
 	glScalef(1.0, this->length, 1.0);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 1, 1, 1, 4, 1);
+	gluCylinder(gluNewQuadric(), 1, 1, 1, 3, 1);
 
 	glPopMatrix();
 
 	glTranslatef(0.0, this->length, 0.0);
 }
 
-void Plant::drawFlower() {
-	gluSphere(gluNewQuadric(), 2, 8, 8);
+void Plant::drawFlower(int recurDepth) {
+	glPushMatrix();
+
+	glScalef(2.0, 1.0, 2.0);
+	glColor3f(1.0, 1.0, 0.0);
+	float size = pow(1.1, recurDepth);
+	glutSolidCube(size);
+
+	glPopMatrix();
 }
 
-void Plant::drawLeaf() {
-	glutSolidTeapot(2.0);
+void Plant::drawBerry(int recurDepth) {
+	glColor3f(0.5, 0.0, 0.5);
+	float size = pow(1.1, recurDepth) + 3.0;
+	gluSphere(gluNewQuadric(), size, 8, 8);
+}
+
+void Plant::drawLeaf(int recurDepth) {
+	glPushMatrix();
+
+	glColor3f(0.0, 0.7, 0.0);
+	float size = pow(1.1, recurDepth) * 1.2 + 5.0;
+	glScalef(size, size, size);
+	glutSolidTetrahedron();
+
+	glPopMatrix();
 }
 
 // -------------------------------------------------------------------------------------------
 
 PlantLandscape::PlantLandscape() {
 	this->nGrammars = 0;
-
-	srand(time(NULL));
+	this->currPlantType = 0;
 }
 
 void PlantLandscape::display() {
-	// for (int i = 0; i < this->nPlants; i++) {
 	for (vector<Plant>::iterator it = this->plantVec.begin(); it != this->plantVec.end(); ++it) {
 		it->display();
 	}
@@ -697,7 +715,7 @@ void PlantLandscape::display() {
 
 void PlantLandscape::loadGrammar(string filename) {
 
-	this->grammarArray[this->nGrammars++].loadFromFile(filename);
+	this->grammarArray[this->nGrammars].loadFromFile(filename);
 
 	this->nGrammars++;
 }
@@ -733,7 +751,8 @@ string PlantLandscape::generatePlantString(int type) {
 	return plantString;
 }
 
-void PlantLandscape::addPlant(int x, int y, int z, int type) {
+void PlantLandscape::addPlant(int x, int y, int z) {
+	int& type = this->currPlantType;
 	string plantString = this->generatePlantString(type);
 	float angle = this->grammarArray[type].angle;
 	float length = this->grammarArray[type].length;
@@ -741,10 +760,12 @@ void PlantLandscape::addPlant(int x, int y, int z, int type) {
 	this->plantVec.push_back(Plant(x, y, z, plantString, angle, length));
 }
 
-void PlantLandscape::handleClick(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON and state == GLUT_DOWN) { // only start motion if the left button is pressed
-		this->addPlant(0, 0, 0, 0);
-	}
+void PlantLandscape::defaultScene() {
+
+}
+
+void PlantLandscape::clear() {
+	this->plantVec.clear();
 }
 
 // -------------------------------------------------------------------------------------------
@@ -793,7 +814,7 @@ void Minimap::displayIndicator() {
 
 	glTranslatef(indicator.x, indicator.y, indicator.z);
 	glRotatef(-90, 1, 0, 0);
-	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 4, 1);
+	gluCylinder(gluNewQuadric(), 0.1, 0.1, 4, 3, 1);
 
 	glPopMatrix();
 }
@@ -802,7 +823,7 @@ void Minimap::handleClick(int button, int state, int x, int y) {
 	y = upperRightY - y;
 
 	if (x >= left and x <= right and y >= bottom and y <= top and state == GLUT_DOWN) {
-		this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z, 0);
+		this->plantLandPointer->addPlant(indicator.x, indicator.y, indicator.z);
 	}
 }
 
