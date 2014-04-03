@@ -2,6 +2,15 @@
 
 // -------------------------------------------------------------------------------------------
 
+string toString(float x) {
+	x = (int)(x * 100) / (float)100;
+	
+	ostringstream convert;
+	convert << x;
+
+	return convert.str();
+}
+
 Vec3f::Vec3f() {
 	this->x = 0.0f;
 	this->y = 0.0f;
@@ -209,7 +218,7 @@ ostream& operator<<(ostream& co, Matrix44f& matrix) {
 // -------------------------------------------------------------------------------------------
 
 Camera::Camera() {
-	this->pos = Vec3f(-100.0f, 50.0f, 0.0f); // Camera position
+	this->pos = Vec3f(-100.0f, 25.0f, 0.0f); // Camera position
 	this->origViewDir = Vec3f(1.0f, 0.0f, 0.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
@@ -417,8 +426,8 @@ void Ground::display() {
 	glBegin(GL_TRIANGLES);
 
 	for (int i = 0; i < (this->nRows - 1); i++) {
+		xPos = (i + this->iOffset) * this->cellSize;
 		for (int j = 0; j < (this->nCols - 1); j++) {
-			xPos = (i + this->iOffset) * this->cellSize;
 			zPos = (j + this->jOffset) * this->cellSize;
 
 			for (int n = 0; n < 3; n++) {
@@ -581,7 +590,7 @@ Plant::Plant() {
 	
 }
 
-Plant::Plant(int x, int y, int z, string plantString, float angle, float length) {
+Plant::Plant(float x, float y, float z, string plantString, float angle, float length) {
 	this->startPos = Vec3f(x, y, z);
 	this->plantString = plantString;
 	this->angle = angle;
@@ -589,31 +598,11 @@ Plant::Plant(int x, int y, int z, string plantString, float angle, float length)
 }
 
 void Plant::rotateX(string followingSubstr) {
-	for (int i = 0; i < followingSubstr.length(); i++) {
-		if (followingSubstr[i] == '+') {
-			glRotatef(this->angle, 1.0, 0.0, 0.0);
-		}
-		else if (followingSubstr[i] == '-') {
-			glRotatef(-this->angle, 1.0, 0.0, 0.0);
-		}
-		else {
-			break;
-		}
-	}
+	glRotatef(stof(followingSubstr), 1.0, 0.0, 0.0);
 }
 
 void Plant::rotateY(string followingSubstr) {
-	for (int i = 0; i < followingSubstr.length(); i++) {
-		if (followingSubstr[i] == '+') {
-			glRotatef(this->angle, 0.0, 1.0, 0.0);
-		}
-		else if (followingSubstr[i] == '-') {
-			glRotatef(-this->angle, 0.0, 1.0, 0.0);
-		}
-		else {
-			break;
-		}
-	}
+	glRotatef(stof(followingSubstr), 0.0, 1.0, 0.0);
 }
 
 void Plant::display() {
@@ -705,6 +694,7 @@ void Plant::drawLeaf(int recurDepth) {
 PlantLandscape::PlantLandscape() {
 	this->nGrammars = 0;
 	this->currPlantType = 0;
+	this->stdDev = 5;
 }
 
 void PlantLandscape::display() {
@@ -727,7 +717,11 @@ string PlantLandscape::generatePlantString(int type) {
 	float angle = grammar.angle;
 
 	string plantString = grammar.start;
-	string tempString = "";
+	string tempString = "", tempReplace = "";
+
+	default_random_engine generator;
+	generator.seed(time(NULL));
+	normal_distribution<float> distribution(angle, this->stdDev);
 
 	for (int n = 0; n < limit; n++) {
 		for (int i = 0; i < plantString.length(); i++) {
@@ -740,6 +734,26 @@ string PlantLandscape::generatePlantString(int type) {
 				vector<string> rules = grammar.grammarMap[plantChar];
 				int randomIndex = rand() % rules.size();
 				string replacement = rules[randomIndex];
+
+				for (int j = 0; j < replacement.length(); j++) {
+					if (replacement[j] == 'X' or replacement[j] == 'Y') {
+						tempReplace += replacement[j];
+
+						float randAngle = distribution(generator);
+						if (replacement[++j] == '-') {
+							randAngle *= -1;
+						}
+
+						tempReplace += toString(randAngle);
+					}
+					else {
+						tempReplace += replacement[j];
+					}
+				}
+
+				replacement = tempReplace;
+				tempReplace = "";
+
 				tempString += replacement;
 			}
 		}
@@ -751,7 +765,7 @@ string PlantLandscape::generatePlantString(int type) {
 	return plantString;
 }
 
-void PlantLandscape::addPlant(int x, int y, int z) {
+void PlantLandscape::addPlant(float x, float y, float z) {
 	int& type = this->currPlantType;
 	string plantString = this->generatePlantString(type);
 	float angle = this->grammarArray[type].angle;
@@ -761,6 +775,82 @@ void PlantLandscape::addPlant(int x, int y, int z) {
 }
 
 void PlantLandscape::defaultScene() {
+	int n = 19;
+
+	float defaultPlants[19][4] = {
+									{ 18.8, 		17.953,  		-34, 		0 },
+									{ 11.2, 		14.4099, 		0.8, 		0 },
+									{ -0.799999,	9.17758,		-29.6,	 	0 },
+									{ -26.8, 		1.283, 	 		-36.8,	 	0 },
+									{ 5.6, 			18.8126, 		29.6,	 	0 },
+									{ -34.4, 		17.8361,		26.4,	 	0 },
+									{ -18, 			10.0211,		0,			0 },
+									{ -25.6, 		1.25192, 		-23.6, 		1 },
+									{ -22.4, 		5.6196,  		-8,			1 },
+									{ -15.6, 		1.68356, 		-20.8, 		1 },
+									{ -35.2, 		5.02238, 		-11.2, 		1 },
+									{ -34.8, 		2.77849, 		-20.8, 		1 },
+									{ -28.4, 		13.556,  		6.4,	 	1 },
+									{ -15.2, 		6.45379,		-33.6,	 	1 },
+									{ 3.2, 			13.904,  		-14.8,	 	2 },
+									{ -4.4, 		18.1032, 		16.8,	 	2 },
+									{ 32.4, 		23.093,  		8.8, 		2 },
+									{ 19.6, 		23.9307, 		-8.4, 		2 },
+									{ 36.4, 		27.7802, 		28.8, 		0 }
+								};
+
+
+	int oldPlantType = this->currPlantType;
+
+	for (int i = 0; i < n; i++) {
+		this->currPlantType = (int)defaultPlants[i][3];
+		this->addPlant(defaultPlants[i][0], defaultPlants[i][1], defaultPlants[i][2]);
+	}
+
+	this->currPlantType = oldPlantType;
+}
+
+void PlantLandscape::currentRandomPlace(int n) {
+	srand(time(NULL));
+	int xRange = this->groundPointer->cellSize * this->groundPointer->nRows;
+	int yRange = this->groundPointer->cellSize * this->groundPointer->nCols;
+
+	for (int i = 0; i < n; i++) {
+		int x = rand() % xRange;
+		int z = rand() % yRange;
+
+		int y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
+
+		x += (this->groundPointer->iOffset * this->groundPointer->cellSize);
+		z += (this->groundPointer->jOffset * this->groundPointer->cellSize);
+
+		this->addPlant(x, y, z);
+	}
+
+}
+
+void PlantLandscape::randomRandomPlace(int n) {
+	srand(time(NULL));
+	int oldPlantType = this->currPlantType;
+
+	int xRange = this->groundPointer->cellSize * this->groundPointer->nRows;
+	int yRange = this->groundPointer->cellSize * this->groundPointer->nCols;
+
+	for (int i = 0; i < n; i++) {
+		int x = rand() % xRange;
+		int z = rand() % yRange;
+
+		int y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
+
+		this->currPlantType = rand() % this->nGrammars;
+
+		x += (this->groundPointer->iOffset * this->groundPointer->cellSize);
+		z += (this->groundPointer->jOffset * this->groundPointer->cellSize);
+
+		this->addPlant(x, y, z);
+	}
+
+	this->currPlantType = oldPlantType;
 
 }
 

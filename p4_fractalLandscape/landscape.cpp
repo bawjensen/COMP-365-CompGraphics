@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "classes.h"
 
@@ -19,9 +20,9 @@ string DEMFileName = "small.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
-string grammarFileName1 = "test1.gram";
-string grammarFileName2 = "test2.gram";
-string grammarFileName3 = "test3.gram";
+string grammarFileName1 = "tree.gram";
+string grammarFileName2 = "bush.gram";
+string grammarFileName3 = "twig.gram";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -41,7 +42,7 @@ void quit() {
 	exit(1);
 }
 
-string convertNum(int x) {
+string toString(int x) {
 	ostringstream convert;
 
 	convert << x;
@@ -50,6 +51,13 @@ string convertNum(int x) {
 }
 
 void printUserInstructions() {
+}
+
+void getUserInputStdDev() {
+	cout << "Standard deviation (current value : " << pLand.stdDev << ") to use in randomness factor of plant angles: ";
+	cin >> pLand.stdDev;
+
+	cout << "Standard deviation of " << pLand.stdDev << " set!" << endl;
 }
 
 void resize(int w, int h) {
@@ -138,7 +146,7 @@ void display() {
 				0.0f, 						1.0f,  						0.0f);
 
 	// drawReferenceGrid();
-	drawAxes();
+	// drawAxes();
 
 	ground.display();
 	minimap.displayIndicator();
@@ -262,10 +270,13 @@ void menuCallback(int choice) {
 					break;
 		case 4: 	pLand.defaultScene();
 					break;
-		// case 5: 	pLand.random();
-					// break;
-		case 6: 	pLand.clear();
+		case 5: 	pLand.currentRandomPlace(3);
 					break;
+		case 6: 	pLand.randomRandomPlace(5);
+					break;
+		case 7: 	pLand.clear();
+					break;
+		case 8:		getUserInputStdDev();
 	}
 }
 
@@ -274,23 +285,25 @@ void initMenu() {
 
 	glutAddMenuEntry("Choices:", 0);
 	glutAddMenuEntry("", 0);
-	glutAddMenuEntry("Build Default Scene", 4);
+	glutAddMenuEntry("Show Default Scene", 4);
 	glutAddMenuEntry("Randomly Place 3 Of The Current Plant", 5);
-	glutAddMenuEntry("Randomly Place 5 Random Plants", 5);
-	glutAddMenuEntry("Clear The Scene", 6);
+	glutAddMenuEntry("Randomly Place 5 Random Plants", 6);
+	glutAddMenuEntry("Clear All Plants", 7);
 	glutAddMenuEntry("", 0);
-	glutAddMenuEntry("Choose: Grammar (Testing)", 1); // 1
-	glutAddMenuEntry("Choose: Grammar (Tree)", 2); // 2
-	glutAddMenuEntry("Choose: Grammar (Bush)", 3); // 3
+	glutAddMenuEntry("Choose: Grammar (Tree)", 1); // 1
+	glutAddMenuEntry("Choose: Grammar (Bush)", 2); // 2
+	glutAddMenuEntry("Choose: Grammar (Flower Twig)", 3); // 3
 
 	int n = 100; // The starting number for the custom grammars
 	string entryLabel;
 	for (int i = 0; i < pLand.nGrammars - 3; i++) {
-		entryLabel = "Choose: Custom Grammar " + convertNum(i+1);
+		entryLabel = "Choose: Custom Grammar " + toString(i+1);
 		glutAddMenuEntry(entryLabel.c_str(), n + i);
 		n++;
 	}
 
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Input standard deviation (via the console)", 8);
 	glutAddMenuEntry("", 0);
 	glutAddMenuEntry("Quit", -1);
 
@@ -300,7 +313,10 @@ void initMenu() {
 void init(int numArgs, char** argArray) {
 	glEnable(GL_DEPTH_TEST);
 
+	pLand.groundPointer = &ground;
+
 	ground.readFromESRIFile(DEMFileName);
+
 	pLand.loadGrammar(grammarFileName1);
 	pLand.loadGrammar(grammarFileName2);
 	pLand.loadGrammar(grammarFileName3);
