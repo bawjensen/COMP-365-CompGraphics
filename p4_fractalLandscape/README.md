@@ -27,11 +27,11 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 ## __How to Compile__
 
-* To compile the program using the included Makefile, use the command: </br>' ~$ make landscape '
+* To compile the program using the included Makefile, use the command: <br/>' ~$ make landscape '
 
-* The executable file is named ' Delfino_Jensen_G4 ' and can be run with the command:</br>' ~$ ./Delfino_Jensen_G4 '
+* The executable file is named ' Delfino_Jensen_G4 ' and can be run with the command:<br/>' ~$ ./Delfino_Jensen_G4 '
 
-* To include additional grammar files, include the desired filename during your execute command as seen here:</br>' ~$ ./Delfino_Jensen_G4 *customGrammar1.gram*  '
+* To include additional grammar files, include the desired filename during your execute command as seen here:<br/>' ~$ ./Delfino_Jensen_G4 *customGrammar1.gram*  '
 
 * The program accepts up to and including 7 custom input files.
 
@@ -74,7 +74,7 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 * The fourth line of the input file indicates the starting plant string. This line consists of a character followed by a string (ex. 's A' or 's ABA')
 
-* To include a rotation in the grammar, the symbols combination is a Y (+/-) followed by an X (+/-)</br> Examples include *'Y+X+'*, *'Y+X-'*, *'Y-X+'*, *'Y-X-'*
+* To include a rotation in the grammar, the symbols combination is a Y (+/-) followed by an X (+/-)<br/> Examples include *'Y+X+'*, *'Y+X-'*, *'Y-X+'*, *'Y-X-'*
 
 * Note: The Y (+/-) MUST come before the X (+/-) 
 
@@ -101,35 +101,35 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 * **Berry** : A purple berry that remains the same size throughout the plant
 
 ## __Sample Input Files__
-* **tree.gram** </br>
-n 6 </br>
-a 25.0</br>
-L 40</br>
-s A</br>
-A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA][Y-X-BLA]g </br>
-A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA]g </br>
-A: G[Y+X+BLA][Y+X-BLA][Y-X-BLA]g </br>
-A: G[Y+X+BLA][Y-X+BLA][Y-X-BLA]g </br>
-A: G[Y+X-BLA][Y-X+BLA][Y-X-BLA]g </br>
+* **tree.gram** <br/>
+n 6 <br/>
+a 25.0<br/>
+L 40<br/>
+s A<br/>
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA][Y-X-BLA]g <br/>
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA]g <br/>
+A: G[Y+X+BLA][Y+X-BLA][Y-X-BLA]g <br/>
+A: G[Y+X+BLA][Y-X+BLA][Y-X-BLA]g <br/>
+A: G[Y+X-BLA][Y-X+BLA][Y-X-BLA]g <br/>
 
-* **bush.gram** </br>
-n 6 </br>
-a 30.0 </br>
-L 10 </br>
-s A </br>
-A: [Y+X+BLA][Y+X-BLA][Y-X+BLA] </br>
-A: [Y+X+BLA][Y+X-BLA][Y+X-BLA] </br>
-A: [Y+X+BEA][Y+X-BLA][Y-X+BLA] </br>
-A: [Y+X+BLA][Y+X-BEA][Y-X+BLA] </br>
-A: [Y+X+BLA][Y+X-BLA][Y-X+BEA] </br>
+* **bush.gram** <br/>
+n 6 <br/>
+a 30.0 <br/>
+L 10 <br/>
+s A <br/>
+A: [Y+X+BLA][Y+X-BLA][Y-X+BLA] <br/>
+A: [Y+X+BLA][Y+X-BLA][Y+X-BLA] <br/>
+A: [Y+X+BEA][Y+X-BLA][Y-X+BLA] <br/>
+A: [Y+X+BLA][Y+X-BEA][Y-X+BLA] <br/>
+A: [Y+X+BLA][Y+X-BLA][Y-X+BEA] <br/>
 
-* **twig.gram** </br>
-n 4 </br>
-a 22.5 </br>
-L 2 </br>
-s B </br>
-B: BY+BX-[X-BX+BX+BF]X+[X+BX-BX-B] </br>
-B: BY+BX-[X-BX+BX+B]X+[X+BX-BX-B] </br>
+* **twig.gram** <br/>
+n 4 <br/>
+a 22.5 <br/>
+L 2 <br/>
+s B <br/>
+B: BY+BX-[X-BX+BX+BF]X+[X+BX-BX-B] <br/>
+B: BY+BX-[X-BX+BX+B]X+[X+BX-BX-B] <br/>
 
 ## __Sample Output__
 
