@@ -14,6 +14,7 @@
 #include <map>
 #include <random>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -151,7 +152,7 @@ public:
 	float angle, length;
 
 	Plant();
-	Plant(int, int, int, string, float, float);
+	Plant(float, float, float, string, float, float);
 
 	void display();
 	void rotateX(string);
@@ -169,13 +170,17 @@ public:
 	PlantGrammar grammarArray[10];
 	int nGrammars;
 	int currPlantType;
+	Ground* groundPointer;
+	float stdDev;
 
 	PlantLandscape();
 
 	void display();
 	void loadGrammar(string);
 	string generatePlantString(int);
-	void addPlant(int, int, int);
+	void addPlant(float, float, float);
+	void randomRandomPlace(int);
+	void currentRandomPlace(int);
 	void defaultScene();
 	void clear();
 };
