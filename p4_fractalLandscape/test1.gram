@@ -1,5 +1,5 @@
-n 6
+n 4
 a 22.5
-l 10
-s A
-A: G[Y+X+BBBA][Y-X+BBBA][Y+X-BBBA]
+l 2
+s B
+B: BY+BX-[X-BX+BX+BF]X+[X+BX-BX-B]

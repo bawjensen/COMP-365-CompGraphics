@@ -1,5 +1,9 @@
 n 6
-a 22.5
-l 10
+a 25.0
+l 40
 s A
-A: G[Y+X+BBBA][Y-X+BBBA][Y+X-BBBA]
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA][Y-X-BLA]g
+A: G[Y+X+BLA][Y+X-BLA][Y-X+BLA]g
+A: G[Y+X+BLA][Y+X-BLA][Y-X-BLA]g
+A: G[Y+X+BLA][Y-X+BLA][Y-X-BLA]g
+A: G[Y+X-BLA][Y-X+BLA][Y-X-BLA]g

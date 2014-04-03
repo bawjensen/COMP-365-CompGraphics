@@ -1,5 +1,9 @@
 n 6
-a 22.5
+a 30.0
 l 10
 s A
-A: G[Y+X+BBBA][Y-X+BBBA][Y+X-BBBA]
+A: [Y+X+BLA][Y+X-BLA][Y-X+BLA]
+A: [Y+X+BLA][Y+X-BLA][Y+X-BLA]
+A: [Y+X+BEA][Y+X-BLA][Y-X+BLA]
+A: [Y+X+BLA][Y+X-BEA][Y-X+BLA]
+A: [Y+X+BLA][Y+X-BLA][Y-X+BEA]

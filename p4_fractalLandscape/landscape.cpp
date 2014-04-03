@@ -13,9 +13,9 @@
 
 using namespace std;
 
-// string DEMFileName = "small.dem.grd";
+string DEMFileName = "small.dem.grd";
 // string DEMFileName = "test.dem.grd";
-string DEMFileName = "test2.dem.grd";
+// string DEMFileName = "test2.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
@@ -94,26 +94,11 @@ void drawAxes() {
 		glVertex3f(0, 0, 0);
 		glVertex3f(0, 0, 1000);
 	glEnd();
-
-	// // Draw grid on "ground"
-	// glColor3f(0.9f, 0.9f, 0.9f);
-	// glLineWidth(1);
-	// glBegin(GL_LINES);
-	// int gridIterator = gridBoundary / 10;
-	// for (int i = -gridBoundary; i <= gridBoundary; i += gridIterator) {
-	// 	glVertex3f(i, 0, -gridBoundary);
-	// 	glVertex3f(i, 0, gridBoundary);
-	// }
-	// for (int j = -gridBoundary; j <= gridBoundary; j += gridIterator) {
-	// 	glVertex3f(-gridBoundary, 0, j);
-	// 	glVertex3f(gridBoundary, 0, j);
-	// }
-	// glEnd();
 }
 
 void drawReferenceGrid() {
 	// Draw axes
-	glLineWidth(4);
+	glLineWidth(10);
 	glBegin(GL_LINES);
 		glVertex3f(-gridBoundary * 1.1, 0, 	0);
 		glVertex3f(gridBoundary * 1.1, 	0, 	0);
@@ -261,8 +246,25 @@ void mouseCallback(int button, int state, int x, int y) {
 }
 
 void menuCallback(int choice) {
+	if (choice >= 100) { // Choosing a custom grammar
+		pLand.currPlantType = (choice - 100 + 3); // Choice shifted over 100, and add 3 for the 3 built in
+		return;
+	}
+
 	switch(choice) {
 		case -1: 	quit();
+					break;
+		case 1: 	pLand.currPlantType = 0;
+					break;
+		case 2: 	pLand.currPlantType = 1;
+					break;
+		case 3: 	pLand.currPlantType = 2;
+					break;
+		case 4: 	pLand.defaultScene();
+					break;
+		// case 5: 	pLand.random();
+					// break;
+		case 6: 	pLand.clear();
 					break;
 	}
 }
@@ -270,20 +272,26 @@ void menuCallback(int choice) {
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
-	int n = 0;
-
 	glutAddMenuEntry("Choices:", 0);
 	glutAddMenuEntry("", 0);
-	glutAddMenuEntry("Prebuilt Grammar 1", n++); // 1
-	glutAddMenuEntry("Prebuilt Grammar 2", n++); // 2
-	glutAddMenuEntry("Prebuilt Grammar 3", n++); // 3
+	glutAddMenuEntry("Build Default Scene", 4);
+	glutAddMenuEntry("Randomly Place 3 Of The Current Plant", 5);
+	glutAddMenuEntry("Randomly Place 5 Random Plants", 5);
+	glutAddMenuEntry("Clear The Scene", 6);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Choose: Grammar (Testing)", 1); // 1
+	glutAddMenuEntry("Choose: Grammar (Tree)", 2); // 2
+	glutAddMenuEntry("Choose: Grammar (Bush)", 3); // 3
 
+	int n = 100; // The starting number for the custom grammars
 	string entryLabel;
 	for (int i = 0; i < pLand.nGrammars - 3; i++) {
-		entryLabel = "Custom Grammar " + convertNum(i+1);
-		glutAddMenuEntry(entryLabel.c_str(), n + (i + 1));
+		entryLabel = "Choose: Custom Grammar " + convertNum(i+1);
+		glutAddMenuEntry(entryLabel.c_str(), n + i);
 		n++;
 	}
+
+	glutAddMenuEntry("", 0);
 	glutAddMenuEntry("Quit", -1);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -299,7 +307,6 @@ void init(int numArgs, char** argArray) {
 
 	for (int i = 1; i < numArgs; i++) {
 		pLand.loadGrammar(argArray[i]);
-		// cout << argArray[i] << endl;
 	}
 
 	mCam.setDepthOfView(ground.cellSize * max(ground.nCols, ground.nRows) * 2.5);
@@ -307,10 +314,6 @@ void init(int numArgs, char** argArray) {
 	initMenu();
 
 	printUserInstructions();
-
-	// for (int i = 0; i < 1; i++) {
-	// 	cout << pLand.generatePlantString(0) << endl;
-	// }
 }
 
 int main(int argc, char** argv) {
