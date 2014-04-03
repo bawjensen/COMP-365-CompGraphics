@@ -1,7 +1,8 @@
 **PLANT CREATOR: USER GUIDE**
-=============================
-##### Bryan Jensen and Devin Delfino
 ------------------------------------
+##### Bryan Jensen and Devin Delfino
+=============================
+
 ## __Description__
 Generate a variety of plants on a landscape scene using the default grammars or custom grammars.
 
@@ -21,7 +22,13 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 * **twig.gram** : Grammar creates an instance of a flower twig
 
-* **README.md** : This user guide that includes the description of                          how to use the program
+* **README.md** : This user guide that includes the description of how to use the program
+
+* **Overview.png** : Overview screenshot of the default scene
+
+* **AllThree.png** : Screenshot of the default scene including all three types of plants
+
+* **CoolView.png** : Another screenshot of the default scene
 
 * **Makefile** : Makefile used to compile the program that is compatible with Linux and OS X operating systems
 
@@ -31,7 +38,7 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 * The executable file is named ' Delfino_Jensen_G4 ' and can be run with the command:<br/>' ~$ ./Delfino_Jensen_G4 '
 
-* To include additional grammar files, include the desired filename during your execute command as seen here:<br/>' ~$ ./Delfino_Jensen_G4 *customGrammar1.gram*  '
+* To include additional grammar files, include the desired filename during your execute command as seen below (Note: input files must be in the same directory as the executable):<br/>' ~$ ./Delfino_Jensen_G4 *customGrammar1.gram*  '
 
 * The program accepts up to and including 7 custom input files.
 
@@ -62,17 +69,20 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 * **Choose Grammar (Bush)** : Changes the current grammar to display a bush
 * **Choose Grammar (Flower Twig)** : Changes the current grammar to display a flower twig
 * **Choose Custom Grammar #** : Changes the current grammar to use designated input file
+* **Input Standard Deviation (via the console)** : Prompts the user for a float representing the standard deviation of the rotation angle in the console window. The default value is 5, and the higher the standard deviation, the more 'random' the plant will appear.
 * **Quit** : Quits program
 
 
 ## __Input File Format__
-* The first line of the input file indicates the order of the plant, meaning how many iterations will it take to generate the plant. This line is made up of a character followed by an integer (ex. 'n 6')
+* The first line of the input file indicates the order of the plant, meaning how many iterations will it take to generate the plant. This line is made up of a character followed by an integer separated by a space (ex. 'n 6')
 
-* The second line of the input file indicates the rotation angle of the branches. This line is made up of a character followed by a float (ex. 'a 22.5')
+* The second line of the input file indicates the rotation angle of the branches. This line is made up of a character followed by a float separated by a space (ex. 'a 22.5')
 
-* The third line of the input file indicates the starting length of a branch. This line consists of a character followed by a float (ex. 'l 10')
+* The third line of the input file indicates the starting length of a branch. This line consists of a character followed by a float separated by a space (ex. 'l 10')
 
-* The fourth line of the input file indicates the starting plant string. This line consists of a character followed by a string (ex. 's A' or 's ABA')
+* The fourth line of the input file indicates the starting plant string. This line consists of a character followed by a string separated by a space (ex. 's A')
+
+* Each production rule consists of a non-terminal symbol, followed by a colon and a string of non-terminal and terminal symbols. This string and the colon must be separated by a space (ex. 'A: BAB' or 'A: G[Y+X+BFA]')
 
 * To include a rotation in the grammar, the symbols combination is a Y (+/-) followed by an X (+/-)<br/> Examples include *'Y+X+'*, *'Y+X-'*, *'Y-X+'*, *'Y-X-'*
 
@@ -89,10 +99,10 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 * **g** : Decrements the green value in the red, green, blue (rgb) color format  
 * **X** : Indicates a rotation about the X axis
 * **Y** : Indicates a rotation about the Y axis
-* **+** : 
-* **-** : 
-* **[** : 
-* **]** : 
+* **+** : Rotates by a random positive angle within the standard deviation of the rotation angle of the plant (rotates about X axis if preceded by X, rotates about Y axis if preceded by Y)
+* **-** : Rotates by a random negative angle within the standard deviation of the rotation angle of the plant (rotates about X axis if preceded by X, rotates about Y axis if preceded by Y)
+* **[** : Pushes a new section of the plant onto the stack
+* **]** : Pops the previous section of the plant from the stack
 
 ## __Available Plant Parts__
 * **Branch** : A brown branch that will be scaled down in size the higher its location is on the plant
@@ -133,4 +143,8 @@ B: BY+BX-[X-BX+BX+B]X+[X+BX-BX-B] <br/>
 
 ## __Sample Output__
 
-![allThree](./AllThree.png)
+![Overview](./Overview.png)
+
+![AllThree](./AllThree.png)
+
+![CoolView](./CoolView.png)
