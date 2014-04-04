@@ -8,19 +8,19 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 ## __Included Files__
 
-* **classes.h** : Header file for the various classes used in the program
+* **classes.h** : Header file, containing the prototypes for the various classes used in the program
 
-* **classes.cpp** : Gives functionality to methoeds of the objects defined in classes.h
+* **classes.cpp** : Contains functionality for the methods of the classes defined in classes.h
 
-* **landscape.cpp** : Main file of C++ program
+* **landscape.cpp** : Main driver file for C++ program
 
-* **small.dem.grd** : Digital Elevation Model (in ESRI Format) representing a fractal landscape 
+* **small.dem.grd** : Digital Elevation Model (in ESRI Format) representing a randomly generated, fractal landscape 
 
-* **tree.gram** : Grammar creates an instance of a tree
+* **tree.gram** : Grammar definition to create an instance of a tree
 
-* **bush.gram** : Grammar creates an instance of a bush
+* **bush.gram** : Grammar definition to create an instance of a bush
 
-* **twig.gram** : Grammar creates an instance of a flower twig
+* **twig.gram** : Grammar definition to create an instance of a flowery twig
 
 * **README.md** : This user guide that includes the description of how to use the program
 
@@ -28,19 +28,19 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 * **AllThree.png** : Screenshot of the default scene including all three types of plants
 
-* **CoolView.png** : Another screenshot of the default scene
+* **CoolView.png** : Another screenshot of the default scene, showcasing the fractal nature of the plants
 
-* **Makefile** : Makefile used to compile the program that is compatible with Linux and OS X operating systems
+* **Makefile** : Makefile used to compile the program (compatible with Linux and OS X operating systems)
 
 ## __How to Compile__
 
-* To compile the program using the included Makefile, use the command: <br/>' ~$ make landscape '
+* To compile the program using the included Makefile, use the command: ` $ make landscape `
 
-* The executable file is named ' Delfino_Jensen_G4 ' and can be run with the command:<br/>' ~$ ./Delfino_Jensen_G4 '
+* The executable file is named "Delfino_Jensen_G4" and can be run with the command: ` $ ./Delfino_Jensen_G4 `
 
-* To include additional grammar files, include the desired filename during your execute command as seen below (Note: input files must be in the same directory as the executable):<br/>' ~$ ./Delfino_Jensen_G4 *customGrammar1.gram*  '
+* To include additional grammar files, include the desired filename during your execute command as additional parameters to the call, shown in the example below (Note: input files must be in the same directory as the executable):` $ ./Delfino_Jensen_G4 <exampleGrammar.gram> `
 
-* The program accepts up to and including 7 custom input files.
+* The program accepts up to and including 7 custom input files, selectable through the interactive menu (activated via right-clicking)
 
 * If no input file is included, only the three provided grammars will be available
 
@@ -63,11 +63,11 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 ####Menu Options
 * **Build Default Scene** : Builds a default scene including all three default types of plants
 * **Randomly Place 3 of the Current Plant** : Randomly places 3 instances of the current plant type on the landscape
-* **Randomly Place 5 Random Plants** : Randomly places 5 random plants on the landscape
+* **Randomly Place 5 Random Plants** : Randomly places 5 plants, of randomly chosen types, on the landscape
 * **Clear the Scene** : Clears the scene of all current plants
-* **Choose Grammar (Tree)** : Changes the current grammar to display a tree
-* **Choose Grammar (Bush)** : Changes the current grammar to display a bush
-* **Choose Grammar (Flower Twig)** : Changes the current grammar to display a flower twig
+* **Choose Grammar (Tree)** : Changes the current grammar to display a tree on left click
+* **Choose Grammar (Bush)** : Changes the current grammar to display a bush on left click
+* **Choose Grammar (Flower Twig)** : Changes the current grammar to display a flower twig on left click
 * **Choose Custom Grammar #** : Changes the current grammar to use designated input file
 * **Input Standard Deviation (via the console)** : Prompts the user for a float representing the standard deviation of the rotation angle in the console window. The default value is 5, and the higher the standard deviation, the more 'random' the plant will appear.
 * **Quit** : Quits program
