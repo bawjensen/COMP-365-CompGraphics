@@ -47,8 +47,8 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 ## __Program Controls__
 ####Keyboard Controls
 
-* **space** - Move camera up
-* **x** - Move camera down
+* **space** : Move camera up
+* **x** : Move camera down
 * **s | 2** : Move camera backwards
 * **w | 8** : Move camera forwards
 * **a | 4** : Move camera left
