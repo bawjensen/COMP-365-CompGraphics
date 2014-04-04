@@ -10,7 +10,7 @@ Generate a variety of plants on a landscape scene using the default grammars or 
 
 * **classes.h** : Header file for the various classes used in the program
 
-* **classes.cpp** : Gives functionality to methods of the objects defined in classes.h
+* **classes.cpp** : Gives functionality to methoeds of the objects defined in classes.h
 
 * **landscape.cpp** : Main file of C++ program
 

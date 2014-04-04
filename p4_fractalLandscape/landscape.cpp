@@ -299,7 +299,6 @@ void initMenu() {
 	for (int i = 0; i < pLand.nGrammars - 3; i++) {
 		entryLabel = "Choose: Custom Grammar " + toString(i+1);
 		glutAddMenuEntry(entryLabel.c_str(), n + i);
-		n++;
 	}
 
 	glutAddMenuEntry("", 0);
