@@ -33,5 +33,8 @@ lightAndMaterial1:	lightAndMaterial1.cpp
 lightAndMaterial2:	lightAndMaterial2.cpp
 			g++ lightAndMaterial2.cpp -o lightAndMaterial2 -w $(CFLAGS)
 
+sizeNormal:	sizeNormal.cpp
+			g++ sizeNormal.cpp -o sizeNormal -w $(CFLAGS)
+
 clean:
 			rm *.o
