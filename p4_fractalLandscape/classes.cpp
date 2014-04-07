@@ -812,14 +812,14 @@ void PlantLandscape::defaultScene() {
 
 void PlantLandscape::currentRandomPlace(int n) {
 	srand(time(NULL));
-	int xRange = this->groundPointer->cellSize * this->groundPointer->nRows;
-	int yRange = this->groundPointer->cellSize * this->groundPointer->nCols;
+	int xRange = this->groundPointer->cellSize * (this->groundPointer->nRows-1);
+	int yRange = this->groundPointer->cellSize * (this->groundPointer->nCols-1);
 
 	for (int i = 0; i < n; i++) {
-		int x = rand() % xRange;
-		int z = rand() % yRange;
+		float x = rand() % xRange;
+		float z = rand() % yRange;
 
-		int y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
+		float y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
 
 		x += (this->groundPointer->iOffset * this->groundPointer->cellSize);
 		z += (this->groundPointer->jOffset * this->groundPointer->cellSize);
@@ -833,14 +833,14 @@ void PlantLandscape::randomRandomPlace(int n) {
 	srand(time(NULL));
 	int oldPlantType = this->currPlantType;
 
-	int xRange = this->groundPointer->cellSize * this->groundPointer->nRows;
-	int yRange = this->groundPointer->cellSize * this->groundPointer->nCols;
+	int xRange = this->groundPointer->cellSize * (this->groundPointer->nRows-1);
+	int yRange = this->groundPointer->cellSize * (this->groundPointer->nCols-1);
 
 	for (int i = 0; i < n; i++) {
-		int x = rand() % xRange;
-		int z = rand() % yRange;
+		float x = rand() % xRange;
+		float z = rand() % yRange;
 
-		int y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
+		float y = groundPointer->heightAt(x / this->groundPointer->cellSize, z / this->groundPointer->cellSize);
 
 		this->currPlantType = rand() % this->nGrammars;
 
