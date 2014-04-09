@@ -9,32 +9,8 @@ else # Linux
 	CFLAGS=		$(CPATHS)$(CLIBS)
 endif
 
-testing:		testing.cpp
-			g++ testing.cpp classes.cpp -o testing -w $(CFLAGS)
-
-square:	square.cpp
-			g++ square.cpp -o square -w $(CFLAGS)
-
-squareOfWalls:	squareOfWalls.cpp
-			g++ squareOfWalls.cpp -o squareOfWalls -w $(CFLAGS)
-
-threeQuarterSphere:	threeQuarterSphere.cpp
-			g++ threeQuarterSphere.cpp -o threeQuarterSphere -w $(CFLAGS)
-
-sphereInBox1:	sphereInBox1.cpp
-			g++ sphereInBox1.cpp -o sphereInBox1 -w $(CFLAGS)
-
-glutObjects:	glutObjects.cpp
-			g++ glutObjects.cpp -o glutObjects -w $(CFLAGS)
-
-lightAndMaterial1:	lightAndMaterial1.cpp
-			g++ lightAndMaterial1.cpp -o lightAndMaterial1 -w $(CFLAGS)
-
-lightAndMaterial2:	lightAndMaterial2.cpp
-			g++ lightAndMaterial2.cpp -o lightAndMaterial2 -w $(CFLAGS)
-
-sizeNormal:	sizeNormal.cpp
-			g++ sizeNormal.cpp -o sizeNormal -w $(CFLAGS)
+mytexture:	mytexture.cpp glm.c glm.h
+			g++ mytexture.cpp glm.c -o mytexture -w $(CFLAGS)
 
 clean:
 			rm *.o
