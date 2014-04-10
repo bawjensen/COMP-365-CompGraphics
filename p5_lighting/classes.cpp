@@ -373,30 +373,32 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 		}
 
 		if (i % 2 == 0) { // If i is even, then triangle is the upper half (if part of square) version
-			normal = Coord3f(-cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p1.x][p1.y]),
+			normal = Coord3f(cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]),
 							cS * cS,
 							cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]));
 		}
 		else { // Otherwise, i is odd and the lower half
-			normal = Coord3f(-cS * (this->pointGrid[p2.x][p2.y] - this->pointGrid[p3.x][p3.y]),
+			normal = Coord3f(cS * (this->pointGrid[p2.x][p2.y] - this->pointGrid[p3.x][p3.y]),
 							cS * cS,
-							-cS * (this->pointGrid[p2.x][p2.y] - this->pointGrid[p1.x][p1.y]));
+							cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p2.x][p2.y]));
 		}
 
-		// cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
-		// cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
-		// cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
-		// cout << "Normal: " << normal << endl;
+		cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
+		cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
+		cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
+		cout << "Gives normal: " << normal << endl;
 
 		normals.push_back(normal);
 	}
 
+	cout << "Sum of normals: ";
 	Coord3f sumNormal;
 	for (vector<Coord3f>::iterator it = normals.begin(); it != normals.end(); ++it) {
+		cout << (*it);
 		sumNormal = sumNormal + (*it);
 	}
 
-	// cout << "Sum: " << this->normalize(sumNormal) << endl;
+	cout << endl << " gives: " << sumNormal << " (normalized: " << this->normalize(sumNormal) << ")" << endl;
 	return this->normalize(sumNormal);
 }
 
