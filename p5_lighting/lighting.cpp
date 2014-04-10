@@ -11,6 +11,7 @@
 #include <string>
 
 #include "classes.h"
+#include "baseClasses.h"
 
 using namespace std;
 
@@ -20,13 +21,10 @@ string DEMFileName = "small.dem.grd";
 // string DEMFileName = "mt257.dem.grd";
 // string DEMFileName = "tucks.dem.grd";
 
-string grammarFileName1 = "tree.gram";
-string grammarFileName2 = "bush.gram";
-string grammarFileName3 = "twig.gram";
-
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
 
+// grid dimensions for the reference grid (used in debugging)
 int gridWidth = 1200;
 int gridBoundary = gridWidth / 2;
 
@@ -34,9 +32,6 @@ int gridBoundary = gridWidth / 2;
 int rotationRadius = 1250;
 
 Camera mCam;
-Ground ground;
-PlantLandscape pLand;
-Minimap minimap(200, 200, initialWindowWidth, initialWindowHeight, &ground, &pLand);
 
 void quit() {
 	exit(1);
