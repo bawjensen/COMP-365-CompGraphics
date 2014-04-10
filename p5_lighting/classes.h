@@ -100,6 +100,7 @@ public:
 	Color3f colorAt(Coord3f);
 	Coord3f normalAt(Coord2i);
 	Coord3f toCoord(Coord2i);
+	Coord3f normalize(Coord3f);
 	void setGreen();
 	void setGray();
 	void setWhite();

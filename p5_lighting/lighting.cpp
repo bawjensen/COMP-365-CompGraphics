@@ -17,7 +17,8 @@ using namespace std;
 
 // -------------------------------------------------------------------------------------------
 
-string DEMFileName = "mt257.dem.grd";
+string DEMFileName = "test2.dem.grd";
+// string DEMFileName = "small.dem.grd";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -32,6 +33,8 @@ int rotationRadius = 1250;
 // Camera mCam;
 User user;
 Ground ground;
+
+// -------------------------------------------------------------------------------------------
 
 void quit() {
 	exit(1);
@@ -60,13 +63,32 @@ void initMenu() {
 }
 
 void init(int numArgs, char** argArray) {
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+
 	glEnable(GL_DEPTH_TEST);
+
+	// Turn on OpenGL lighting.
+	glEnable(GL_LIGHTING);
+
+	// Light property vectors.
+	float lightAmb[] = { 0.1, 0.1, 0.1, 1.0 };
+	float lightDifAndSpec[] = { 1.0, 1.0, 1.0, 1.0 };
+	float globAmb[] = { 1.0, 1.0, 1.0, 1.0 };
+
+	// Light0 properties.
+	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDifAndSpec);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, lightDifAndSpec);
+
+	glEnable(GL_LIGHT0); // Enable particular light source.
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb); // Global ambient light.
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); // Enable local viewpoint
+
+	// glEnable(GL_NORMALIZE);
 
 	user.setDepthOfView(1000);
 	ground.readFromESRIFile(DEMFileName);
-
 	initMenu();
-
 	printUserInstructions();
 }
 
@@ -150,6 +172,23 @@ void display() {
 	// Reset transformations
 	glLoadIdentity();
 
+	// Light position vectors.
+	float lightPos[] = { 30.0, 30.0, 0.0, 1.0 };
+
+	float amb = 0.3;
+	float diff = 1.0;
+	float spec = 0.0;
+
+	// Material property vectors.
+	float matAmb[] = { amb, amb, amb, 1.0 };
+	float matDif[] = { diff, diff, diff, 1.0 };
+	float matSpec[] = { spec, spec, spec, 1.0 };
+	float matShine[] = { 50.0 };
+	float matEmission[] = { 0.0, 0.0, 0.0, 1.0 };
+
+	// Light quadratic attenuation factor.
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 1.0);
+
 	user.update();
 
 	// Set the camera
@@ -158,8 +197,21 @@ void display() {
 				// user.focus.x, 				user.focus.y, 				user.focus.z,
 				0.0f, 						1.0f,  						0.0f);
 
+
+	// Position the light
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+	glDisable(GL_LIGHTING);
 	drawReferenceGrid();
 	drawAxes();
+	glEnable(GL_LIGHTING);
+
+	// Material properties of sphere.
+	glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
+	glMaterialfv(GL_FRONT, GL_SHININESS, matShine);
+	glMaterialfv(GL_FRONT, GL_EMISSION, matEmission);
 
 	ground.display();
 

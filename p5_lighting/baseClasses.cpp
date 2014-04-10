@@ -26,7 +26,9 @@ Coord2i::Coord2i(int nX, int nY) {
 // -------------------------------------------------------------------------------------------
 
 Coord3f::Coord3f() {
-
+	this->x = 0.0f;
+	this->y = 0.0f;
+	this->z = 0.0f;
 }
 
 Coord3f::Coord3f(float nX, float nY, float nZ) {
@@ -41,6 +43,12 @@ Coord3f Coord3f::operator+(const Coord3f& other) const {
 
 Coord3f Coord3f::operator/(float divisor) const {
 	return Coord3f(this->x / divisor, this->y / divisor, this->z / divisor);
+}
+
+ostream& operator<<(ostream& co, const Coord3f& point) {
+	co << "(" << point.x << ", " << point.y << ", " << point.z << ")";
+
+	return co;
 }
 
 // -------------------------------------------------------------------------------------------

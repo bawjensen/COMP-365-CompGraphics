@@ -149,15 +149,29 @@ Triangle::Triangle(Coord3f nP1, Coord3f nP2, Coord3f nP3, Color3f nC1, Color3f n
 }
 
 void Triangle::display() {
-	// glNormal3f(n1.x, n1.y, n1.z);
+	glEnd();
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0, 0.0, 1.0);
+	glBegin(GL_LINES);
+		glVertex3f(p1.x, p1.y, p1.z);
+		glVertex3f(p1.x + n1.x, p1.y + n1.y, p1.z + n1.z);
+		glVertex3f(p2.x, p2.y, p2.z);
+		glVertex3f(p2.x + n2.x, p2.y + n2.y, p2.z + n2.z);
+		glVertex3f(p3.x, p3.y, p3.z);
+		glVertex3f(p3.x + n3.x, p3.y + n3.y, p3.z + n3.z);
+	glEnd();
+	glEnable(GL_LIGHTING);
+	glBegin(GL_TRIANGLES);
+
+	glNormal3f(n1.x, n1.y, n1.z);
 	glColor3f(c1.red, c1.green, c1.blue);
 	glVertex3f(p1.x, p1.y, p1.z);
 
-	// glNormal3f(n2.x, n2.y, n2.z);
+	glNormal3f(n2.x, n2.y, n2.z);
 	glColor3f(c2.red, c2.green, c2.blue);
 	glVertex3f(p2.x, p2.y, p2.z);
 
-	// glNormal3f(n3.x, n3.y, n3.z);
+	glNormal3f(n3.x, n3.y, n3.z);
 	glColor3f(c3.red, c3.green, c3.blue);
 	glVertex3f(p3.x, p3.y, p3.z);
 }
@@ -251,16 +265,26 @@ void Ground::triangulateForDisplay() {
 			Color3f c3 = this->colorAt(p3);
 			Color3f c4 = this->colorAt(p4);
 
+			cout << "Point ll: (" << ll.x << ", " << this->pointGrid[ll.x][ll.y] << ", " << ll.y << ")" << endl;
+			cout << "Point lr: (" << lr.x << ", " << this->pointGrid[lr.x][lr.y] << ", " << lr.y << ")" << endl;
+			cout << "Point ul: (" << ul.x << ", " << this->pointGrid[ul.x][ul.y] << ", " << ul.y << ")" << endl;
+			cout << "Point ur: (" << ur.x << ", " << this->pointGrid[ur.x][ur.y] << ", " << ur.y << ")" << endl;
+
 			Coord3f n1 = this->normalAt(ll);
 			Coord3f n2 = this->normalAt(lr);
 			Coord3f n3 = this->normalAt(ur);
 			Coord3f n4 = this->normalAt(ul);
+
+			if (j == 2)
+				exit(1);
 
 
 			this->displayVector.push_back(Triangle(p1, p3, p4, c1, c3, c4, n1, n3, n4));
 			this->displayVector.push_back(Triangle(p1, p2, p3, c1, c2, c3, n1, n2, n3));
 		}
 	}
+
+	// exit(1);
 }
 
 Color3f Ground::colorAt(Coord3f point) {
@@ -278,62 +302,89 @@ Color3f Ground::colorAt(Coord3f point) {
 }
 
 Coord3f Ground::normalAt(Coord2i indexPoint) {
+	// NOTE: In this function, the vertical component is i, which comes in as indexPoint.x,
+	// 		 and vice versa for the horizonal, j, which is indexPoint.y
+
+	// cout << "Doing normal for: " << indexPoint.y << "," << indexPoint.x << endl;
 	Coord2i p1, p2, p3;
-	Coord3f normal1, normal2, normal3, normal4, normal5, normal6;
+	Coord3f normal;
+	bool ignore[6] = { false, false, false, false, false, false };
+
 	float& cS = this->cellSize;
+
+	if (indexPoint.x == 0) {
+		ignore[2] = true;
+		ignore[3] = true;
+		ignore[4] = true;
+	}
+	if (indexPoint.x == (this->nRows - 1)) {
+		ignore[0] = true;
+		ignore[1] = true;
+		ignore[5] = true;
+	}
+	if (indexPoint.y == 0) {
+		ignore[3] = true;
+		ignore[4] = true;
+		ignore[5] = true;
+	}
+	if (indexPoint.y == (this->nCols - 1)) {
+		ignore[0] = true;
+		ignore[1] = true;
+		ignore[2] = true;
+	}
+
+	vector<Coord3f> normals;
 
 	p1 = Coord2i(indexPoint.x, indexPoint.y);
 
-	// Triangle #1
-	p2 = Coord2i(indexPoint.x+1, indexPoint.y+1);
-	p3 = Coord2i(indexPoint.x, indexPoint.y+1);
+	for (int i = 0; i < 6; i++) {
+		if (ignore[i]) continue;
 
-	normal1 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+		switch(i) {
+			case 0:	p2 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+					p3 = Coord2i(indexPoint.x+1, indexPoint.y);
+					break;
 
-	// Triangle #2
-	p2 = Coord2i(indexPoint.x+1, indexPoint.y);
-	p3 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+			case 1:	p2 = Coord2i(indexPoint.x, indexPoint.y+1);
+					p3 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+					break;
 
-	normal2 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+			case 2:	p2 = Coord2i(indexPoint.x-1, indexPoint.y);
+					p3 = Coord2i(indexPoint.x, indexPoint.y+1);
+					break;
 
-	// Triangle #3
-	p2 = Coord2i(indexPoint.x, indexPoint.y-1);
-	p3 = Coord2i(indexPoint.x+1, indexPoint.y);
+			case 3:	p2 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+					p3 = Coord2i(indexPoint.x-1, indexPoint.y);
+					break;
 
-	normal3 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+			case 4:	p2 = Coord2i(indexPoint.x, indexPoint.y-1);
+					p3 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+					break;
 
-	// Triangle #4
-	p2 = Coord2i(indexPoint.x-1, indexPoint.y-1);
-	p3 = Coord2i(indexPoint.x, indexPoint.y-1);
+			case 5:	p2 = Coord2i(indexPoint.x+1, indexPoint.y);
+					p3 = Coord2i(indexPoint.x, indexPoint.y-1);
+					break;
+		}
 
-	normal4 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+		normal = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+			cS * cS,
+			cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
 
-	// Triangle #5
-	p2 = Coord2i(indexPoint.x-1, indexPoint.y);
-	p3 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+		cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
+		cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
+		cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
+		cout << "Normal: " << normal << endl;
 
-	normal5 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+		normals.push_back(normal);
+	}
 
-	// Triangle #6
-	p2 = Coord2i(indexPoint.x, indexPoint.y+1);
-	p3 = Coord2i(indexPoint.x-1, indexPoint.y);
+	Coord3f sumNormal;
+	for (vector<Coord3f>::iterator it = normals.begin(); it != normals.end(); ++it) {
+		sumNormal = sumNormal + (*it);
+	}
 
-	normal6 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-		cS * cS,
-		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
-
-
-	return (normal1 + normal2 + normal3 + normal4 + normal5 + normal6) / 6;
+	cout << "Sum: " << this->normalize(sumNormal) << endl;
+	return this->normalize(sumNormal);
 }
 
 Coord3f Ground::toCoord(Coord2i indexPoint) {
@@ -346,6 +397,10 @@ Coord3f Ground::toCoord(Coord2i indexPoint) {
 
 Coord2i Ground::toIndex(Vec3f point) {
 
+}
+
+Coord3f Ground::normalize(Coord3f point) {
+	return point / sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
 }
 
 void Ground::setGreen() {
