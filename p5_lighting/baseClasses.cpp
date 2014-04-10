@@ -1,7 +1,46 @@
 #include "baseClasses.h"
 
+// -------------------------------------------------------------------------------------------
+
+Color3f::Color3f() {
+
+}
+
+Color3f::Color3f(float r, float g, float b) {
+	this->red = r;
+	this->green = g;
+	this->blue = b;
+}
+
+// -------------------------------------------------------------------------------------------
+
+Coord2i::Coord2i() {
+
+}
+
+Coord2i::Coord2i(int nX, int nY) {
+	this->x = nX;
+	this->y = nY;
+}
+
+// -------------------------------------------------------------------------------------------
+
 Coord3f::Coord3f() {
-	
+
+}
+
+Coord3f::Coord3f(float nX, float nY, float nZ) {
+	this->x = nX;
+	this->y = nY;
+	this->z = nZ;
+}
+
+Coord3f Coord3f::operator+(const Coord3f& other) const {
+	return Coord3f(this->x + other.x, this->y + other.y, this->z + other.z);
+}
+
+Coord3f Coord3f::operator/(float divisor) const {
+	return Coord3f(this->x / divisor, this->y / divisor, this->z / divisor);
 }
 
 // -------------------------------------------------------------------------------------------

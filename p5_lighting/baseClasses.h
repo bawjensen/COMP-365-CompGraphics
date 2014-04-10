@@ -16,12 +16,34 @@ using namespace std;
 
 class Matrix44f; // Forward definition to allow use in Vec3f
 
+class Color3f {
+private:
+public:
+	float red, green, blue;
+
+	Color3f();
+	Color3f(float, float, float);
+};
+
+class Coord2i {
+private:
+public:
+	int x, y;
+
+	Coord2i();
+	Coord2i(int, int);
+};
+
 class Coord3f {
 private:
 public:
 	float x, y, z;
 
 	Coord3f();
+	Coord3f(float, float, float);
+
+	Coord3f operator+(const Coord3f&) const;
+	Coord3f operator/(float) const;
 };
 
 class Vec3f : public Coord3f {

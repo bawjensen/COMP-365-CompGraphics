@@ -130,6 +130,40 @@ void Camera::handleMovement(int x, int y) {
 
 // -------------------------------------------------------------------------------------------
 
+Triangle::Triangle() {
+
+}
+
+Triangle::Triangle(Coord3f nP1, Coord3f nP2, Coord3f nP3, Color3f nC1, Color3f nC2, Color3f nC3, Coord3f nN1, Coord3f nN2, Coord3f nN3) {
+	this->p1 = nP1;
+	this->p2 = nP2;
+	this->p3 = nP3;
+
+	this->c1 = nC1;
+	this->c2 = nC2;
+	this->c3 = nC3;
+
+	this->n1 = nN1;
+	this->n2 = nN2;
+	this->n3 = nN3;
+}
+
+void Triangle::display() {
+	// glNormal3f(n1.x, n1.y, n1.z);
+	glColor3f(c1.red, c1.green, c1.blue);
+	glVertex3f(p1.x, p1.y, p1.z);
+
+	// glNormal3f(n2.x, n2.y, n2.z);
+	glColor3f(c2.red, c2.green, c2.blue);
+	glVertex3f(p2.x, p2.y, p2.z);
+
+	// glNormal3f(n3.x, n3.y, n3.z);
+	glColor3f(c3.red, c3.green, c3.blue);
+	glVertex3f(p3.x, p3.y, p3.z);
+}
+
+// -------------------------------------------------------------------------------------------
+
 Ground::Ground() {
 
 }
@@ -193,10 +227,125 @@ void Ground::readFromESRIFile(string filename) {
 
 	this->firstDelimiter = (this->highest - this->lowest) / 4;
 	this->secondDelimiter = 3 * (this->highest - this->lowest) / 4;
+
+	this->triangulateForDisplay();
 }
 
-Vec3f Ground::normalizeToIndex(Vec3f point) {
-	
+void Ground::triangulateForDisplay() {
+	// i, j = 0, 0 is the lower left corner of the array
+	for (int i = 0; i < (this->nRows - 1); i++) {
+		for (int j = 0; j < (this->nCols - 1); j++) {
+
+			Coord2i ll(i, j);		// Lower left
+			Coord2i lr(i, j+1);		// Lower right
+			Coord2i ul(i+1, j);		// Upper left
+			Coord2i ur(i+1, j+1);	// Upper right
+
+			Coord3f p1 = this->toCoord(ll);
+			Coord3f p2 = this->toCoord(lr);
+			Coord3f p3 = this->toCoord(ur);
+			Coord3f p4 = this->toCoord(ul);
+
+			Color3f c1 = this->colorAt(p1);
+			Color3f c2 = this->colorAt(p2);
+			Color3f c3 = this->colorAt(p3);
+			Color3f c4 = this->colorAt(p4);
+
+			Coord3f n1 = this->normalAt(ll);
+			Coord3f n2 = this->normalAt(lr);
+			Coord3f n3 = this->normalAt(ur);
+			Coord3f n4 = this->normalAt(ul);
+
+
+			this->displayVector.push_back(Triangle(p1, p3, p4, c1, c3, c4, n1, n3, n4));
+			this->displayVector.push_back(Triangle(p1, p2, p3, c1, c2, c3, n1, n2, n3));
+		}
+	}
+}
+
+Color3f Ground::colorAt(Coord3f point) {
+	float& height = point.y;
+
+	if (height >= this->lowest and height < this->firstDelimiter) {
+		return Color3f(0.1, 0.3, 0.1);
+	}
+	else if (height >= this->firstDelimiter and height < this->secondDelimiter) {
+		return Color3f(0.3, 0.3, 0.3);
+	}
+	else {
+		return Color3f(1.0, 1.0, 1.0);
+	}
+}
+
+Coord3f Ground::normalAt(Coord2i indexPoint) {
+	Coord2i p1, p2, p3;
+	Coord3f normal1, normal2, normal3, normal4, normal5, normal6;
+	float& cS = this->cellSize;
+
+	p1 = Coord2i(indexPoint.x, indexPoint.y);
+
+	// Triangle #1
+	p2 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+	p3 = Coord2i(indexPoint.x, indexPoint.y+1);
+
+	normal1 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+	// Triangle #2
+	p2 = Coord2i(indexPoint.x+1, indexPoint.y);
+	p3 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+
+	normal2 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+	// Triangle #3
+	p2 = Coord2i(indexPoint.x, indexPoint.y-1);
+	p3 = Coord2i(indexPoint.x+1, indexPoint.y);
+
+	normal3 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+	// Triangle #4
+	p2 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+	p3 = Coord2i(indexPoint.x, indexPoint.y-1);
+
+	normal4 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+	// Triangle #5
+	p2 = Coord2i(indexPoint.x-1, indexPoint.y);
+	p3 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+
+	normal5 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+	// Triangle #6
+	p2 = Coord2i(indexPoint.x, indexPoint.y+1);
+	p3 = Coord2i(indexPoint.x-1, indexPoint.y);
+
+	normal6 = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
+		cS * cS,
+		cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+
+
+	return (normal1 + normal2 + normal3 + normal4 + normal5 + normal6) / 6;
+}
+
+Coord3f Ground::toCoord(Coord2i indexPoint) {
+	float x = (indexPoint.x + this->iOffset) * this->cellSize;
+	float y = this->pointGrid[indexPoint.x][indexPoint.y];
+	float z = (indexPoint.y + this->jOffset) * this->cellSize;
+
+	return Coord3f(x, y, z);
+}
+
+Coord2i Ground::toIndex(Vec3f point) {
+
 }
 
 void Ground::setGreen() {
@@ -212,81 +361,9 @@ void Ground::setWhite() {
 }
 
 void Ground::display() {
-	int xPos, zPos, index1, index2, tempX, tempZ;
 	glBegin(GL_TRIANGLES);
-
-	for (int i = 0; i < (this->nRows - 1); i++) {
-		xPos = (i + this->iOffset) * this->cellSize;
-		for (int j = 0; j < (this->nCols - 1); j++) {
-			zPos = (j + this->jOffset) * this->cellSize;
-
-			for (int n = 0; n < 3; n++) {
-				switch (n) {
-					case 0:	index1 = i;
-							index2 = j;
-							tempX = xPos;
-							tempZ = zPos;
-							break;
-					case 1:	index1 = i;
-							index2 = j+1;
-							tempX = xPos;
-							tempZ = zPos + this->cellSize;
-							break;
-					case 2:	index1 = i+1;
-							index2 = j+1;
-							tempX = xPos + this->cellSize;
-							tempZ = zPos + this->cellSize;
-							break;
-				}
-
-				float point = this->pointGrid[index1][index2];
-
-				if (point >= this->lowest and point < this->firstDelimiter) {
-					this->setGreen();
-				}
-				else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
-					this->setGray();
-				}
-				else {
-					this->setWhite();
-				}
-				glVertex3f(tempX, point, tempZ);
-			}
-
-			for (int n = 0; n < 3; n++) {
-				switch (n) {
-					case 0:	index1 = i;
-							index2 = j;
-							tempX = xPos;
-							tempZ = zPos;
-							break;
-					case 1:	index1 = i+1;
-							index2 = j+1;
-							tempX = xPos + this->cellSize;
-							tempZ = zPos + this->cellSize;
-							break;
-					case 2:	index1 = i+1;
-							index2 = j;
-							tempX = xPos + this->cellSize;
-							tempZ = zPos;
-							break;
-				}
-
-				float point = this->pointGrid[index1][index2];
-
-				if (point >= this->lowest and point < this->firstDelimiter) {
-					this->setGreen();
-				}
-				else if (point >= this->firstDelimiter and point < this->secondDelimiter) {
-					this->setGray();
-				}
-				else {
-					this->setWhite();
-				}
-
-				glVertex3f(tempX, point, tempZ);
-			}
-		}
+	for (vector<Triangle>::iterator it = this->displayVector.begin(); it != this->displayVector.end(); ++it) {
+		it->display();
 	}
 	glEnd();
 }

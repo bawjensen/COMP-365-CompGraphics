@@ -64,6 +64,20 @@ public:
 
 };
 
+class Triangle {
+private:
+public:
+	Coord3f p1, p2, p3; // 3 points of the triangle
+	Coord3f n1, n2, n3; // 3 normals corresponding to the points of the triangle
+
+	Color3f c1, c2, c3; // 3 colors corresponding to the points of the triangle
+
+	Triangle();
+	Triangle(Coord3f, Coord3f, Coord3f, Color3f, Color3f, Color3f, Coord3f, Coord3f, Coord3f);
+
+	void display();
+};
+
 class Ground {
 private:
 public:
@@ -75,11 +89,17 @@ public:
 	float firstDelimiter, secondDelimiter;
 	float cellSize;
 
+	vector<Triangle> displayVector;
+
 	Ground();
 
 	void readFromESRIFile(string);
+	void triangulateForDisplay();
 	void display();
-	Vec3f normalizeToIndex(Vec3f);
+	Coord2i toIndex(Vec3f);
+	Color3f colorAt(Coord3f);
+	Coord3f normalAt(Coord2i);
+	Coord3f toCoord(Coord2i);
 	void setGreen();
 	void setGray();
 	void setWhite();
