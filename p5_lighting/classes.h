@@ -7,62 +7,13 @@
 	#include <GL/glut.h>
 #endif
 
-#define _USE_MATH_DEFINES // Needed to get MATH_PI from cmath
-#include <cmath>
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <random>
 #include <vector>
-#include <sstream>
+
+#include "baseClasses.h"
 
 using namespace std;
-
-class Matrix44f; // Forward definition to allow use in Vec3f
-
-class Vec3f {
-private:
-public:
-	float x, y, z; // Maybe these should be private, but we have global variables, why not public data members
-	float xzAngle;
-
-	Vec3f();
-	Vec3f(float nX, float nY, float nZ);
-
-	void set(float, float, float);
-
-	Vec3f rotateX(float);
-	Vec3f rotateY(float);
-	Vec3f rotateZ(float);
-
-	Vec3f cross(const Vec3f&) const;
-
-	Vec3f& operator*=(Matrix44f);
-	Vec3f& operator*=(float);
-	Vec3f& operator+=(const Vec3f&);
-	Vec3f& operator-=(const Vec3f&);
-	Vec3f& operator=(const Vec3f&);
-	Vec3f operator-(const Vec3f&) const;
-	Vec3f operator+(const Vec3f&) const;
-	Vec3f operator*(const float) const;
-	float operator[](int);
-
-	friend ostream& operator<<(ostream&, Vec3f&);
-};
-
-class Matrix44f {
-private:
-public:
-	float matrix[4][4];
-
-	Matrix44f();
-	Matrix44f(float array[4][4]);
-
-	Matrix44f& operator*=(Matrix44f);
-	Matrix44f& operator=(const Matrix44f&);
-
-	friend ostream& operator<<(ostream&, Matrix44f&);
-};
 
 class Camera {
 private:
@@ -107,6 +58,12 @@ public:
 	void handleMovement(int, int);
 };
 
+class User : public Camera {
+private:
+public:
+
+};
+
 class Ground {
 private:
 public:
@@ -116,93 +73,18 @@ public:
 	int greaterDimension;
 	float highest, lowest;
 	float firstDelimiter, secondDelimiter;
-	float elevFactor;
-	float xllCorner, yllCorner;
 	float cellSize;
 
 	Ground();
 
 	void readFromESRIFile(string);
 	void display();
+	Vec3f normalizeToIndex(Vec3f);
 	void setGreen();
 	void setGray();
 	void setWhite();
 
 	float heightAt(float, float);
-};
-
-class PlantGrammar {
-private:
-public:
-	int depthLimit;
-	float angle, length;
-	string start;
-	map< char, vector<string> > grammarMap;
-
-	PlantGrammar();
-
-	void loadFromFile(string);
-};
-
-class Plant {
-private:
-public:
-	Vec3f startPos;
-	string plantString;
-	float angle, length;
-
-	Plant();
-	Plant(float, float, float, string, float, float);
-
-	void display();
-	void rotateX(string);
-	void rotateY(string);
-	void drawBranch(float, float, float);
-	void drawFlower(int);
-	void drawBerry(int);
-	void drawLeaf(int);
-};
-
-class PlantLandscape {
-private:
-public:
-	vector<Plant> plantVec;
-	PlantGrammar grammarArray[10];
-	int nGrammars;
-	int currPlantType;
-	Ground* groundPointer;
-	float stdDev;
-
-	PlantLandscape();
-
-	void display();
-	void loadGrammar(string);
-	string generatePlantString(int);
-	void addPlant(float, float, float);
-	void randomRandomPlace(int);
-	void currentRandomPlace(int);
-	void defaultScene();
-	void clear();
-};
-
-class Minimap {
-private:
-public:
-	int width, height;
-	int upperRightX, upperRightY;
-	int left, right;
-	int top, bottom;
-	Ground* groundPointer;
-	PlantLandscape* plantLandPointer;
-	Vec3f indicator;
-
-	Minimap();
-	Minimap(int, int, int, int, Ground*, PlantLandscape*);
-
-	void display();
-	void displayIndicator();
-	void handleClick(int, int, int, int);
-	void handleMovement(int, int);
 };
 
 #endif

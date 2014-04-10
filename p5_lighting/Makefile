@@ -9,7 +9,7 @@ else # Linux
 	CFLAGS=		$(CPATHS)$(CLIBS)
 endif
 
-landscape:	lighting.cpp classes.cpp classes.h baseClasses.cpp baseClasses.h
+p5:			lighting.cpp classes.cpp classes.h baseClasses.cpp baseClasses.h
 			g++ lighting.cpp classes.cpp baseClasses.cpp -o Delfino_Jensen_G4 -w $(CFLAGS)
 
 clean:
