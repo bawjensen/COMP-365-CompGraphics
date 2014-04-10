@@ -177,7 +177,7 @@ void display() {
 	glLoadIdentity();
 
 	// Light position vectors.
-	float lightPos[] = { 30.0, 30.0, 0.0, 1.0 };
+	float lightPos[] = { 30.0, 1000.0, 0.0, 1.0 };
 
 	float amb = 1.0;
 	float diff = 1.0;
