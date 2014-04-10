@@ -17,8 +17,8 @@ using namespace std;
 
 // -------------------------------------------------------------------------------------------
 
-string DEMFileName = "test2.dem.grd";
-// string DEMFileName = "small.dem.grd";
+// string DEMFileName = "test2.dem.grd";
+string DEMFileName = "small.dem.grd";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -73,7 +73,7 @@ void init(int numArgs, char** argArray) {
 	// Light property vectors.
 	float lightAmb[] = { 0.1, 0.1, 0.1, 1.0 };
 	float lightDifAndSpec[] = { 1.0, 1.0, 1.0, 1.0 };
-	float globAmb[] = { 1.0, 1.0, 1.0, 1.0 };
+	float globAmb[] = { 0.5, 0.5, 0.5, 1.0 };
 
 	// Light0 properties.
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);

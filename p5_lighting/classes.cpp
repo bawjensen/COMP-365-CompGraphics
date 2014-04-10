@@ -265,19 +265,18 @@ void Ground::triangulateForDisplay() {
 			Color3f c3 = this->colorAt(p3);
 			Color3f c4 = this->colorAt(p4);
 
-			cout << "Point ll: (" << ll.x << ", " << this->pointGrid[ll.x][ll.y] << ", " << ll.y << ")" << endl;
-			cout << "Point lr: (" << lr.x << ", " << this->pointGrid[lr.x][lr.y] << ", " << lr.y << ")" << endl;
-			cout << "Point ul: (" << ul.x << ", " << this->pointGrid[ul.x][ul.y] << ", " << ul.y << ")" << endl;
-			cout << "Point ur: (" << ur.x << ", " << this->pointGrid[ur.x][ur.y] << ", " << ur.y << ")" << endl;
+			// cout << "Point ll: (" << ll.x << ", " << this->pointGrid[ll.x][ll.y] << ", " << ll.y << ")" << endl;
+			// cout << "Point lr: (" << lr.x << ", " << this->pointGrid[lr.x][lr.y] << ", " << lr.y << ")" << endl;
+			// cout << "Point ul: (" << ul.x << ", " << this->pointGrid[ul.x][ul.y] << ", " << ul.y << ")" << endl;
+			// cout << "Point ur: (" << ur.x << ", " << this->pointGrid[ur.x][ur.y] << ", " << ur.y << ")" << endl;
 
 			Coord3f n1 = this->normalAt(ll);
 			Coord3f n2 = this->normalAt(lr);
 			Coord3f n3 = this->normalAt(ur);
 			Coord3f n4 = this->normalAt(ul);
 
-			if (j == 2)
-				exit(1);
-
+			// if (j == 2)
+				// exit(1);
 
 			this->displayVector.push_back(Triangle(p1, p3, p4, c1, c3, c4, n1, n3, n4));
 			this->displayVector.push_back(Triangle(p1, p2, p3, c1, c2, c3, n1, n2, n3));
@@ -341,39 +340,52 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 		if (ignore[i]) continue;
 
 		switch(i) {
-			case 0:	p2 = Coord2i(indexPoint.x+1, indexPoint.y+1);
+			case 0:	p1 = Coord2i(indexPoint.x, indexPoint.y);
+					p2 = Coord2i(indexPoint.x+1, indexPoint.y+1);
 					p3 = Coord2i(indexPoint.x+1, indexPoint.y);
 					break;
 
-			case 1:	p2 = Coord2i(indexPoint.x, indexPoint.y+1);
+			case 1:	p1 = Coord2i(indexPoint.x, indexPoint.y);
+					p2 = Coord2i(indexPoint.x, indexPoint.y+1);
 					p3 = Coord2i(indexPoint.x+1, indexPoint.y+1);
 					break;
 
-			case 2:	p2 = Coord2i(indexPoint.x-1, indexPoint.y);
-					p3 = Coord2i(indexPoint.x, indexPoint.y+1);
+			case 2:	p1 = Coord2i(indexPoint.x-1, indexPoint.y);
+					p2 = Coord2i(indexPoint.x, indexPoint.y+1);
+					p3 = Coord2i(indexPoint.x, indexPoint.y);
 					break;
 
-			case 3:	p2 = Coord2i(indexPoint.x-1, indexPoint.y-1);
-					p3 = Coord2i(indexPoint.x-1, indexPoint.y);
+			case 3:	p1 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+					p2 = Coord2i(indexPoint.x-1, indexPoint.y);
+					p3 = Coord2i(indexPoint.x, indexPoint.y);
 					break;
 
-			case 4:	p2 = Coord2i(indexPoint.x, indexPoint.y-1);
-					p3 = Coord2i(indexPoint.x-1, indexPoint.y-1);
-					break;
-
-			case 5:	p2 = Coord2i(indexPoint.x+1, indexPoint.y);
+			case 4:	p1 = Coord2i(indexPoint.x-1, indexPoint.y-1);
+					p2 = Coord2i(indexPoint.x, indexPoint.y);
 					p3 = Coord2i(indexPoint.x, indexPoint.y-1);
+					break;
+
+			case 5:	p1 = Coord2i(indexPoint.x, indexPoint.y-1);
+					p2 = Coord2i(indexPoint.x, indexPoint.y);
+					p3 = Coord2i(indexPoint.x+1, indexPoint.y);
 					break;
 		}
 
-		normal = Coord3f(cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]),
-			cS * cS,
-			cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p3.x][p3.y]) );
+		if (i % 2 == 0) { // If i is even, then triangle is the upper half (if part of square) version
+			normal = Coord3f(-cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p1.x][p1.y]),
+							cS * cS,
+							cS * (this->pointGrid[p3.x][p3.y] - this->pointGrid[p2.x][p2.y]));
+		}
+		else { // Otherwise, i is odd and the lower half
+			normal = Coord3f(-cS * (this->pointGrid[p2.x][p2.y] - this->pointGrid[p3.x][p3.y]),
+							cS * cS,
+							-cS * (this->pointGrid[p2.x][p2.y] - this->pointGrid[p1.x][p1.y]));
+		}
 
-		cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
-		cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
-		cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
-		cout << "Normal: " << normal << endl;
+		// cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
+		// cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
+		// cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
+		// cout << "Normal: " << normal << endl;
 
 		normals.push_back(normal);
 	}
@@ -383,7 +395,7 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 		sumNormal = sumNormal + (*it);
 	}
 
-	cout << "Sum: " << this->normalize(sumNormal) << endl;
+	// cout << "Sum: " << this->normalize(sumNormal) << endl;
 	return this->normalize(sumNormal);
 }
 
@@ -421,6 +433,8 @@ void Ground::display() {
 		it->display();
 	}
 	glEnd();
+
+	// exit(1);
 }
 
 float Ground::heightAt(float x, float y) {
