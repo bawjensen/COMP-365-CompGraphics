@@ -2,15 +2,6 @@
 
 // -------------------------------------------------------------------------------------------
 
-string toString(float x) {
-	x = (int)(x * 100) / (float)100;
-	
-	ostringstream convert;
-	convert << x;
-
-	return convert.str();
-}
-
 Vec3f::Vec3f() {
 	this->x = 0.0f;
 	this->y = 0.0f;
