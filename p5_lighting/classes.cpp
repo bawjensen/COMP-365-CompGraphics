@@ -387,22 +387,22 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 							cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p2.x][p2.y]));
 		}
 
-		cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
-		cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
-		cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
-		cout << "Gives normal: " << normal << endl;
+		// cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
+		// cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
+		// cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
+		// cout << "Gives normal: " << normal << endl;
 
 		normals.push_back(normal);
 	}
 
-	cout << "Sum of normals: ";
+	// cout << "Sum of normals: ";
 	Coord3f sumNormal;
 	for (vector<Coord3f>::iterator it = normals.begin(); it != normals.end(); ++it) {
-		cout << (*it);
+		// cout << (*it);
 		sumNormal = sumNormal + (*it);
 	}
 
-	cout << endl << " gives: " << sumNormal << " (normalized: " << this->normalize(sumNormal) << ")" << endl;
+	// cout << endl << " gives: " << sumNormal << " (normalized: " << this->normalize(sumNormal) << ")" << endl;
 	return this->normalize(sumNormal);
 }
 
@@ -470,3 +470,107 @@ float Ground::heightAt(float x, float y) {
 
 	return result;
 }
+
+// -------------------------------------------------------------------------------------------
+
+DEMGenerator::DEMGenerator() {
+	this->outFileName = "my0.dem.grd";
+	this->roughnessFactor = 2.5;
+
+	this->distribution = normal_distribution<float>(0.0, 1.0);
+
+	this->generator.seed(time(NULL));
+}
+
+
+float DEMGenerator::randVal(int gridSize) {
+	return this->roughnessFactor * gridSize * distribution(generator);
+}
+
+void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, int bottom) {
+	if ((right - left) <= 1) {
+		return;
+	}
+	// cout << "Recursing again: " << left << " to " << right << ", " << top << " to " << bottom << endl;
+
+	int midPointH = (left + right) / 2;
+	int midPointV = (top + bottom) / 2;
+
+	grid[top][midPointH] = (grid[top][left] + grid[top][right]) / 2;
+	grid[bottom][midPointH] = (grid[bottom][left] + grid[bottom][right]) / 2;
+	grid[midPointV][left] = (grid[top][left] + grid[bottom][left]) / 2;
+	grid[midPointV][right] = (grid[top][right] + grid[bottom][right]) / 2;
+
+	grid[midPointV][midPointH] = (grid[top][left] + grid[top][right] + grid[bottom][left] + grid[bottom][right]) / 4 + randVal(left - right + 1);
+
+	fractalRecurse(grid, left, midPointH, top, midPointV);
+	fractalRecurse(grid, midPointH, right, top, midPointV);
+	fractalRecurse(grid, left, midPointH, midPointV, bottom);
+	fractalRecurse(grid, midPointH, right, midPointV, bottom);
+}
+
+float** DEMGenerator::generateGrid(int width) {
+
+	float** grid = new float*[width];
+	for (int i = 0; i < width; i++) grid[i] = new float[width];
+
+
+	float scalar = 1;
+	float shift = width - 1;
+	for (int i = 0; i < width; i++) {
+		grid[0][i] = i * scalar;
+		grid[width-1][i] = shift + i * scalar;
+		grid[i][0] = i * scalar;
+		grid[i][width-1] = shift + i * scalar;
+	}
+
+	fractalRecurse(grid, 0, width - 1, 0, width - 1);
+
+	return grid;
+}
+
+string DEMGenerator::createGridFile(int width) {
+	int n = 4;
+
+	float** grid = generateGrid(width);
+
+	ofstream outFile;
+
+	outFile.open(outFileName.c_str());
+
+	if (!outFile) {
+		cout << "File " << outFileName << " doesn't exist" << endl;
+		exit(1);
+	}
+
+	outFile << "ncols ";
+	outFile << width;
+	outFile << endl;
+
+	outFile << "nrows ";
+	outFile << width;
+	outFile << endl;
+
+	outFile << "xllcorner ";
+	outFile << "0";
+	outFile << endl;
+
+	outFile << "yllcorner ";
+	outFile << "0";
+	outFile << endl;
+
+	outFile << "cellsize ";
+	outFile << "10";
+	outFile << endl;
+
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < width; j++) {
+			outFile << grid[i][j] << " ";
+		}
+		outFile << endl;
+	}
+
+	return outFileName;
+}
+
+// -------------------------------------------------------------------------------------------

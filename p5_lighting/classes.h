@@ -10,6 +10,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <iomanip>
+#include <random>
 
 #include "baseClasses.h"
 
@@ -106,6 +108,22 @@ public:
 	void setWhite();
 
 	float heightAt(float, float);
+};
+
+class DEMGenerator {
+private:
+public:
+	string outFileName;
+	float roughnessFactor;
+	default_random_engine generator;
+	normal_distribution<float> distribution;
+
+	DEMGenerator();
+
+	float randVal(int);
+	void fractalRecurse(float**, int, int, int, int);
+	float** generateGrid(int);
+	string createGridFile(int);
 };
 
 #endif

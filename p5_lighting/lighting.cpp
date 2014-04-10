@@ -33,6 +33,7 @@ int rotationRadius = 1250;
 // Camera mCam;
 User user;
 Ground ground;
+DEMGenerator gridGen;
 
 // -------------------------------------------------------------------------------------------
 
@@ -91,6 +92,8 @@ void init(int numArgs, char** argArray) {
 	// glEnable(GL_NORMALIZE);
 
 	user.setDepthOfView(1000);
+	DEMFileName = gridGen.createGridFile(14);
+	cout << "DEMFileName: " << DEMFileName << endl;
 	ground.readFromESRIFile(DEMFileName);
 	initMenu();
 	printUserInstructions();
