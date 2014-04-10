@@ -117,13 +117,16 @@ public:
 	float roughnessFactor;
 	default_random_engine generator;
 	normal_distribution<float> distribution;
+	int gridWidth;
+	float cellSize;
+	float stdDev;
 
 	DEMGenerator();
 
 	float randVal(int);
 	void fractalRecurse(float**, int, int, int, int);
 	float** generateGrid(int);
-	string createGridFile(int);
+	string createGridFile();
 };
 
 #endif

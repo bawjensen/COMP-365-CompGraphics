@@ -476,8 +476,9 @@ float Ground::heightAt(float x, float y) {
 DEMGenerator::DEMGenerator() {
 	this->outFileName = "my0.dem.grd";
 	this->roughnessFactor = 2.5;
-
-	this->distribution = normal_distribution<float>(0.0, 1.0);
+	this->gridWidth = 257;
+	this->cellSize = 10.0;
+	this->stdDev = 0.5;
 
 	this->generator.seed(time(NULL));
 }
@@ -510,6 +511,7 @@ void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, in
 }
 
 float** DEMGenerator::generateGrid(int width) {
+	this->distribution = normal_distribution<float>(0.0, this->stdDev);
 
 	float** grid = new float*[width];
 	for (int i = 0; i < width; i++) grid[i] = new float[width];
@@ -529,10 +531,8 @@ float** DEMGenerator::generateGrid(int width) {
 	return grid;
 }
 
-string DEMGenerator::createGridFile(int width) {
-	int n = 4;
-
-	float** grid = generateGrid(width);
+string DEMGenerator::createGridFile() {
+	float** grid = generateGrid(this->gridWidth);
 
 	ofstream outFile;
 
@@ -544,11 +544,11 @@ string DEMGenerator::createGridFile(int width) {
 	}
 
 	outFile << "ncols ";
-	outFile << width;
+	outFile << this->gridWidth;
 	outFile << endl;
 
 	outFile << "nrows ";
-	outFile << width;
+	outFile << this->gridWidth;
 	outFile << endl;
 
 	outFile << "xllcorner ";
@@ -560,11 +560,11 @@ string DEMGenerator::createGridFile(int width) {
 	outFile << endl;
 
 	outFile << "cellsize ";
-	outFile << "10";
+	outFile << this->cellSize;
 	outFile << endl;
 
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < width; j++) {
+	for (int i = 0; i < this->gridWidth; i++) {
+		for (int j = 0; j < this->gridWidth; j++) {
 			outFile << grid[i][j] << " ";
 		}
 		outFile << endl;

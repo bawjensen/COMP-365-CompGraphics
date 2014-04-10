@@ -43,9 +43,6 @@ void quit() {
 
 // -------------------------------------------------------------------------------------------
 
-void printUserInstructions() {
-}
-
 void menuCallback(int choice) {
 	switch(choice) {
 		case -1: 	quit();
@@ -61,6 +58,22 @@ void initMenu() {
 	glutAddMenuEntry("Quit", -1);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+void userInputAndInstructions() {
+	cout << "Enter values for: " << endl;
+
+	cout << "Grid width (as well as height): ";
+	cin >> gridGen.gridWidth;
+
+	cout << "Grid spacing (a.k.a. cell size): ";
+	cin >> gridGen.cellSize;
+
+	cout << "Fractal generation's roughness factor (2 < R < 3): ";
+	cin >> gridGen.roughnessFactor;
+
+	cout << "Standard deviation value (default of 0.5 - has much the same effect as roughness factor): ";
+	cin >> gridGen.stdDev;
 }
 
 void init(int numArgs, char** argArray) {
@@ -92,11 +105,12 @@ void init(int numArgs, char** argArray) {
 	// glEnable(GL_NORMALIZE);
 
 	user.setDepthOfView(1000);
-	DEMFileName = gridGen.createGridFile(14);
-	cout << "DEMFileName: " << DEMFileName << endl;
+
+	DEMFileName = gridGen.createGridFile();
+
 	ground.readFromESRIFile(DEMFileName);
+
 	initMenu();
-	printUserInstructions();
 }
 
 void resize(int w, int h) {
@@ -329,12 +343,19 @@ void mouseCallback(int button, int state, int x, int y) {
 // -------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
-	// Init GLUT and create window
+	userInputAndInstructions();
+
+	// Init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+
+	// Create GLUT window
 	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	glutInitWindowPosition(100, 100); 
 	glutCreateWindow("Fractal Landscape");
+
+	// Custom init
+	init(argc, argv);
 
 	// Register callbacks
 	glutDisplayFunc(display);
@@ -350,9 +371,6 @@ int main(int argc, char** argv) {
 	glutKeyboardUpFunc(keyUpCallback); // Key up
 	glutSpecialFunc(specialDownCallback); // Special key down
 	glutSpecialUpFunc(specialUpCallback); // Special key up
-
-	// Custom init
-	init(argc, argv);
 
 	// Begin processing.
 	glutMainLoop();
