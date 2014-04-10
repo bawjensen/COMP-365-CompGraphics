@@ -177,15 +177,15 @@ void display() {
 	glLoadIdentity();
 
 	// Light position vectors.
-	float lightPos[] = { 30.0, 1000.0, 0.0, 1.0 };
+	float lightPos[] = { 200.0, 1000.0, 0.0, 1.0 };
 
 	float amb = 1.0;
-	float diff = 1.0;
+	float diff = 0.5;
 	float spec = 0.0;
 
 	// Material property vectors.
 	float matAmb[] = { amb, amb, amb, 1.0 };
-	float matDif[] = { diff, diff, diff, 1.0 };
+	// float matDif[] = { 0.0, diff, 0.0, 1.0 };
 	float matSpec[] = { spec, spec, spec, 1.0 };
 	float matShine[] = { 50.0 };
 	float matEmission[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -217,7 +217,7 @@ void display() {
 
 	// Material properties of sphere.
 	glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
+	// glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
 	glMaterialfv(GL_FRONT, GL_SHININESS, matShine);
 	glMaterialfv(GL_FRONT, GL_EMISSION, matEmission);

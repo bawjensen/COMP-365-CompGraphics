@@ -145,30 +145,34 @@ Triangle::Triangle(Coord3f nP1, Coord3f nP2, Coord3f nP3, Color3f nC1, Color3f n
 }
 
 void Triangle::display() {
-	glEnd();
-	glDisable(GL_LIGHTING);
-	glColor3f(1.0, 0.0, 1.0);
-	glBegin(GL_LINES);
-		glVertex3f(p1.x, p1.y, p1.z);
-		glVertex3f(p1.x + n1.x, p1.y + n1.y, p1.z + n1.z);
-		glVertex3f(p2.x, p2.y, p2.z);
-		glVertex3f(p2.x + n2.x, p2.y + n2.y, p2.z + n2.z);
-		glVertex3f(p3.x, p3.y, p3.z);
-		glVertex3f(p3.x + n3.x, p3.y + n3.y, p3.z + n3.z);
-	glEnd();
-	glEnable(GL_LIGHTING);
-	glBegin(GL_TRIANGLES);
+	// glEnd();
+	// glDisable(GL_LIGHTING);
+	// glColor3f(1.0, 0.0, 1.0);
+	// glBegin(GL_LINES);
+	// 	glVertex3f(p1.x, p1.y, p1.z);
+	// 	glVertex3f(p1.x + n1.x, p1.y + n1.y, p1.z + n1.z);
+	// 	glVertex3f(p2.x, p2.y, p2.z);
+	// 	glVertex3f(p2.x + n2.x, p2.y + n2.y, p2.z + n2.z);
+	// 	glVertex3f(p3.x, p3.y, p3.z);
+	// 	glVertex3f(p3.x + n3.x, p3.y + n3.y, p3.z + n3.z);
+	// glEnd();
+	// glEnable(GL_LIGHTING);
+	// glBegin(GL_TRIANGLES);
+
 
 	glNormal3f(n1.x, n1.y, n1.z);
-	glColor3f(c1.red, c1.green, c1.blue);
+	float matDif1[] = { c1.red, c1.green, c1.blue, 1.0 };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif1);
 	glVertex3f(p1.x, p1.y, p1.z);
 
 	glNormal3f(n2.x, n2.y, n2.z);
-	glColor3f(c2.red, c2.green, c2.blue);
+	float matDif2[] = { c2.red, c2.green, c2.blue, 1.0 };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif2);
 	glVertex3f(p2.x, p2.y, p2.z);
 
 	glNormal3f(n3.x, n3.y, n3.z);
-	glColor3f(c3.red, c3.green, c3.blue);
+	float matDif3[] = { c3.red, c3.green, c3.blue, 1.0 };
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif3);
 	glVertex3f(p3.x, p3.y, p3.z);
 }
 
