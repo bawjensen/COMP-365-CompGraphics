@@ -71,9 +71,9 @@ void init(int numArgs, char** argArray) {
 	glEnable(GL_LIGHTING);
 
 	// Light property vectors.
-	float lightAmb[] = { 0.1, 0.1, 0.1, 1.0 };
+	float lightAmb[] = { 0.0, 0.0, 0.0, 1.0 };
 	float lightDifAndSpec[] = { 1.0, 1.0, 1.0, 1.0 };
-	float globAmb[] = { 0.5, 0.5, 0.5, 1.0 };
+	float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
 
 	// Light0 properties.
 	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);
@@ -83,6 +83,10 @@ void init(int numArgs, char** argArray) {
 	glEnable(GL_LIGHT0); // Enable particular light source.
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb); // Global ambient light.
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); // Enable local viewpoint
+
+	// Cull back faces.
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// glEnable(GL_NORMALIZE);
 
@@ -175,7 +179,7 @@ void display() {
 	// Light position vectors.
 	float lightPos[] = { 30.0, 30.0, 0.0, 1.0 };
 
-	float amb = 0.3;
+	float amb = 1.0;
 	float diff = 1.0;
 	float spec = 0.0;
 
@@ -187,7 +191,7 @@ void display() {
 	float matEmission[] = { 0.0, 0.0, 0.0, 1.0 };
 
 	// Light quadratic attenuation factor.
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 1.0);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
 
 	user.update();
 
@@ -197,13 +201,18 @@ void display() {
 				// user.focus.x, 				user.focus.y, 				user.focus.z,
 				0.0f, 						1.0f,  						0.0f);
 
-
-	// Position the light
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-
+	// Draw light source spheres after disabling lighting.
 	glDisable(GL_LIGHTING);
-	drawReferenceGrid();
-	drawAxes();
+
+	// Light0 and its sphere positioned.
+	glPushMatrix();
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	glTranslatef(lightPos[0], lightPos[1], lightPos[2]);
+	glColor3f(1.0, 1.0, 1.0);
+	glScalef(3.0, 3.0, 3.0);
+	glutWireSphere(0.05, 8, 8);
+	glPopMatrix();
+
 	glEnable(GL_LIGHTING);
 
 	// Material properties of sphere.
@@ -212,6 +221,12 @@ void display() {
 	glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
 	glMaterialfv(GL_FRONT, GL_SHININESS, matShine);
 	glMaterialfv(GL_FRONT, GL_EMISSION, matEmission);
+
+
+	// glDisable(GL_LIGHTING);
+	// drawReferenceGrid();
+	// drawAxes();
+	// glEnable(GL_LIGHTING);
 
 	ground.display();
 

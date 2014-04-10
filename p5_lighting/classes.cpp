@@ -8,10 +8,6 @@ Camera::Camera() {
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
 
-	// Hard coding values for original view
-	// this->vertAngle = -M_PI / 6;
-	// this->viewDir = this->viewDir.rotateX(-M_PI / 6);
-
 	this->isFocusing = false; // Whether or not the camera is "viewing" or "focusing"
 	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
 
@@ -278,8 +274,13 @@ void Ground::triangulateForDisplay() {
 			// if (j == 2)
 				// exit(1);
 
-			this->displayVector.push_back(Triangle(p1, p3, p4, c1, c3, c4, n1, n3, n4));
-			this->displayVector.push_back(Triangle(p1, p2, p3, c1, c2, c3, n1, n2, n3));
+			this->displayVector.push_back(Triangle(p1, p3, p4,
+												   c1, c3, c4,
+												   n1, n3, n4));
+
+			this->displayVector.push_back(Triangle(p1, p2, p3,
+												   c1, c2, c3,
+												   n1, n2, n3));
 		}
 	}
 
