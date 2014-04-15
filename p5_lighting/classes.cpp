@@ -239,8 +239,8 @@ void Ground::readFromESRIFile(string filename) {
 
 	this->greaterDimension = max(this->nCols, this->nRows) * this->cellSize;
 
-	this->firstDelimiter = (this->highest - this->lowest) / 4;
-	this->secondDelimiter = 3 * (this->highest - this->lowest) / 4;
+	this->firstDelimiter = ((this->highest - this->lowest) / 2) + this->lowest;
+	this->secondDelimiter = (3 * (this->highest - this->lowest) / 4) + this->lowest;
 
 	this->triangulateForDisplay();
 }
@@ -265,18 +265,10 @@ void Ground::triangulateForDisplay() {
 			Color3f c3 = this->colorAt(p3);
 			Color3f c4 = this->colorAt(p4);
 
-			// cout << "Point ll: (" << ll.x << ", " << this->pointGrid[ll.x][ll.y] << ", " << ll.y << ")" << endl;
-			// cout << "Point lr: (" << lr.x << ", " << this->pointGrid[lr.x][lr.y] << ", " << lr.y << ")" << endl;
-			// cout << "Point ul: (" << ul.x << ", " << this->pointGrid[ul.x][ul.y] << ", " << ul.y << ")" << endl;
-			// cout << "Point ur: (" << ur.x << ", " << this->pointGrid[ur.x][ur.y] << ", " << ur.y << ")" << endl;
-
 			Coord3f n1 = this->normalAt(ll);
 			Coord3f n2 = this->normalAt(lr);
 			Coord3f n3 = this->normalAt(ur);
 			Coord3f n4 = this->normalAt(ul);
-
-			// if (j == 2)
-				// exit(1);
 
 			this->displayVector.push_back(Triangle(p1, p3, p4,
 												   c1, c3, c4,
@@ -309,7 +301,6 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 	// NOTE: In this function, the vertical component is i, which comes in as indexPoint.x,
 	// 		 and vice versa for the horizonal, j, which is indexPoint.y
 
-	// cout << "Doing normal for: " << indexPoint.y << "," << indexPoint.x << endl;
 	Coord2i p1, p2, p3;
 	Coord3f normal;
 	bool ignore[6] = { false, false, false, false, false, false };
@@ -387,22 +378,14 @@ Coord3f Ground::normalAt(Coord2i indexPoint) {
 							cS * (this->pointGrid[p1.x][p1.y] - this->pointGrid[p2.x][p2.y]));
 		}
 
-		// cout << "P1: (" << p1.x << ", " << this->pointGrid[p1.x][p1.y] << ", " << p1.y << ")" << endl;
-		// cout << "P2: (" << p2.x << ", " << this->pointGrid[p2.x][p2.y] << ", " << p2.y << ")" << endl;
-		// cout << "P3: (" << p3.x << ", " << this->pointGrid[p3.x][p3.y] << ", " << p3.y << ")" << endl;
-		// cout << "Gives normal: " << normal << endl;
-
 		normals.push_back(normal);
 	}
 
-	// cout << "Sum of normals: ";
 	Coord3f sumNormal;
 	for (vector<Coord3f>::iterator it = normals.begin(); it != normals.end(); ++it) {
-		// cout << (*it);
 		sumNormal = sumNormal + (*it);
 	}
 
-	// cout << endl << " gives: " << sumNormal << " (normalized: " << this->normalize(sumNormal) << ")" << endl;
 	return this->normalize(sumNormal);
 }
 
@@ -473,6 +456,20 @@ float Ground::heightAt(float x, float y) {
 
 // -------------------------------------------------------------------------------------------
 
+DEMInputGrid::DEMInputGrid() {
+
+}
+
+void DEMInputGrid::display() {
+	
+}
+
+void DEMInputGrid::initializeFrom(const DEMGenerator& gridGen) {
+	this->width = gridGen.gridWidth;
+}
+
+// -------------------------------------------------------------------------------------------
+
 DEMGenerator::DEMGenerator() {
 	this->outFileName = "my0.dem.grd";
 	this->roughnessFactor = 2.5;
@@ -483,6 +480,35 @@ DEMGenerator::DEMGenerator() {
 	this->generator.seed(time(NULL));
 }
 
+float** DEMGenerator::smooth(float** grid) {
+	float weight = 0.6;
+
+	float tempGrid[this->gridWidth][this->gridWidth];
+
+	for (int i = 1; i < this->gridWidth-1; i++) {
+		for (int j = 1; j < this->gridWidth-1; j++) {
+			float sum = weight * 
+						(grid[i-1][j-1] + 
+						 grid[i-1][j] + 
+						 grid[i-1][j+1] + 
+						 grid[i][j-1] + 
+						 grid[i][j+1] + 
+						 grid[i+1][j-1] + 
+						 grid[i+1][j] + 
+						 grid[i+1][j+1]) + grid[i][j];
+
+			tempGrid[i][j] = sum / 9;
+		}
+	}
+
+	for (int i = 1; i < this->gridWidth-1; i++) {
+		for (int j = 1; j < this->gridWidth-1; j++) {
+			grid[i][j] = tempGrid[i][j];
+		}
+	}
+
+	return grid;
+}
 
 float DEMGenerator::randVal(int gridSize) {
 	return this->roughnessFactor * gridSize * distribution(generator);
@@ -514,19 +540,17 @@ float** DEMGenerator::generateGrid(int width) {
 	this->distribution = normal_distribution<float>(0.0, this->stdDev);
 
 	float** grid = new float*[width];
-	for (int i = 0; i < width; i++) grid[i] = new float[width];
-
-
-	float scalar = 1;
-	float shift = width - 1;
 	for (int i = 0; i < width; i++) {
-		grid[0][i] = i * scalar;
-		grid[width-1][i] = shift + i * scalar;
-		grid[i][0] = i * scalar;
-		grid[i][width-1] = shift + i * scalar;
+		grid[i] = new float[width];
+		for (int j = 0; j < width; j++) {
+			grid[i][j] = 0.0f;
+		}
 	}
 
 	fractalRecurse(grid, 0, width - 1, 0, width - 1);
+
+	for (int i = 0; i < this->numSmooths; i++)
+		grid = this->smooth(grid);
 
 	return grid;
 }

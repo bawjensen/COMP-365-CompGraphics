@@ -1,8 +1,9 @@
-/* mytexture.cpp
+/* multTexture.cpp
  *
- * Texture mapping starting from perspect2.cpp
- * Draws a texture onto a parallelpiped.
- *
+ * Texture mapping starting from mytexture.cpp.
+ * Draws multiple textures onto a parallelpiped.
+ * 
+ * Follow steps (0) to create multiple textures.
  */
 
 #include <iostream>
@@ -20,11 +21,14 @@ float zPos = 3.0;   // distance the center of projection from frustum
 int wireframe = 0;  // toggle for wire-frame
 int depthbuff = 1;  // toggle for depth buffer
 int texture = 1;    // toggle for texture
-static unsigned int textureArray[4];
-unsigned char* image1 = NULL;  // name of texture map
-unsigned char* image2 = NULL;  // name of texture map
-int tex1Width, tex2Width;
-int tex1Height, tex2Height;
+unsigned char* image = NULL;   // store data of texture map
+unsigned char* image2 = NULL;  // store data of second texture map
+unsigned char* image3 = NULL;  // store data of third texture map
+int texWidth;
+int texHeight;
+
+// (1) create texture array
+static unsigned int textureArray[4];	  // Array of textures
 
 void display ()
 {
@@ -47,17 +51,18 @@ void rectSolid ()
    float Xl = -0.5;	// left x
    float Yt = 0.5;	// top y
    float Yb = -0.5;	// bottom y
-   float Zf = 0.8;	// front z
-   float Zb = -0.8;	// back z
+   float Zf = 0.5;	// front z
+   float Zb = -0.5;	// back z
 
    glColor3f (0.2, 0.0, 1.0);
 
    if (texture)
       glEnable (GL_TEXTURE_2D);
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[0]);
+   // (5) Bind the appropriate texture to desired polygon
+   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
    // right side (defined in counter-clockwise order)
-   glBegin (GL_QUADS);
+   glBegin (GL_TRIANGLES);
       // must define texture BEFORE each vertex!!
       // Textures are defined 0,0 for bottom left
       glTexCoord2f (0, 0);
@@ -66,89 +71,57 @@ void rectSolid ()
       glTexCoord2f (1, 0);
       glVertex3f (Xr, Yb, Zb);  // lower right
 
-      glTexCoord2f (1, 1);
-      glVertex3f (Xr, Yt, Zb);  // upper right
-
-      glTexCoord2f (0, 1);
-      glVertex3f (Xr, Yt, Zf);  // upper left
+      glTexCoord2f (0.5, 1.0);
+      glVertex3f (0.0, 0.0, 0.0);  // upper middle
    glEnd();
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
-   // top
-   glBegin (GL_QUADS);
-      glTexCoord2f (0, 0);
-      glVertex3f (Xr, Yt, Zf);
-      glTexCoord2f (1, 0);
-      glVertex3f (Xr, Yt, Zb);
-      glTexCoord2f (1, 1);
-      glVertex3f (Xl, Yt, Zb);
-      glTexCoord2f (0, 1);
-      glVertex3f (Xl, Yt, Zf);
-   glEnd();
-
-   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
    // left side
-   glBegin (GL_QUADS);
+   glBegin (GL_TRIANGLES);
+      glTexCoord2f (0.5, 1.0);
+      glVertex3f (0, 0, 0);
       glTexCoord2f (0, 0);
-      glVertex3f (Xl, Yt, Zb);
-      glTexCoord2f (1, 0);
-      glVertex3f (Xl, Yt, Zf);
-      glTexCoord2f (1, 1);
-      glVertex3f (Xl, Yb, Zf);
-      glTexCoord2f (0, 1);
       glVertex3f (Xl, Yb, Zb);
+      glTexCoord2f (1, 0);
+      glVertex3f (Xl, Yb, Zf);
    glEnd();
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
    // bottom
    glBegin (GL_QUADS);
+      glTexCoord2f (0, 0);
       glVertex3f (Xr, Yb, Zf);
+      glTexCoord2f (1, 0);
       glVertex3f (Xl, Yb, Zf);
+      glTexCoord2f (1, 1);
       glVertex3f (Xl, Yb, Zb);
+      glTexCoord2f (0, 1);
       glVertex3f (Xr, Yb, Zb);
    glEnd();
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[0]);
    // back
+   glBindTexture(GL_TEXTURE_2D, textureArray[0]);
    glColor3f (1.0, 0.5, 0.5);
-   glBegin (GL_QUADS);
-      glVertex3f (Xr, Yt, Zb); 
-      glVertex3f (Xr, Yb, Zb); 
-      glVertex3f (Xl, Yb, Zb); 
-      glVertex3f (Xl, Yt, Zb);
+   glBegin (GL_TRIANGLES);
+      glTexCoord2f (0.5, 1.0);
+      glVertex3f (0.0, 0.0, 0.0); // middle top
+      glTexCoord2f (0, 0);
+      glVertex3f (Xr, Yb, Zb); // lower right
+      glTexCoord2f (1, 0);
+      glVertex3f (Xl, Yb, Zb); // lower left
    glEnd();
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
    // front
    glColor3f (0.0, 0.5, 1.0);
-   glBegin (GL_QUADS);
+   glBindTexture(GL_TEXTURE_2D, textureArray[2]);
+   glBegin (GL_TRIANGLES);
       glTexCoord2f (0, 0);
       glVertex3f (Xl, Yb, Zf);  // lower left
 
       glTexCoord2f (1, 0);
       glVertex3f (Xr, Yb, Zf);  // lower right
 
-      glTexCoord2f (1, 1);
-      glVertex3f (Xr, Yt, Zf);  // upper right
-
-      glTexCoord2f (0, 1);
-      glVertex3f (Xl, Yt, Zf);  // upper left
+      glTexCoord2f (0.5, 1);
+      glVertex3f (0.0, 0.0, 0.0);  // upper right
    glEnd();
-
-/* ----
-   // an extra one for kicks (equilateral triangle, point down)
-   // This tests how to map texture onto a non-rectangular polygon
-   glBegin (GL_POLYGON);
-      glTexCoord2f (0.5, 1.0);
-      glVertex3f (0.0, Yb, 1.0); 	// bottom center of triangle
-
-      glTexCoord2f (1.0, 0.0);
-      glVertex3f (Xr, Yt, 1.0);		// upper right corner
-
-      glTexCoord2f (0.0, 0.0);
-      glVertex3f (Xl, Yt, 1.0);		// upper left corner
-   glEnd();
- --- */
 
    if (texture)
       glDisable (GL_TEXTURE_2D);
@@ -159,60 +132,73 @@ void init ()
 {
    glClearColor (0.0, 0.0, 0.0, 0.0);
    glEnable (GL_DEPTH_TEST);
-   // get texture map as a ppm file; width = 2^m, height = 2^n
-   // glmReadPPM is in glm.h
-   image1 = glmReadPPM ("train.ppm", &tex1Width, &tex1Height);
-   image2 = glmReadPPM ("checker.ppm", &tex2Width, &tex2Height);
-   //cout << tex1Width << " " << tex1Height << endl;
 
-   // set up texture parameters
+   // (2) Let OpenGL bind textureArray
+   // create texture array
+   glGenTextures(2, textureArray);
+
+   // (3) Define multiple textures
+
+   // bind celeb image as texture #0
+   char ch[20] = "CelebDMud.ppm\0";
+   image=glmReadPPM (ch, &texWidth, &texHeight);
+   // (4) Bind following texture to the texture array
+   glBindTexture (GL_TEXTURE_2D, textureArray[0]);
    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   // set parameters for the edges of texture
    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   // replace polygon with texture (not just cover polygon, in which case
-   // the color of the previous polygon shows through the texture)
    glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-   glBindTexture(GL_TEXTURE_2D, textureArray[0]);
-
-   // store image as a texture
    glTexImage2D (GL_TEXTURE_2D, 	// target: 2D texture
 		   0,			// level = 0 unless multiple resolutions
 		   GL_RGB,		// internal image format 
 		                        // (see OpenGL text for options)
-		   tex1Width,		// image width
-		   tex1Height,		// image height
+		   texWidth,		// image width
+		   texHeight,		// image height
 		   0,			// border width (0 or 1;see OpenGL text)
 		   GL_RGB,		// image format (see OpenGL text)
 		   GL_UNSIGNED_BYTE,  	// format of data within image file
-         image1);    // image file
+		   image);		// image file
 
-   glBindTexture(GL_TEXTURE_2D, textureArray[1]);
+   // bind newCeleb image as texture #1
+   char ch2[20] = "checker.ppm\0";
+   image2=glmReadPPM (ch2, &texWidth, &texHeight);
+   glBindTexture (GL_TEXTURE_2D, textureArray[1]);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+   glTexImage2D (GL_TEXTURE_2D, 	// target: 2D texture
+		   0,			// level = 0 unless multiple resolutions
+		   GL_RGB,		// internal image format 
+		                        // (see OpenGL text for options)
+		   texWidth,		// image width
+		   texHeight,		// image height
+		   0,			// border width (0 or 1;see OpenGL text)
+		   GL_RGB,		// image format (see OpenGL text)
+		   GL_UNSIGNED_BYTE,  	// format of data within image file
+		   image2);		// image file
 
-   // store image as a texture
+   // bind newCeleb image as texture #1
+   char ch3[20] = "train.ppm\0";
+   image3=glmReadPPM (ch3, &texWidth, &texHeight);
+   glBindTexture (GL_TEXTURE_2D, textureArray[2]);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
    glTexImage2D (GL_TEXTURE_2D,  // target: 2D texture
          0,       // level = 0 unless multiple resolutions
          GL_RGB,     // internal image format 
                               // (see OpenGL text for options)
-         tex1Width,     // image width
-         tex1Height,    // image height
+         texWidth,      // image width
+         texHeight,     // image height
          0,       // border width (0 or 1;see OpenGL text)
          GL_RGB,     // image format (see OpenGL text)
          GL_UNSIGNED_BYTE,    // format of data within image file
-		   image2);		// image file
-
-   /* ----
-   // alternatively, store the image as a mipmap 
-   gluBuild2DMipmaps (GL_TEXTURE_2D,    // target: 2D texture
-		      3,                // 3 components (R, G, and B)
-		      tex1Width,         // image width
-		      tex1Height,        // image height
-		      GL_RGB,           // image format
-		      GL_UNSIGNED_BYTE, // format of data within image file
-		      image);		// image file
-   ---- */
+         image3);    // image file
 
 }  // init ()
 
@@ -225,6 +211,7 @@ void reshape (int w, int h)
    glMatrixMode (GL_MODELVIEW);
    glutSwapBuffers();
 }
+
 void keyboard (unsigned char key, int x, int y)
 {
    switch (key) {
@@ -302,7 +289,7 @@ int main (int argc, char** argv) {
 
    glutInitWindowPosition (100, 100);
 
-   glutCreateWindow ("Texture");
+   glutCreateWindow ("Multiple Textures");
 
    init ();
 

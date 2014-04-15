@@ -12,6 +12,9 @@ endif
 mytexture:	mytexture.cpp glm.c glm.h
 			g++ mytexture.cpp glm.c -o mytexture -w $(CFLAGS)
 
+multTexture:	multTexture.cpp glm.c glm.h
+			g++ multTexture.cpp glm.c -o multTexture -w $(CFLAGS)
+
 lightAndMaterial1:	lightAndMaterial1.cpp
 			g++ lightAndMaterial1.cpp -o lightAndMaterial1 -w $(CFLAGS)
 

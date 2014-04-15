@@ -17,6 +17,8 @@
 
 using namespace std;
 
+class DEMGenerator;
+
 class Camera {
 private:
 public:
@@ -110,6 +112,15 @@ public:
 	float heightAt(float, float);
 };
 
+class DEMInputGrid {
+private:
+public:
+	DEMInputGrid();
+
+	void display();
+	void initializeFrom(const DEMGenerator&);
+};
+
 class DEMGenerator {
 private:
 public:
@@ -120,9 +131,11 @@ public:
 	int gridWidth;
 	float cellSize;
 	float stdDev;
+	int numSmooths;
 
 	DEMGenerator();
 
+	float** smooth(float**);
 	float randVal(int);
 	void fractalRecurse(float**, int, int, int, int);
 	float** generateGrid(int);

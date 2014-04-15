@@ -18,7 +18,8 @@ using namespace std;
 // -------------------------------------------------------------------------------------------
 
 // string DEMFileName = "test.dem.grd";
-string DEMFileName = "small.dem.grd";
+// string DEMFileName = "crater.dem.grd";
+string DEMFileName = "";
 
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
@@ -30,10 +31,13 @@ int gridBoundary = gridWidth / 2;
 // radius of rotation for the camera
 int rotationRadius = 1250;
 
+bool gettingRandomDEMFileInput = false;
+
 // Camera mCam;
 User user;
 Ground ground;
 DEMGenerator gridGen;
+DEMInputGrid inputGrid;
 
 // -------------------------------------------------------------------------------------------
 
@@ -61,19 +65,35 @@ void initMenu() {
 }
 
 void userInputAndInstructions() {
-	cout << "Enter values for: " << endl;
+	char choice;
+	cout << "Use pre-built ESRI DEM file (P) or randomly generate ESRI DEM file (R): ";
+	cin >> choice;
 
-	cout << "Grid width (as well as height): ";
-	cin >> gridGen.gridWidth;
+	if (choice == 'P') {
+		cout << "Enter filename: ";
+		cin >> DEMFileName;
+	}
+	else if (choice == 'R') {
+		gettingRandomDEMFileInput = true;
 
-	cout << "Grid spacing (a.k.a. cell size): ";
-	cin >> gridGen.cellSize;
+		cout << "Enter values for: " << endl;
 
-	cout << "Fractal generation's roughness factor (2 < R < 3): ";
-	cin >> gridGen.roughnessFactor;
+		cout << "Grid width (as well as height): ";
+		cin >> gridGen.gridWidth;
 
-	cout << "Standard deviation value (default of 0.5 - has much the same effect as roughness factor): ";
-	cin >> gridGen.stdDev;
+		cout << "Grid spacing (a.k.a. cell size): ";
+		cin >> gridGen.cellSize;
+
+		cout << "Fractal generation's roughness factor (2 < R < 3): ";
+		cin >> gridGen.roughnessFactor;
+
+		cout << "Standard deviation value (default of 0.5 - has much the same effect as roughness factor): ";
+		cin >> gridGen.stdDev;
+
+		cout << "Number of smoothing iterations (creates a more even surface): ";
+		cin >> gridGen.numSmooths;
+
+	}
 }
 
 void init(int numArgs, char** argArray) {
@@ -102,13 +122,16 @@ void init(int numArgs, char** argArray) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	// glEnable(GL_NORMALIZE);
-
 	user.setDepthOfView(1000);
 
-	DEMFileName = gridGen.createGridFile();
+	// DEMFileName = gridGen.createGridFile();
 
-	ground.readFromESRIFile(DEMFileName);
+	if (!gettingRandomDEMFileInput){
+		ground.readFromESRIFile(DEMFileName);
+	}
+	else {
+		inputGrid.initializeFrom(gridGen);
+	}
 
 	initMenu();
 }
@@ -197,7 +220,7 @@ void display() {
 	float lightPos[] = { 200.0, 1000.0, 0.0, 1.0 };
 
 	float amb = 1.0;
-	float diff = 0.5;
+	// float diff = 0.5;
 	float spec = 0.0;
 
 	// Material property vectors.
@@ -219,18 +242,18 @@ void display() {
 				0.0f, 						1.0f,  						0.0f);
 
 	// Draw light source spheres after disabling lighting.
-	glDisable(GL_LIGHTING);
+	// glDisable(GL_LIGHTING);
 
 	// Light0 and its sphere positioned.
-	glPushMatrix();
+	// glPushMatrix();
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-	glTranslatef(lightPos[0], lightPos[1], lightPos[2]);
-	glColor3f(1.0, 1.0, 1.0);
-	glScalef(3.0, 3.0, 3.0);
-	glutWireSphere(0.05, 8, 8);
-	glPopMatrix();
+	// glTranslatef(lightPos[0], lightPos[1], lightPos[2]);
+	// glColor3f(1.0, 1.0, 1.0);
+	// glScalef(3.0, 3.0, 3.0);
+	// glutWireSphere(0.05, 8, 8);
+	// glPopMatrix();
 
-	glEnable(GL_LIGHTING);
+	// glEnable(GL_LIGHTING);
 
 	// Material properties of sphere.
 	glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
@@ -245,7 +268,10 @@ void display() {
 	// drawAxes();
 	// glEnable(GL_LIGHTING);
 
-	ground.display();
+	if (gettingRandomDEMFileInput)
+		inputGrid.display();
+	else
+		ground.display();
 
 	// Swap the buffers - flushing the current buffer
 	glutSwapBuffers();
