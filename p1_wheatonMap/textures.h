@@ -3,7 +3,11 @@
 
 #include "constants.h"
 
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#elif __linux
+	#include <GL/glut.h>
+#endif
 
 static unsigned int texture[1]; // Array of texture indices.
 

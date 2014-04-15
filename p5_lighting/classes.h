@@ -112,15 +112,6 @@ public:
 	float heightAt(float, float);
 };
 
-class DEMInputGrid {
-private:
-public:
-	DEMInputGrid();
-
-	void display();
-	void initializeFrom(const DEMGenerator&);
-};
-
 class DEMGenerator {
 private:
 public:
@@ -133,6 +124,8 @@ public:
 	float stdDev;
 	int numSmooths;
 
+	User* eyePointer;
+
 	DEMGenerator();
 
 	float** smooth(float**);
@@ -140,6 +133,9 @@ public:
 	void fractalRecurse(float**, int, int, int, int);
 	float** generateGrid(int);
 	string createGridFile();
+
+	void display();
+	void handleClick(int, int, int, int);
 };
 
 #endif

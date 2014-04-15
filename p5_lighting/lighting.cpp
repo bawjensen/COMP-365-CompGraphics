@@ -37,7 +37,6 @@ bool gettingRandomDEMFileInput = false;
 User user;
 Ground ground;
 DEMGenerator gridGen;
-DEMInputGrid inputGrid;
 
 // -------------------------------------------------------------------------------------------
 
@@ -47,9 +46,46 @@ void quit() {
 
 // -------------------------------------------------------------------------------------------
 
+void generateAndSetGround(); // Forward delclaration to allow use in menuCallback
+
+void userInputAndInstructions() {
+	char choice;
+	cout << "Use pre-built ESRI DEM file (P) or randomly generate ESRI DEM file (R): ";
+	cin >> choice;
+
+	if (choice == 'P') {
+		cout << "Enter filename: ";
+		cin >> DEMFileName;
+	}
+	else if (choice == 'R') {
+		gettingRandomDEMFileInput = true;
+
+		cout << endl;
+		cout << "Enter values for: " << endl;
+
+		cout << "Grid width (sets height as well - best if 2^n + 1): ";
+		cin >> gridGen.gridWidth;
+
+		cout << "Grid spacing (a.k.a. cell size): ";
+		cin >> gridGen.cellSize;
+
+		cout << "Fractal generation's roughness factor (2 < R < 3): ";
+		cin >> gridGen.roughnessFactor;
+
+		cout << "Standard deviation value (default of 0.5 - same effect as roughness factor): ";
+		cin >> gridGen.stdDev;
+
+		cout << "Number of smoothing iterations (creates a more even surface): ";
+		cin >> gridGen.numSmooths;
+
+	}
+}
+
 void menuCallback(int choice) {
 	switch(choice) {
 		case -1: 	quit();
+					break;
+		case 10: 	generateAndSetGround();
 					break;
 	}
 }
@@ -64,36 +100,25 @@ void initMenu() {
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-void userInputAndInstructions() {
-	char choice;
-	cout << "Use pre-built ESRI DEM file (P) or randomly generate ESRI DEM file (R): ";
-	cin >> choice;
+void generateAndSetGround() {
+	gettingRandomDEMFileInput = false; // Done getting input - creating ground now
 
-	if (choice == 'P') {
-		cout << "Enter filename: ";
-		cin >> DEMFileName;
-	}
-	else if (choice == 'R') {
-		gettingRandomDEMFileInput = true;
+	DEMFileName = gridGen.createGridFile();
 
-		cout << "Enter values for: " << endl;
+	ground.readFromESRIFile(DEMFileName);
 
-		cout << "Grid width (as well as height): ";
-		cin >> gridGen.gridWidth;
+	initMenu();
+}
 
-		cout << "Grid spacing (a.k.a. cell size): ";
-		cin >> gridGen.cellSize;
+void initGenMenu() {
+	glutCreateMenu(menuCallback);
 
-		cout << "Fractal generation's roughness factor (2 < R < 3): ";
-		cin >> gridGen.roughnessFactor;
+	glutAddMenuEntry("Choices:", 0);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Create Ground", 10);
+	glutAddMenuEntry("Quit", -1);
 
-		cout << "Standard deviation value (default of 0.5 - has much the same effect as roughness factor): ";
-		cin >> gridGen.stdDev;
-
-		cout << "Number of smoothing iterations (creates a more even surface): ";
-		cin >> gridGen.numSmooths;
-
-	}
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
 void init(int numArgs, char** argArray) {
@@ -124,16 +149,16 @@ void init(int numArgs, char** argArray) {
 
 	user.setDepthOfView(1000);
 
-	// DEMFileName = gridGen.createGridFile();
 
 	if (!gettingRandomDEMFileInput){
 		ground.readFromESRIFile(DEMFileName);
+		initMenu();
 	}
 	else {
-		inputGrid.initializeFrom(gridGen);
+		gridGen.eyePointer = &user;
+		initGenMenu();
 	}
 
-	initMenu();
 }
 
 void resize(int w, int h) {
@@ -269,7 +294,7 @@ void display() {
 	// glEnable(GL_LIGHTING);
 
 	if (gettingRandomDEMFileInput)
-		inputGrid.display();
+		gridGen.display();
 	else
 		ground.display();
 
@@ -364,6 +389,10 @@ void mouseMoveCallback(int x, int y) {
 
 void mouseCallback(int button, int state, int x, int y) {
 	user.handleClick(button, state, x, y);
+
+	cout << "Button: " << button << endl;
+	if (button == 3 or button == 4) // 3 and 4 are mousewheel up and down
+		gridGen.handleClick(button, state, x, y);
 }
 
 // -------------------------------------------------------------------------------------------

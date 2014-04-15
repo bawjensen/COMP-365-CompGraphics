@@ -456,20 +456,6 @@ float Ground::heightAt(float x, float y) {
 
 // -------------------------------------------------------------------------------------------
 
-DEMInputGrid::DEMInputGrid() {
-
-}
-
-void DEMInputGrid::display() {
-	
-}
-
-void DEMInputGrid::initializeFrom(const DEMGenerator& gridGen) {
-	this->width = gridGen.gridWidth;
-}
-
-// -------------------------------------------------------------------------------------------
-
 DEMGenerator::DEMGenerator() {
 	this->outFileName = "my0.dem.grd";
 	this->roughnessFactor = 2.5;
@@ -595,6 +581,23 @@ string DEMGenerator::createGridFile() {
 	}
 
 	return outFileName;
+}
+
+void DEMGenerator::display() {
+	float offset = this->gridWidth * this->cellSize / 2;
+
+	glBegin(GL_LINES);
+	for (int i = -offset; i <= offset; i += this->cellSize) {
+		glVertex3f(i, 0, -offset);
+		glVertex3f(i, 0, offset);
+		glVertex3f(-offset, 0, i);
+		glVertex3f(offset, 0, i);
+	}
+	glEnd();
+}
+
+void DEMGenerator::handleClick(int button, int state, int x, int y) {
+	cout << "Got here!!" << endl;
 }
 
 // -------------------------------------------------------------------------------------------

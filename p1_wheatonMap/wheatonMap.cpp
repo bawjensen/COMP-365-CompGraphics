@@ -1,4 +1,8 @@
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#elif __linux
+	#include <GL/glut.h>
+#endif
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
