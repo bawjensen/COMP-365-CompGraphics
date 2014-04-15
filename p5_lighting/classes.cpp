@@ -501,10 +501,9 @@ float DEMGenerator::randVal(int gridSize) {
 }
 
 void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, int bottom) {
-	if ((right - left) <= 1) {
+	if ((right - left) < 2) {
 		return;
 	}
-	// cout << "Recursing again: " << left << " to " << right << ", " << top << " to " << bottom << endl;
 
 	int midPointH = (left + right) / 2;
 	int midPointV = (top + bottom) / 2;
@@ -516,9 +515,9 @@ void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, in
 
 	grid[midPointV][midPointH] = (grid[top][left] + grid[top][right] + grid[bottom][left] + grid[bottom][right]) / 4 + randVal(left - right + 1);
 
+	fractalRecurse(grid, left, midPointH, midPointV, bottom);
 	fractalRecurse(grid, left, midPointH, top, midPointV);
 	fractalRecurse(grid, midPointH, right, top, midPointV);
-	fractalRecurse(grid, left, midPointH, midPointV, bottom);
 	fractalRecurse(grid, midPointH, right, midPointV, bottom);
 }
 
@@ -597,7 +596,8 @@ void DEMGenerator::display() {
 }
 
 void DEMGenerator::handleClick(int button, int state, int x, int y) {
-	cout << "Got here!!" << endl;
+	Vec3f centerOfProj = this->eyePointer->pos;
+	Vec3f viewDir = this->eyePointer->viewDir;
 }
 
 // -------------------------------------------------------------------------------------------

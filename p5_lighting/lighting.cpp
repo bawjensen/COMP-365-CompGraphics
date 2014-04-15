@@ -63,7 +63,7 @@ void userInputAndInstructions() {
 		cout << endl;
 		cout << "Enter values for: " << endl;
 
-		cout << "Grid width (sets height as well - best if 2^n + 1): ";
+		cout << "Grid width (grid is square - preferred: 2^n + 1): ";
 		cin >> gridGen.gridWidth;
 
 		cout << "Grid spacing (a.k.a. cell size): ";
@@ -143,12 +143,7 @@ void init(int numArgs, char** argArray) {
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb); // Global ambient light.
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); // Enable local viewpoint
 
-	// Cull back faces.
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
 	user.setDepthOfView(1000);
-
 
 	if (!gettingRandomDEMFileInput){
 		ground.readFromESRIFile(DEMFileName);
@@ -308,6 +303,19 @@ void idle() {
 
 // -------------------------------------------------------------------------------------------
 
+void mousePassiveMoveCallback(int x, int y) {
+}
+
+void mouseMoveCallback(int x, int y) {
+	user.handleMovement(x, y);
+}
+
+void mouseCallback(int button, int state, int x, int y) {
+	user.handleClick(button, state, x, y);
+
+	gridGen.handleClick(button, state, x, y);
+}
+
 void keyUpCallback(unsigned char key, int x, int y) {
 	switch(key) {
 		case 27:	quit();
@@ -351,6 +359,13 @@ void keyDownCallback(unsigned char key, int x, int y) {
 		case 'd':
 		case '6':	user.move(Camera::RIGHT);
 					break;
+
+
+
+		case 'q': 	mouseCallback(3, GLUT_DOWN, x, y);
+					break;
+		case 'Q': 	mouseCallback(4, GLUT_DOWN, x, y);
+					break;
 	}
 }
 
@@ -380,21 +395,6 @@ void specialUpCallback(int key, int x, int y) {
 	}
 }
 
-void mousePassiveMoveCallback(int x, int y) {
-}
-
-void mouseMoveCallback(int x, int y) {
-	user.handleMovement(x, y);
-}
-
-void mouseCallback(int button, int state, int x, int y) {
-	user.handleClick(button, state, x, y);
-
-	cout << "Button: " << button << endl;
-	if (button == 3 or button == 4) // 3 and 4 are mousewheel up and down
-		gridGen.handleClick(button, state, x, y);
-}
-
 // -------------------------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
@@ -407,7 +407,7 @@ int main(int argc, char** argv) {
 	// Create GLUT window
 	glutInitWindowSize(initialWindowWidth, initialWindowHeight); // Scale factor is scaling the map to fit screen 
 	glutInitWindowPosition(100, 100); 
-	glutCreateWindow("Fractal Landscape");
+	glutCreateWindow("Lit Landscape");
 
 	// Custom init
 	init(argc, argv);
