@@ -24,6 +24,12 @@ string DEMFileName = "";
 int initialWindowWidth = 800;
 int initialWindowHeight = 800;
 
+int currentWindowWidth = initialWindowWidth;
+int currentWindowHeight = initialWindowHeight;
+
+float verticalFieldOfView = 60.0f;
+float horizFieldOfView = ((float)initialWindowWidth / (float)initialWindowHeight) * verticalFieldOfView;
+
 // grid dimensions for the reference grid (used in debugging)
 int gridWidth = 1200;
 int gridBoundary = gridWidth / 2;
@@ -64,19 +70,24 @@ void userInputAndInstructions() {
 		cout << "Enter values for: " << endl;
 
 		cout << "Grid width (grid is square - preferred: 2^n + 1): ";
-		cin >> gridGen.gridWidth;
+		// cin >> gridGen.gridWidth;
+		gridGen.gridWidth = 65;
 
 		cout << "Grid spacing (a.k.a. cell size): ";
-		cin >> gridGen.cellSize;
+		// cin >> gridGen.cellSize;
+		gridGen.cellSize = 1;
 
 		cout << "Fractal generation's roughness factor (2 < R < 3): ";
-		cin >> gridGen.roughnessFactor;
+		// cin >> gridGen.roughnessFactor;
+		gridGen.roughnessFactor = 2.5;
 
 		cout << "Standard deviation value (default of 0.5 - same effect as roughness factor): ";
-		cin >> gridGen.stdDev;
+		// cin >> gridGen.stdDev;
+		gridGen.stdDev = 0.5;
 
 		cout << "Number of smoothing iterations (creates a more even surface): ";
-		cin >> gridGen.numSmooths;
+		// cin >> gridGen.numSmooths;
+		gridGen.numSmooths = 1;
 
 	}
 }
@@ -154,12 +165,27 @@ void init(int numArgs, char** argArray) {
 		initGenMenu();
 	}
 
+	// cout << "\n\nTesting:" << endl;
+
+	// Vec3f vec(1, 0, 0);
+	// Vec3f axis(0, 0, -1);
+
+	// Quat4f quat(45, axis);
+
+	// cout << quat.rotateVector(vec) << endl;
+
+	// cout << "Testing done.\n\n" << endl;
 }
 
 void resize(int w, int h) {
 	if (h == 0) h = 1; // Prevent division by 0
 
+	currentWindowWidth = w;
+	currentWindowHeight = h;
+
 	float ratio =  (float)w / h;
+
+	horizFieldOfView = ratio * verticalFieldOfView;
 
 	// Use the Projection Matrix
 	glMatrixMode(GL_PROJECTION);
@@ -171,7 +197,7 @@ void resize(int w, int h) {
 	glViewport(0, 0, w, h);
 
 	// Set the correct perspective
-	gluPerspective(60.0f, ratio, 0.1f, user.depthOfView);
+	gluPerspective(verticalFieldOfView, ratio, 0.1f, user.depthOfView);
 
 	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
@@ -313,7 +339,9 @@ void mouseMoveCallback(int x, int y) {
 void mouseCallback(int button, int state, int x, int y) {
 	user.handleClick(button, state, x, y);
 
-	gridGen.handleClick(button, state, x, y);
+	float horizAngle = ((float)x / currentWindowWidth - 0.5) * horizFieldOfView;
+	float vertAngle = ((float)y / currentWindowHeight - 0.5) * verticalFieldOfView;
+	gridGen.handleClick(button, state, horizAngle, vertAngle);
 }
 
 void keyUpCallback(unsigned char key, int x, int y) {

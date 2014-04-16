@@ -7,6 +7,7 @@ Camera::Camera() {
 	this->origViewDir = Vec3f(1.0f, 0.0f, 0.0f); // View direction
 	this->viewDir = this->origViewDir; // View direction
 	this->strafeVec = this->viewDir.rotateY(-M_PI / 2);
+	this->upVec = this->viewDir.rotateZ(-M_PI / 2);
 
 	this->isFocusing = false; // Whether or not the camera is "viewing" or "focusing"
 	this->focus = Vec3f(0.0f, 0.0f, 0.0f); // Where the camera is focusing
@@ -95,6 +96,7 @@ void Camera::rotate(float hAngle, float vAngle) {
 
 	this->viewDir = this->origViewDir.rotateZ(-this->vertAngle).rotateY(this->horizAngle);
 	this->strafeVec = this->strafeVec.rotateY(hAngle);
+	this->upVec = this->upVec.rotateZ(vAngle);
 }
 
 void Camera::handleClick(int button, int state, int x, int y) {
@@ -583,21 +585,97 @@ string DEMGenerator::createGridFile() {
 }
 
 void DEMGenerator::display() {
+	glDisable(GL_LIGHTING);
 	float offset = this->gridWidth * this->cellSize / 2;
 
+	glColor3f(0.75, 0.75, 0.75);
 	glBegin(GL_LINES);
-	for (int i = -offset; i <= offset; i += this->cellSize) {
+	for (float i = -offset; i <= offset; i += this->cellSize) {
 		glVertex3f(i, 0, -offset);
 		glVertex3f(i, 0, offset);
 		glVertex3f(-offset, 0, i);
 		glVertex3f(offset, 0, i);
 	}
 	glEnd();
+
+	glColor3f(1.0, 0.0, 1.0);
+	glBegin(GL_LINES);
+	for (vector<Vec3f>::iterator it = this->savedPoints.begin(); it != this->savedPoints.end(); ++it) {
+		int x = it->x - offset;
+		int y = it->y;
+		int z = it->z - offset;
+
+
+		glVertex3f(x, 0, z);
+		glVertex3f(x, y, z);
+	}
+	glEnd();
+	glEnable(GL_LIGHTING);
 }
 
-void DEMGenerator::handleClick(int button, int state, int x, int y) {
-	Vec3f centerOfProj = this->eyePointer->pos;
-	Vec3f viewDir = this->eyePointer->viewDir;
+void DEMGenerator::handleClick(int button, int state, float horizAngle, float vertAngle) {
+	if ((button == 3 or button == 4) and state == GLUT_DOWN) { // 3 is mouse wheel up, 4 is mouse wheel down
+		Vec3f& centerOfProj = this->eyePointer->pos;
+		Vec3f mouseDir = this->eyePointer->viewDir;
+		Vec3f upDir = this->eyePointer->upVec;
+
+		cout << endl;
+
+		cout << "horizAngle: " << horizAngle;
+		cout << " vertAngle: " << vertAngle << endl;
+
+		cout << "Currently looking - vert: " << this->eyePointer->vertAngle * (180/M_PI) << " horiz: " << this->eyePointer->horizAngle * (180/M_PI) << endl;
+
+	// cout << "\n\nTesting: " << endl;
+	// Vec3f vec(4, 0, 0);
+	// Vec3f axis(1, 1, 0);
+
+	// Quat4f quat(180, axis);
+
+	// cout << quat.rotateVector(vec) << endl;
+		cout << "View vec: " << this->eyePointer->viewDir << endl;
+		cout << "Strafe vec: " << this->eyePointer->strafeVec << endl;
+		cout << "Up vec: " << this->eyePointer->upVec << endl;
+
+		// cout << "Before: " << mouseDir << endl;
+		Quat4f rotator2(vertAngle, this->eyePointer->strafeVec);
+		mouseDir = rotator2.rotateVector(mouseDir);
+		upDir = rotator2.rotateVector(upDir);
+		cout << "1st mouse direction: " << mouseDir << endl;
+
+		Quat4f rotator1(-horizAngle, upDir);
+		mouseDir = rotator1.rotateVector(mouseDir);
+		cout << "2nd mouse direction: " << mouseDir << endl;
+
+		// mouseDir = mouseDir.rotate(horizAngle, this->eyePointer->upVec);
+		// mouseDir = mouseDir.rotate(vertAngle, this->eyePointer->strafeVec);
+
+		// Vec3f mouseDir = this->eyePointer->origViewDir.rotateZ(-this->eyePointer->vertAngle + vertAngle)
+		// 											  .rotateY(this->eyePointer->horizAngle + horizAngle);
+
+		float t = -centerOfProj.y / mouseDir.y;
+
+		float x = centerOfProj.x + (t * mouseDir.x);
+		float z = centerOfProj.z + (t * mouseDir.z);
+
+		float offset = this->gridWidth * this->cellSize / 2;
+
+		x += offset;
+		z += offset;
+
+		x /= this->cellSize;
+		z /= this->cellSize;
+
+		x += 0.5;
+		z += 0.5;
+
+		int intX = x;
+		int intZ = z;
+
+		cout << "Looking at: " << intX << ", " << 0 << ", " << intZ << endl;
+
+		this->savedPoints.push_back(Vec3f(intX, 10, intZ));
+	}
 }
 
 // -------------------------------------------------------------------------------------------

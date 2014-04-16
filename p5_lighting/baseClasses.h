@@ -57,7 +57,9 @@ public:
 	Vec3f(float nX, float nY, float nZ);
 
 	void set(float, float, float);
+	float magnitude();
 
+	Vec3f rotate(float, const Vec3f&);
 	Vec3f rotateX(float);
 	Vec3f rotateY(float);
 	Vec3f rotateZ(float);
@@ -75,6 +77,25 @@ public:
 	float operator[](int);
 
 	friend ostream& operator<<(ostream&, Vec3f&);
+};
+class Quat4f {
+private:
+public:
+	float x, y, z, w;
+
+	Quat4f();
+	Quat4f(float, float, float, float);
+	Quat4f(Vec3f, float);
+	Quat4f(float, Vec3f);
+
+	float magnitude();
+	Quat4f conjugate();
+	Quat4f inverse();
+	Vec3f complex();
+	Vec3f rotateVector(const Vec3f&);
+
+	Quat4f operator*(const Quat4f&) const;
+	Quat4f operator/(float) const;
 };
 
 class Matrix44f {

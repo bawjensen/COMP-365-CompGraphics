@@ -74,6 +74,14 @@ void Vec3f::set(float nX, float nY, float nZ) {
 	this->xzAngle = 0.0f;
 }
 
+float Vec3f::magnitude() {
+	return sqrt((this->x * this->x) + (this->y * this->y) + (this->z * this->z));
+}
+
+Vec3f Vec3f::rotate(float radians, const Vec3f& axis) {
+
+}
+
 Vec3f Vec3f::rotateX(float radians) {
 	Vec3f tempVec = (*this);
 	float rotationArray[4][4] = { 	{0,				0, 				0, 				0}, 
@@ -195,6 +203,72 @@ ostream& operator<<(ostream& co, Vec3f& vec) {
 	co << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
 	return co;
 }
+
+// -------------------------------------------------------------------------------------------
+
+Quat4f::Quat4f() {
+
+}
+
+Quat4f::Quat4f(float w, float x, float y, float z) {
+	this->w = w;
+	this->x = x;
+	this->y = y;
+	this->z = z;
+}
+
+Quat4f::Quat4f(Vec3f vec, float w) {
+	this->x = vec.x;
+	this->y = vec.y;
+	this->z = vec.z;
+	this->w = w;
+}
+
+Quat4f::Quat4f(float angle, Vec3f axis) {
+	angle *= (M_PI / 180);
+
+	this->w = cos(angle / 2);
+
+	float sine = sin(angle / 2);
+	this->x = axis.x * sine;
+	this->y = axis.y * sine;
+	this->z = axis.z * sine;
+}
+
+float Quat4f::magnitude() {
+	return sqrt((this->w * this->w) + (this->x * this->x) + (this->y * this->y) + (this->z * this->z));
+}
+
+Quat4f Quat4f::conjugate() {
+	return Quat4f(complex() * -1, this->w);
+}
+
+Quat4f Quat4f::inverse() {
+	float mag = this->magnitude();
+	return this->conjugate() / (mag * mag);
+}
+
+Vec3f Quat4f::complex() {
+	return Vec3f(this->x, this->y, this->z);
+}
+
+Vec3f Quat4f::rotateVector(const Vec3f& v) {
+	return (((*this) * Quat4f(v, 0)) * inverse()).complex();
+}
+
+Quat4f Quat4f::operator*(const Quat4f& other) const {
+	float x = (this->y * other.z) - (this->z * other.y) + (this->x * other.w) + (this->w * other.x);
+	float y = (this->z * other.x) - (this->x * other.z) + (this->y * other.w) + (this->w * other.y);
+	float z = (this->x * other.y) - (this->y * other.x) + (this->z * other.w) + (this->w * other.z);
+	float w = (this->w * other.w) - (this->x * other.x) - (this->y * other.y) - (this->z * other.z);
+
+	return Quat4f(w, x, y, z);
+}
+
+Quat4f Quat4f::operator/(float scalar) const {
+	return Quat4f(this->w / scalar, this->x / scalar, this->y / scalar, this->z / scalar);
+}
+
 
 // -------------------------------------------------------------------------------------------
 

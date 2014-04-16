@@ -34,7 +34,7 @@ public:
 	Vec3f pos, origPos; 		// Position and original position vectors
 	Vec3f focus;				// Where the camera is focus-looking (aka the focus doesn't move, the camera rotates around)
 	Vec3f viewDir, origViewDir; // Where the camera is looking, and the original value
-	Vec3f strafeVec;			//
+	Vec3f strafeVec, upVec;			//
 	Vec3f pOrigin;
 	bool isFocusing, panActive; // Booleans for whether or not the camera is a certain mode
 	bool moving[10]; 			// Boolean array for status of movement in up to 10 directions
@@ -123,6 +123,7 @@ public:
 	float cellSize;
 	float stdDev;
 	int numSmooths;
+	vector<Vec3f> savedPoints;
 
 	User* eyePointer;
 
@@ -135,7 +136,7 @@ public:
 	string createGridFile();
 
 	void display();
-	void handleClick(int, int, int, int);
+	void handleClick(int, int, float, float);
 };
 
 #endif
