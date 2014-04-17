@@ -136,7 +136,7 @@ public:
 	string createGridFile();
 
 	void display();
-	void handleClick(int, int, float, float);
+	void handleClick(int, int, int, int);
 };
 
 #endif

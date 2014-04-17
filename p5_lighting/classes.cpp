@@ -613,45 +613,91 @@ void DEMGenerator::display() {
 	glEnable(GL_LIGHTING);
 }
 
-void DEMGenerator::handleClick(int button, int state, float horizAngle, float vertAngle) {
+void DEMGenerator::handleClick(int button, int state, int x, int y) {
 	if ((button == 3 or button == 4) and state == GLUT_DOWN) { // 3 is mouse wheel up, 4 is mouse wheel down
-		Vec3f& centerOfProj = this->eyePointer->pos;
-		Vec3f mouseDir = this->eyePointer->viewDir;
-		Vec3f upDir = this->eyePointer->upVec;
+		GLint viewport[4];						// Where The Viewport Values Will Be Stored
+		GLdouble projection[16];				// Where The 16 Doubles Of The Projection Matrix Are To Be Stored
+		GLdouble modelview[16];					// Where The 16 Doubles Of The Modelview Matrix Are To Be Stored
+		GLfloat windowX, windowY, windowZ;
 
-		cout << endl;
+		glGetIntegerv(GL_VIEWPORT, viewport);           // Retrieves The Viewport Values (X, Y, Width, Height)
+		glGetDoublev(GL_MODELVIEW_MATRIX, modelview);       // Retrieve The Modelview Matrix
+		glGetDoublev(GL_PROJECTION_MATRIX, projection);     // Retrieve The Projection Matrix
 
-		cout << "horizAngle: " << horizAngle;
-		cout << " vertAngle: " << vertAngle << endl;
+		// cout << "Viewport: " << viewport[0] << ", "
+		// 						<< viewport[1] << ", "
+		// 						<< viewport[2] << ", "
+		// 						<< viewport[3] << endl;
+		// cout << "Projection: " << projection[0] << ", " 
+		// 					   << projection[1] << ", "
+		// 					   << projection[2] << ", "
+		// 					   << projection[3] << ", "
+		// 					   << projection[4] << ", "
+		// 					   << projection[5] << ", "
+		// 					   << projection[6] << ", "
+		// 					   << projection[7] << ", "
+		// 					   << projection[8] << ", "
+		// 					   << projection[9] << ", "
+		// 					   << projection[10] << ", "
+		// 					   << projection[11] << ", "
+		// 					   << projection[12] << ", "
+		// 					   << projection[13] << ", "
+		// 					   << projection[14] << ", "
+		// 					   << projection[15] << endl;
 
-		cout << "Currently looking - vert: " << this->eyePointer->vertAngle * (180/M_PI) << " horiz: " << this->eyePointer->horizAngle * (180/M_PI) << endl;
+		windowX = x;
+		windowY = viewport[3] - y;
+		glReadPixels(windowX, windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &windowZ);
 
-	// cout << "\n\nTesting: " << endl;
-	// Vec3f vec(4, 0, 0);
-	// Vec3f axis(1, 1, 0);
+		GLdouble pos1X, pos1Y, pos1Z;
+		GLdouble pos2X, pos2Y, pos2Z;
 
-	// Quat4f quat(180, axis);
+		gluUnProject( windowX, windowY, 0.0, modelview, projection, viewport, &pos1X, &pos1Y, &pos1Z);
+		cout << "Click p1 at: " << pos1X << ", " << pos1Y << ", " << pos1Z << endl;
+		gluUnProject( windowX, windowY, 1.0, modelview, projection, viewport, &pos2X, &pos2Y, &pos2Z);
+		cout << "Click p2 at: " << pos2X << ", " << pos2Y << ", " << pos2Z << endl;
 
-	// cout << quat.rotateVector(vec) << endl;
-		cout << "View vec: " << this->eyePointer->viewDir << endl;
-		cout << "Strafe vec: " << this->eyePointer->strafeVec << endl;
-		cout << "Up vec: " << this->eyePointer->upVec << endl;
+		Vec3f mouseDir(pos1X - pos2X, pos1Y - pos2Y, pos1Z - pos2Z);
+		Vec3f centerOfProj(pos1X, pos1Y, pos1Z);
 
-		// cout << "Before: " << mouseDir << endl;
-		Quat4f rotator2(vertAngle, this->eyePointer->strafeVec);
-		mouseDir = rotator2.rotateVector(mouseDir);
-		upDir = rotator2.rotateVector(upDir);
-		cout << "1st mouse direction: " << mouseDir << endl;
 
-		Quat4f rotator1(-horizAngle, upDir);
-		mouseDir = rotator1.rotateVector(mouseDir);
-		cout << "2nd mouse direction: " << mouseDir << endl;
+	// 	Vec3f& centerOfProj = this->eyePointer->pos;
+	// 	Vec3f mouseDir = this->eyePointer->viewDir;
+	// 	Vec3f upDir = this->eyePointer->upVec;
 
-		// mouseDir = mouseDir.rotate(horizAngle, this->eyePointer->upVec);
-		// mouseDir = mouseDir.rotate(vertAngle, this->eyePointer->strafeVec);
+	// 	cout << endl;
 
-		// Vec3f mouseDir = this->eyePointer->origViewDir.rotateZ(-this->eyePointer->vertAngle + vertAngle)
-		// 											  .rotateY(this->eyePointer->horizAngle + horizAngle);
+	// 	cout << "horizAngle: " << horizAngle;
+	// 	cout << " vertAngle: " << vertAngle << endl;
+
+	// 	cout << "Currently looking - vert: " << this->eyePointer->vertAngle * (180/M_PI) << " horiz: " << this->eyePointer->horizAngle * (180/M_PI) << endl;
+
+	// // cout << "\n\nTesting: " << endl;
+	// // Vec3f vec(4, 0, 0);
+	// // Vec3f axis(1, 1, 0);
+
+	// // Quat4f quat(180, axis);
+
+	// // cout << quat.rotateVector(vec) << endl;
+	// 	cout << "View vec: " << this->eyePointer->viewDir << endl;
+	// 	cout << "Strafe vec: " << this->eyePointer->strafeVec << endl;
+	// 	cout << "Up vec: " << this->eyePointer->upVec << endl;
+
+	// 	// cout << "Before: " << mouseDir << endl;
+	// 	Quat4f rotator2(vertAngle, this->eyePointer->strafeVec);
+	// 	mouseDir = rotator2.rotateVector(mouseDir);
+	// 	upDir = rotator2.rotateVector(upDir);
+	// 	cout << "1st mouse direction: " << mouseDir << endl;
+
+	// 	Quat4f rotator1(-horizAngle, upDir);
+	// 	mouseDir = rotator1.rotateVector(mouseDir);
+	// 	cout << "2nd mouse direction: " << mouseDir << endl;
+
+	// 	// mouseDir = mouseDir.rotate(horizAngle, this->eyePointer->upVec);
+	// 	// mouseDir = mouseDir.rotate(vertAngle, this->eyePointer->strafeVec);
+
+	// 	// Vec3f mouseDir = this->eyePointer->origViewDir.rotateZ(-this->eyePointer->vertAngle + vertAngle)
+	// 	// 											  .rotateY(this->eyePointer->horizAngle + horizAngle);
 
 		float t = -centerOfProj.y / mouseDir.y;
 

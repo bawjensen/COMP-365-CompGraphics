@@ -89,6 +89,7 @@ void userInputAndInstructions() {
 		// cin >> gridGen.numSmooths;
 		gridGen.numSmooths = 1;
 
+		cout << endl;
 	}
 }
 
@@ -339,9 +340,9 @@ void mouseMoveCallback(int x, int y) {
 void mouseCallback(int button, int state, int x, int y) {
 	user.handleClick(button, state, x, y);
 
-	float horizAngle = ((float)x / currentWindowWidth - 0.5) * horizFieldOfView;
-	float vertAngle = ((float)y / currentWindowHeight - 0.5) * verticalFieldOfView;
-	gridGen.handleClick(button, state, horizAngle, vertAngle);
+	// float horizAngle = ((float)x / currentWindowWidth - 0.5) * horizFieldOfView;
+	// float vertAngle = ((float)y / currentWindowHeight - 0.5) * verticalFieldOfView;
+	gridGen.handleClick(button, state, x, y);
 }
 
 void keyUpCallback(unsigned char key, int x, int y) {
