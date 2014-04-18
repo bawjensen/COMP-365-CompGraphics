@@ -43,6 +43,7 @@ public:
 	float angularScrollSpeed;
 	float rotationRadius;
 	float depthOfView;
+	float moveSpeed;
 
 	Camera();
 

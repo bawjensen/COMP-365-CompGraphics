@@ -14,6 +14,8 @@ Camera::Camera() {
 
 	this->angularScrollSpeed = 1 / (float)200; // Rotation speed of the camera
 	this->panActive = false; // Whether or not the camera is panning (via the mouse)
+
+	this->moveSpeed = 0.5;
 }
 
 void Camera::setPos(float pX, float pY, float pZ) {
@@ -49,24 +51,23 @@ void Camera::setDepthOfView(float dist) {
 }
 
 void Camera::update() {
-	float moveSpeedFactor = 0.5;
 	if (this->moving[Camera::FORWARD]) {
-		this->pos += this->viewDir * moveSpeedFactor;
+		this->pos += this->viewDir * this->moveSpeed;
 	}
 	if (this->moving[Camera::BACKWARD]) {
-		this->pos -= this->viewDir * moveSpeedFactor;
+		this->pos -= this->viewDir * this->moveSpeed;
 	}
 	if (this->moving[Camera::LEFT]) {
-		this->pos += this->strafeVec * moveSpeedFactor;
+		this->pos += this->strafeVec * this->moveSpeed;
 	}
 	if (this->moving[Camera::RIGHT]) {
-		this->pos -= this->strafeVec * moveSpeedFactor;
+		this->pos -= this->strafeVec * this->moveSpeed;
 	}
 	if (this->moving[Camera::UP]) {
-		this->pos += Camera::UP_VECT * moveSpeedFactor;
+		this->pos += Camera::UP_VECT * this->moveSpeed;
 	}
 	if (this->moving[Camera::DOWN]) {
-		this->pos -= Camera::UP_VECT * moveSpeedFactor;
+		this->pos -= Camera::UP_VECT * this->moveSpeed;
 	}
 }
 
@@ -191,6 +192,7 @@ void Ground::readFromESRIFile(string filename) {
 				delete[] this->pointGrid[row];
 		}
 		delete[] this->pointGrid;
+		this->displayVector.clear();
 	}
 
 	ifstream inFile;
@@ -345,7 +347,7 @@ Color3f Ground::colorAt(Coord3f point, Coord2i indexPoint) {
 		}
 
 		slope = abs(this->pointGrid[indexPoint.x][indexPoint.y] - this->pointGrid[indexPoint.x + dI][indexPoint.y + dJ]) / dX;
-		if (slope != 0.0f) isLake = false;
+		if (slope > 0.1f) isLake = false;
 		if (slope > maxSlope) maxSlope = slope;
 	}
 
@@ -525,7 +527,7 @@ float Ground::heightAt(float x, float y) {
 // -------------------------------------------------------------------------------------------
 
 DEMGenerator::DEMGenerator() {
-	this->outFileName = "my0.dem.grd";
+	this->outFileName = "temp.dem.grd";
 	this->roughnessFactor = 2.5;
 	this->gridWidth = 257;
 	this->cellSize = 10.0;
@@ -536,6 +538,14 @@ DEMGenerator::DEMGenerator() {
 }
 
 void DEMGenerator::initialize() {
+	if (this->grid) {
+		for (int row = 0; row < this->gridWidth; row++) {
+			if (this->grid[row])
+				delete[] this->grid[row];
+		}
+		delete[] this->grid;
+	}
+
 	this->grid = new float*[this->gridWidth];
 	for (int i = 0; i < this->gridWidth; i++) {
 		this->grid[i] = new float[this->gridWidth];
@@ -546,7 +556,7 @@ void DEMGenerator::initialize() {
 }
 
 void DEMGenerator::smooth(float** grid) {
-	float weight = 0.6;
+	float weight = 0.5;
 
 	float tempGrid[this->gridWidth][this->gridWidth];
 
@@ -617,7 +627,7 @@ void DEMGenerator::generateGrid(int width) {
 }
 
 string DEMGenerator::createGridFile() {
-	generateGrid(this->gridWidth);
+	this->generateGrid(this->gridWidth);
 
 	ofstream outFile;
 

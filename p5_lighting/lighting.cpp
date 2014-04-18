@@ -52,6 +52,7 @@ void quit() {
 
 // -------------------------------------------------------------------------------------------
 
+void initGenMenu(); // Forward delclaration to allow use in menuCallback
 void generateAndSetGround(); // Forward delclaration to allow use in menuCallback
 
 void userInputAndInstructions() {
@@ -69,6 +70,10 @@ void userInputAndInstructions() {
 		cout << endl;
 		cout << "Enter values for: " << endl;
 
+		cout << "Name of output DEM grid file: ";
+		// cin >> gridGen.outFileName;
+		gridGen.outFileName = "temp.dem.grd";
+
 		cout << "Grid width (grid is square - preferred: 2^n + 1): ";
 		// cin >> gridGen.gridWidth;
 		gridGen.gridWidth = 65;
@@ -77,17 +82,13 @@ void userInputAndInstructions() {
 		// cin >> gridGen.cellSize;
 		gridGen.cellSize = 1;
 
-		cout << "Fractal generation's roughness factor (2 < R < 3): ";
+		cout << "Fractal generation's roughness factor: ";
 		// cin >> gridGen.roughnessFactor;
 		gridGen.roughnessFactor = 2.5;
 
-		cout << "Standard deviation value (default of 0.5 - same effect as roughness factor): ";
-		// cin >> gridGen.stdDev;
-		gridGen.stdDev = 0.5;
-
 		cout << "Number of smoothing iterations (creates a more even surface): ";
 		// cin >> gridGen.numSmooths;
-		gridGen.numSmooths = 1;
+		gridGen.numSmooths = 2;
 
 		cout << "Defined points incrementation value (size by which user input points go up): ";
 		// cin >> gridGen.incrAmount;
@@ -107,19 +108,45 @@ void userInputAndInstructions() {
 	// etc
 }
 
+void updateMovementSpeed() {
+	user.moveSpeed = max(ground.nRows, ground.nCols) / 100.0f;
+}
+
 void menuCallback(int choice) {
 	switch(choice) {
 		case -1: 	quit();
 					break;
+		case 1: 	ground.readFromESRIFile(gridGen.outFileName);
+					break;
+		case 2: 	gridGen.initialize();
+					gettingRandomDEMFileInput = true;
+					initGenMenu();
+					// ground.readFromESRIFile(gridGen.createGridFile());
+					break;
+		case 3: 	ground.readFromESRIFile("grds/coolLake.dem.grd");
+					break;
+		case 4: 	ground.readFromESRIFile("grds/hillside.dem.grd");
+					break;
+		case 5: 	ground.readFromESRIFile("grds/smoothMount.dem.grd");
+					break;
 		case 10: 	generateAndSetGround();
 					break;
 	}
+
+	updateMovementSpeed();
 }
 
 void initMenu() {
 	glutCreateMenu(menuCallback);
 
 	glutAddMenuEntry("Choices:", 0);
+	glutAddMenuEntry("", 0);
+	glutAddMenuEntry("Switch DEM file:", 0);
+	glutAddMenuEntry("\tGenerated Scene", 1);
+	glutAddMenuEntry("\tGenerate New Random Scene", 2);
+	glutAddMenuEntry("\tLake Scene", 3);
+	glutAddMenuEntry("\tHill Side Scene", 4);
+	glutAddMenuEntry("\tSmooth Mountain Scene", 5);
 	glutAddMenuEntry("", 0);
 	glutAddMenuEntry("Quit", -1);
 
