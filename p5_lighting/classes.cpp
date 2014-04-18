@@ -708,8 +708,8 @@ void DEMGenerator::display() {
 				glEnd();
 			}
 			else { // User defined point
-				x = i - offset;
-				z = j - offset;
+				x = (i - offset) * this->cellSize;
+				z = (j - offset) * this->cellSize;
 				y = this->grid[i][j];
 
 				glColor3f(0.0, 1.0, 0.0);
@@ -730,9 +730,9 @@ void DEMGenerator::convert(int screenX, int screenY, int* indexX, int* worldY, i
 	GLdouble modelview[16];					// Where The 16 Doubles Of The Modelview Matrix Are To Be Stored
 	GLfloat windowX, windowY;
 
-	glGetIntegerv(GL_VIEWPORT, viewport);           // Retrieves The Viewport Values (X, Y, Width, Height)
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);       // Retrieve The Modelview Matrix
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);     // Retrieve The Projection Matrix
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
 
 	windowX = screenX;
 	windowY = viewport[3] - screenY;
@@ -779,7 +779,10 @@ void DEMGenerator::handleClick(int button, int state, int x, int y) {
 		if (this->grid[indexX][indexZ] == -1.0f)
 			this->grid[indexX][indexZ] = this->incrAmount;
 		else
-			this->grid[indexX][indexZ] += this->incrAmount;
+			if (button == 3)
+				this->grid[indexX][indexZ] += this->incrAmount;
+			else
+				this->grid[indexX][indexZ] -= this->incrAmount;
 	}
 }
 
