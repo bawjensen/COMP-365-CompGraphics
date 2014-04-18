@@ -262,10 +262,10 @@ void Ground::triangulateForDisplay() {
 			Coord3f p3 = this->toCoord(ur);
 			Coord3f p4 = this->toCoord(ul);
 
-			Color3f c1 = this->colorAt(p1);
-			Color3f c2 = this->colorAt(p2);
-			Color3f c3 = this->colorAt(p3);
-			Color3f c4 = this->colorAt(p4);
+			Color3f c1 = this->colorAt(p1, ll);
+			Color3f c2 = this->colorAt(p2, lr);
+			Color3f c3 = this->colorAt(p3, ur);
+			Color3f c4 = this->colorAt(p4, ul);
 
 			Coord3f n1 = this->normalAt(ll);
 			Coord3f n2 = this->normalAt(lr);
@@ -285,17 +285,83 @@ void Ground::triangulateForDisplay() {
 	// exit(1);
 }
 
-Color3f Ground::colorAt(Coord3f point) {
-	float& height = point.y;
+Color3f Ground::colorAt(Coord3f point, Coord2i indexPoint) {
+	// NOTE: In this function, the vertical component is i, which comes in as indexPoint.x,
+	// 		 and vice versa for the horizonal, j, which is indexPoint.y
 
-	if (height >= this->lowest and height < this->firstDelimiter) {
-		return Color3f(0.1, 0.3, 0.1);
+	bool ignore[6] = { false, false, false, false, false, false };
+
+	if (indexPoint.x == 0) {
+		ignore[2] = true;
+		ignore[3] = true;
 	}
-	else if (height >= this->firstDelimiter and height < this->secondDelimiter) {
+	if (indexPoint.x == (this->nRows - 1)) {
+		ignore[0] = true;
+		ignore[5] = true;
+	}
+	if (indexPoint.y == 0) {
+		ignore[1] = true;
+		ignore[2] = true;
+	}
+	if (indexPoint.y == (this->nCols - 1)) {
+		ignore[2] = true;
+		ignore[5] = true;
+	}
+
+	int dI, dJ;
+	float dX;
+	float maxSlope = 0; // The most slope
+	float slope;
+	bool isLake = true;
+
+	for (int i = 0; i < 6; i++) {
+		if (ignore[i]) continue;
+
+		switch (i) {
+			case 0: dI = 1;
+					dJ = 0;
+					dX = 1;
+					break;
+			case 1: dI = 0;
+					dJ = -1;
+					dX = 1;
+					break;
+			case 2: dI = -1;
+					dJ = -1;
+					dX = 1.414; // sqrt(2)
+					break;
+			case 3: dI = -1;
+					dJ = 0;
+					dX = 1;
+					break;
+			case 4: dI = 0;
+					dJ = 1;
+					dX = 1;
+					break;
+			case 5: dI = 1;
+					dJ = 1;
+					dX = 1.414; // sqrt(2)
+					break;
+		}
+
+		slope = abs(this->pointGrid[indexPoint.x][indexPoint.y] - this->pointGrid[indexPoint.x + dI][indexPoint.y + dJ]) / dX;
+		if (slope != 0.0f) isLake = false;
+		if (slope > maxSlope) maxSlope = slope;
+	}
+
+	float degrees = atan(slope) * (180 / M_PI);
+
+	if (degrees > 45) { // Angle > 60 means a grey cliff
 		return Color3f(0.3, 0.3, 0.3);
 	}
-	else {
+	else if (point.y > this->secondDelimiter) { // If above snowline, then white
 		return Color3f(1.0, 1.0, 1.0);
+	}
+	else if (isLake) {
+		return Color3f(0.3, 0.3, 1.0);
+	}
+	else {
+		return Color3f(0.1, 0.3, 0.1);
 	}
 }
 
@@ -464,11 +530,22 @@ DEMGenerator::DEMGenerator() {
 	this->gridWidth = 257;
 	this->cellSize = 10.0;
 	this->stdDev = 0.5;
+	this->incrAmount = 2.0f;
 
 	this->generator.seed(time(NULL));
 }
 
-float** DEMGenerator::smooth(float** grid) {
+void DEMGenerator::initialize() {
+	this->grid = new float*[this->gridWidth];
+	for (int i = 0; i < this->gridWidth; i++) {
+		this->grid[i] = new float[this->gridWidth];
+		for (int j = 0; j < this->gridWidth; j++) {
+			this->grid[i][j] = -1.0f;
+		}
+	}
+}
+
+void DEMGenerator::smooth(float** grid) {
 	float weight = 0.6;
 
 	float tempGrid[this->gridWidth][this->gridWidth];
@@ -476,14 +553,14 @@ float** DEMGenerator::smooth(float** grid) {
 	for (int i = 1; i < this->gridWidth-1; i++) {
 		for (int j = 1; j < this->gridWidth-1; j++) {
 			float sum = weight * 
-						(grid[i-1][j-1] + 
-						 grid[i-1][j] + 
-						 grid[i-1][j+1] + 
-						 grid[i][j-1] + 
-						 grid[i][j+1] + 
-						 grid[i+1][j-1] + 
-						 grid[i+1][j] + 
-						 grid[i+1][j+1]) + grid[i][j];
+						(this->grid[i-1][j-1] + 
+						 this->grid[i-1][j] + 
+						 this->grid[i-1][j+1] + 
+						 this->grid[i][j-1] + 
+						 this->grid[i][j+1] + 
+						 this->grid[i+1][j-1] + 
+						 this->grid[i+1][j] + 
+						 this->grid[i+1][j+1]) + this->grid[i][j];
 
 			tempGrid[i][j] = sum / 9;
 		}
@@ -491,18 +568,16 @@ float** DEMGenerator::smooth(float** grid) {
 
 	for (int i = 1; i < this->gridWidth-1; i++) {
 		for (int j = 1; j < this->gridWidth-1; j++) {
-			grid[i][j] = tempGrid[i][j];
+			this->grid[i][j] = tempGrid[i][j];
 		}
 	}
-
-	return grid;
 }
 
 float DEMGenerator::randVal(int gridSize) {
 	return this->roughnessFactor * gridSize * distribution(generator);
 }
 
-void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, int bottom) {
+void DEMGenerator::fractalRecurse(int left, int right, int top, int bottom) {
 	if ((right - left) < 2) {
 		return;
 	}
@@ -510,40 +585,39 @@ void DEMGenerator::fractalRecurse(float** grid, int left, int right, int top, in
 	int midPointH = (left + right) / 2;
 	int midPointV = (top + bottom) / 2;
 
-	grid[top][midPointH] = (grid[top][left] + grid[top][right]) / 2;
-	grid[bottom][midPointH] = (grid[bottom][left] + grid[bottom][right]) / 2;
-	grid[midPointV][left] = (grid[top][left] + grid[bottom][left]) / 2;
-	grid[midPointV][right] = (grid[top][right] + grid[bottom][right]) / 2;
+	if (this->grid[top][midPointH] == -1.0f)
+		this->grid[top][midPointH] = (this->grid[top][left] + this->grid[top][right]) / 2;
 
-	grid[midPointV][midPointH] = (grid[top][left] + grid[top][right] + grid[bottom][left] + grid[bottom][right]) / 4 + randVal(left - right + 1);
+	if (this->grid[bottom][midPointH] == -1.0f)
+		this->grid[bottom][midPointH] = (this->grid[bottom][left] + this->grid[bottom][right]) / 2;
 
-	fractalRecurse(grid, left, midPointH, midPointV, bottom);
-	fractalRecurse(grid, left, midPointH, top, midPointV);
-	fractalRecurse(grid, midPointH, right, top, midPointV);
-	fractalRecurse(grid, midPointH, right, midPointV, bottom);
+	if (this->grid[midPointV][left] == -1.0f)
+		this->grid[midPointV][left] = (this->grid[top][left] + this->grid[bottom][left]) / 2;
+
+	if (this->grid[midPointV][right] == -1.0f)
+		this->grid[midPointV][right] = (this->grid[top][right] + this->grid[bottom][right]) / 2;
+
+
+	if (this->grid[midPointV][midPointH] == -1.0f)
+		this->grid[midPointV][midPointH] = (this->grid[top][left] + this->grid[top][right] + this->grid[bottom][left] + this->grid[bottom][right]) / 4 + randVal(left - right + 1);
+
+	fractalRecurse(left, midPointH, midPointV, bottom);
+	fractalRecurse(left, midPointH, top, midPointV);
+	fractalRecurse(midPointH, right, top, midPointV);
+	fractalRecurse(midPointH, right, midPointV, bottom);
 }
 
-float** DEMGenerator::generateGrid(int width) {
+void DEMGenerator::generateGrid(int width) {
 	this->distribution = normal_distribution<float>(0.0, this->stdDev);
 
-	float** grid = new float*[width];
-	for (int i = 0; i < width; i++) {
-		grid[i] = new float[width];
-		for (int j = 0; j < width; j++) {
-			grid[i][j] = 0.0f;
-		}
-	}
-
-	fractalRecurse(grid, 0, width - 1, 0, width - 1);
+	fractalRecurse(0, width - 1, 0, width - 1);
 
 	for (int i = 0; i < this->numSmooths; i++)
-		grid = this->smooth(grid);
-
-	return grid;
+		this->smooth(this->grid);
 }
 
 string DEMGenerator::createGridFile() {
-	float** grid = generateGrid(this->gridWidth);
+	generateGrid(this->gridWidth);
 
 	ofstream outFile;
 
@@ -586,7 +660,7 @@ string DEMGenerator::createGridFile() {
 
 void DEMGenerator::display() {
 	glDisable(GL_LIGHTING);
-	float offset = this->gridWidth * this->cellSize / 2;
+	int offset = this->gridWidth * this->cellSize / 2;
 
 	glColor3f(0.75, 0.75, 0.75);
 	glBegin(GL_LINES);
@@ -598,129 +672,122 @@ void DEMGenerator::display() {
 	}
 	glEnd();
 
-	glColor3f(1.0, 0.0, 1.0);
 	glBegin(GL_LINES);
-	for (vector<Vec3f>::iterator it = this->savedPoints.begin(); it != this->savedPoints.end(); ++it) {
-		int x = it->x - offset;
-		int y = it->y;
-		int z = it->z - offset;
+	int x, y, z;
+	for (int i = 0; i < this->gridWidth; i++) {
+		for (int j = 0; j < this->gridWidth; j++) {
+			if (this->grid[i][j] == -1.0f) continue; // Sentinel value for un-defined point
 
+			else if (this->grid[i][j] == 0.0f) { // Sentinel value for lake
+				// cout << "Lake at: " << i << ", " << j << endl;
+				glColor3f(0.0, 0.0, 1.0);
+				glEnd();
+				glBegin(GL_QUADS);
 
-		glVertex3f(x, 0, z);
-		glVertex3f(x, y, z);
+				x = i - offset;
+				z = j - offset;
+				y = this->grid[i][j];
+				glVertex3f(x-0.5, 0.1, z-0.5);
+				glVertex3f(x+0.5, 0.1, z-0.5);
+				glVertex3f(x+0.5, 0.1, z+0.5);
+				glVertex3f(x-0.5, 0.1, z+0.5);
+
+				glEnd();
+				glBegin(GL_LINES);
+			}
+			else { // User defined point
+				glColor3f(0.0, 1.0, 0.0);
+				x = i - offset;
+				z = j - offset;
+				y = this->grid[i][j];
+				glVertex3f(x, 0, z);
+				glVertex3f(x, y, z);
+			}
+		}
 	}
 	glEnd();
 	glEnable(GL_LIGHTING);
 }
 
+void DEMGenerator::convert(int screenX, int screenY, int* indexX, int* worldY, int* indexZ) {
+
+	GLint viewport[4];						// Where The Viewport Values Will Be Stored
+	GLdouble projection[16];				// Where The 16 Doubles Of The Projection Matrix Are To Be Stored
+	GLdouble modelview[16];					// Where The 16 Doubles Of The Modelview Matrix Are To Be Stored
+	GLfloat windowX, windowY;
+
+	glGetIntegerv(GL_VIEWPORT, viewport);           // Retrieves The Viewport Values (X, Y, Width, Height)
+	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);       // Retrieve The Modelview Matrix
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);     // Retrieve The Projection Matrix
+
+	windowX = screenX;
+	windowY = viewport[3] - screenY;
+
+	GLdouble pos1X, pos1Y, pos1Z;
+	GLdouble pos2X, pos2Y, pos2Z;
+
+	gluUnProject( windowX, windowY, 0.0, modelview, projection, viewport, &pos1X, &pos1Y, &pos1Z);
+	gluUnProject( windowX, windowY, 1.0, modelview, projection, viewport, &pos2X, &pos2Y, &pos2Z);
+
+	Vec3f directionVec(pos1X - pos2X, pos1Y - pos2Y, pos1Z - pos2Z);
+	Vec3f directionOrigin(pos1X, pos1Y, pos1Z);
+
+	float t = -directionOrigin.y / directionVec.y;
+
+	float x = directionOrigin.x + (t * directionVec.x);
+	float z = directionOrigin.z + (t * directionVec.z);
+
+	float offset = this->gridWidth * this->cellSize / 2;
+
+	x += offset;
+	z += offset;
+
+	x /= this->cellSize;
+	z /= this->cellSize;
+
+	(*indexX) = x;
+	(*worldY) = 0;
+	(*indexZ) = z;
+}
+
 void DEMGenerator::handleClick(int button, int state, int x, int y) {
+
 	if ((button == 3 or button == 4) and state == GLUT_DOWN) { // 3 is mouse wheel up, 4 is mouse wheel down
-		GLint viewport[4];						// Where The Viewport Values Will Be Stored
-		GLdouble projection[16];				// Where The 16 Doubles Of The Projection Matrix Are To Be Stored
-		GLdouble modelview[16];					// Where The 16 Doubles Of The Modelview Matrix Are To Be Stored
-		GLfloat windowX, windowY, windowZ;
+		int indexX, worldY, indexZ;
 
-		glGetIntegerv(GL_VIEWPORT, viewport);           // Retrieves The Viewport Values (X, Y, Width, Height)
-		glGetDoublev(GL_MODELVIEW_MATRIX, modelview);       // Retrieve The Modelview Matrix
-		glGetDoublev(GL_PROJECTION_MATRIX, projection);     // Retrieve The Projection Matrix
+		this->convert(x, y, &indexX, &worldY, &indexZ);
 
-		// cout << "Viewport: " << viewport[0] << ", "
-		// 						<< viewport[1] << ", "
-		// 						<< viewport[2] << ", "
-		// 						<< viewport[3] << endl;
-		// cout << "Projection: " << projection[0] << ", " 
-		// 					   << projection[1] << ", "
-		// 					   << projection[2] << ", "
-		// 					   << projection[3] << ", "
-		// 					   << projection[4] << ", "
-		// 					   << projection[5] << ", "
-		// 					   << projection[6] << ", "
-		// 					   << projection[7] << ", "
-		// 					   << projection[8] << ", "
-		// 					   << projection[9] << ", "
-		// 					   << projection[10] << ", "
-		// 					   << projection[11] << ", "
-		// 					   << projection[12] << ", "
-		// 					   << projection[13] << ", "
-		// 					   << projection[14] << ", "
-		// 					   << projection[15] << endl;
+		if (indexX >= this->gridWidth) indexX = this->gridWidth - 1;
+		else if (indexX < 0) indexX = 0;
+		if (indexZ >= this->gridWidth) indexZ = this->gridWidth - 1;
+		else if (indexZ < 0) indexZ = 0;
 
-		windowX = x;
-		windowY = viewport[3] - y;
-		glReadPixels(windowX, windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &windowZ);
+		if (this->grid[indexX][indexZ] == -1.0f)
+			this->grid[indexX][indexZ] = this->incrAmount;
+		else
+			this->grid[indexX][indexZ] += this->incrAmount;
+	}
+}
 
-		GLdouble pos1X, pos1Y, pos1Z;
-		GLdouble pos2X, pos2Y, pos2Z;
+void DEMGenerator::addLake(int x, int y, int size) {
+	int indexX, worldY, indexZ;
 
-		gluUnProject( windowX, windowY, 0.0, modelview, projection, viewport, &pos1X, &pos1Y, &pos1Z);
-		cout << "Click p1 at: " << pos1X << ", " << pos1Y << ", " << pos1Z << endl;
-		gluUnProject( windowX, windowY, 1.0, modelview, projection, viewport, &pos2X, &pos2Y, &pos2Z);
-		cout << "Click p2 at: " << pos2X << ", " << pos2Y << ", " << pos2Z << endl;
+	this->convert(x, y, &indexX, &worldY, &indexZ);
 
-		Vec3f mouseDir(pos1X - pos2X, pos1Y - pos2Y, pos1Z - pos2Z);
-		Vec3f centerOfProj(pos1X, pos1Y, pos1Z);
+	for (int i = -size; i <= size; i++) {
+		for (int j = -size; j <= size; j++) {
+			if ((i == -size and j == -size) or (i == -size and j == size) or (i == size and j == -size) or (i == size and j == size)) continue;
+			
+			int x = i + indexX;
+			int y = j + indexZ;
 
+			if (x >= this->gridWidth) x = this->gridWidth - 1;
+			else if (x < 0) x = 0;
+			if (y >= this->gridWidth) y = this->gridWidth - 1;
+			else if (y < 0) y = 0;
 
-	// 	Vec3f& centerOfProj = this->eyePointer->pos;
-	// 	Vec3f mouseDir = this->eyePointer->viewDir;
-	// 	Vec3f upDir = this->eyePointer->upVec;
-
-	// 	cout << endl;
-
-	// 	cout << "horizAngle: " << horizAngle;
-	// 	cout << " vertAngle: " << vertAngle << endl;
-
-	// 	cout << "Currently looking - vert: " << this->eyePointer->vertAngle * (180/M_PI) << " horiz: " << this->eyePointer->horizAngle * (180/M_PI) << endl;
-
-	// // cout << "\n\nTesting: " << endl;
-	// // Vec3f vec(4, 0, 0);
-	// // Vec3f axis(1, 1, 0);
-
-	// // Quat4f quat(180, axis);
-
-	// // cout << quat.rotateVector(vec) << endl;
-	// 	cout << "View vec: " << this->eyePointer->viewDir << endl;
-	// 	cout << "Strafe vec: " << this->eyePointer->strafeVec << endl;
-	// 	cout << "Up vec: " << this->eyePointer->upVec << endl;
-
-	// 	// cout << "Before: " << mouseDir << endl;
-	// 	Quat4f rotator2(vertAngle, this->eyePointer->strafeVec);
-	// 	mouseDir = rotator2.rotateVector(mouseDir);
-	// 	upDir = rotator2.rotateVector(upDir);
-	// 	cout << "1st mouse direction: " << mouseDir << endl;
-
-	// 	Quat4f rotator1(-horizAngle, upDir);
-	// 	mouseDir = rotator1.rotateVector(mouseDir);
-	// 	cout << "2nd mouse direction: " << mouseDir << endl;
-
-	// 	// mouseDir = mouseDir.rotate(horizAngle, this->eyePointer->upVec);
-	// 	// mouseDir = mouseDir.rotate(vertAngle, this->eyePointer->strafeVec);
-
-	// 	// Vec3f mouseDir = this->eyePointer->origViewDir.rotateZ(-this->eyePointer->vertAngle + vertAngle)
-	// 	// 											  .rotateY(this->eyePointer->horizAngle + horizAngle);
-
-		float t = -centerOfProj.y / mouseDir.y;
-
-		float x = centerOfProj.x + (t * mouseDir.x);
-		float z = centerOfProj.z + (t * mouseDir.z);
-
-		float offset = this->gridWidth * this->cellSize / 2;
-
-		x += offset;
-		z += offset;
-
-		x /= this->cellSize;
-		z /= this->cellSize;
-
-		x += 0.5;
-		z += 0.5;
-
-		int intX = x;
-		int intZ = z;
-
-		cout << "Looking at: " << intX << ", " << 0 << ", " << intZ << endl;
-
-		this->savedPoints.push_back(Vec3f(intX, 10, intZ));
+			this->grid[x][y] = 0.0f;
+		}
 	}
 }
 

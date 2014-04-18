@@ -101,7 +101,7 @@ public:
 	void triangulateForDisplay();
 	void display();
 	Coord2i toIndex(Vec3f);
-	Color3f colorAt(Coord3f);
+	Color3f colorAt(Coord3f, Coord2i);
 	Coord3f normalAt(Coord2i);
 	Coord3f toCoord(Coord2i);
 	Coord3f normalize(Coord3f);
@@ -119,24 +119,30 @@ public:
 	float roughnessFactor;
 	default_random_engine generator;
 	normal_distribution<float> distribution;
+	float** grid;
 	int gridWidth;
 	float cellSize;
 	float stdDev;
 	int numSmooths;
 	vector<Vec3f> savedPoints;
+	float incrAmount;
 
 	User* eyePointer;
 
 	DEMGenerator();
 
-	float** smooth(float**);
+	void initialize();
+	void smooth(float**);
 	float randVal(int);
-	void fractalRecurse(float**, int, int, int, int);
-	float** generateGrid(int);
+	void fractalRecurse(int, int, int, int);
+	void generateGrid(int);
 	string createGridFile();
 
 	void display();
+
+	void convert(int, int, int*, int*, int*);
 	void handleClick(int, int, int, int);
+	void addLake(int, int, int);
 };
 
 #endif

@@ -89,8 +89,22 @@ void userInputAndInstructions() {
 		// cin >> gridGen.numSmooths;
 		gridGen.numSmooths = 1;
 
+		cout << "Defined points incrementation value (size by which user input points go up): ";
+		// cin >> gridGen.incrAmount;
+		gridGen.incrAmount = 1.0f;
+
+		gridGen.initialize();
+
 		cout << endl;
 	}
+
+	// TODO: Print intsructions
+	// r = lake
+	// R = big lake
+	// scroll wheel = elevations
+	// menu for creation
+	// WASD movement - space up, x down
+	// etc
 }
 
 void menuCallback(int choice) {
@@ -128,6 +142,7 @@ void initGenMenu() {
 	glutAddMenuEntry("Choices:", 0);
 	glutAddMenuEntry("", 0);
 	glutAddMenuEntry("Create Ground", 10);
+	glutAddMenuEntry("", 0);
 	glutAddMenuEntry("Quit", -1);
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -395,6 +410,11 @@ void keyDownCallback(unsigned char key, int x, int y) {
 					break;
 		case 'Q': 	mouseCallback(4, GLUT_DOWN, x, y);
 					break;
+
+		case 'r': 	gridGen.addLake(x, y, 2);
+					break;
+		case 'R': 	gridGen.addLake(x, y, 3);
+					break;
 	}
 }
 
@@ -450,7 +470,7 @@ int main(int argc, char** argv) {
 	glutMotionFunc(mouseMoveCallback); // Mouse movement
 	glutPassiveMotionFunc(mousePassiveMoveCallback); // Mouse movement
 
-	glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
+	// glutIgnoreKeyRepeat(1); // Ignore the repetition of chars that occur when holding a key
 	glutKeyboardFunc(keyDownCallback); // Key down
 	glutKeyboardUpFunc(keyUpCallback); // Key up
 	glutSpecialFunc(specialDownCallback); // Special key down
