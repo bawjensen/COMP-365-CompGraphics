@@ -57,6 +57,35 @@ void generateAndSetGround(); // Forward delclaration to allow use in menuCallbac
 
 void userInputAndInstructions() {
 	char choice;
+
+	// TODO: Print intsructions
+	// r = lake
+	// R = big lake
+	// scroll wheel = elevations
+	// menu for creation
+	// WASD movement - space up, x down
+	// etc
+
+	cout << endl;
+	cout << "Things To Know: " << endl;
+	cout << "\tW: Forward" << endl;
+	cout << "\tS: Backward" << endl;
+	cout << "\tD: Left" << endl;
+	cout << "\tA: Right" << endl;
+	cout << "\tSpacebar: Up" << endl;
+	cout << "\tX: Down" << endl;
+	cout << endl;
+
+	cout << "Landscape Generation Controls (hold and drag mouse to fill): " << endl;
+	cout << "\tr: Small water body (e.g. river)" << endl;
+	cout << "\tR: Large water body (e.g. lake)" << endl;
+	cout << "\tMouse scroll wheel (up/down): Define a desired height at the cursor location" << endl;
+	cout << "\t(Note: q will act as a mouse scroll up, and Q for down)" << endl;
+	cout << endl;
+
+	cout << "Input such as switching landscapes, finalizing generation of landscape, etc. is performed\nthrough the in-app menu, accessed via right-click with the mouse." << endl;
+	cout << endl;
+
 	cout << "Use pre-built ESRI DEM file (P) or randomly generate ESRI DEM file (R): ";
 	cin >> choice;
 
@@ -71,45 +100,46 @@ void userInputAndInstructions() {
 		cout << "Enter values for: " << endl;
 
 		cout << "Name of output DEM grid file: ";
-		// cin >> gridGen.outFileName;
-		gridGen.outFileName = "temp.dem.grd";
+		cin >> gridGen.outFileName;
+		// gridGen.outFileName = "temp.dem.grd";
 
 		cout << "Grid width (grid is square - preferred: 2^n + 1): ";
-		// cin >> gridGen.gridWidth;
-		gridGen.gridWidth = 65;
+		cin >> gridGen.gridWidth;
+		// gridGen.gridWidth = 65;
 
 		cout << "Grid spacing (a.k.a. cell size): ";
-		// cin >> gridGen.cellSize;
-		gridGen.cellSize = 1;
+		cin >> gridGen.cellSize;
+		// gridGen.cellSize = 1;
 
 		cout << "Fractal generation's roughness factor: ";
-		// cin >> gridGen.roughnessFactor;
-		gridGen.roughnessFactor = 2.5;
+		cin >> gridGen.roughnessFactor;
+		// gridGen.roughnessFactor = 2.5;
 
 		cout << "Number of smoothing iterations (creates a more even surface): ";
-		// cin >> gridGen.numSmooths;
-		gridGen.numSmooths = 2;
+		cin >> gridGen.numSmooths;
+		// gridGen.numSmooths = 2;
 
 		cout << "Defined points incrementation value (size by which user input points go up): ";
-		// cin >> gridGen.incrAmount;
-		gridGen.incrAmount = 1.0f;
+		cin >> gridGen.incrAmount;
+		// gridGen.incrAmount = 1.0f;
 
 		gridGen.initialize();
 
 		cout << endl;
 	}
-
-	// TODO: Print intsructions
-	// r = lake
-	// R = big lake
-	// scroll wheel = elevations
-	// menu for creation
-	// WASD movement - space up, x down
-	// etc
 }
 
-void updateMovementSpeed() {
-	user.moveSpeed = max(ground.nRows, ground.nCols) / 100.0f;
+void updateUserAttributes(bool afterGeneration) {
+	if (gettingRandomDEMFileInput) {
+		user.moveSpeed = gridGen.gridWidth * gridGen.cellSize / 100.0f;
+		if (!afterGeneration)
+			user.pos = Vec3f(0, 10, 0);
+	}
+	else {
+		user.moveSpeed = max(ground.nRows, ground.nCols) * ground.cellSize / 100.0f;
+		if (!afterGeneration)
+			user.pos = Vec3f(0, ground.highest, 0);
+	}
 }
 
 void menuCallback(int choice) {
@@ -121,7 +151,6 @@ void menuCallback(int choice) {
 		case 2: 	gridGen.initialize();
 					gettingRandomDEMFileInput = true;
 					initGenMenu();
-					// ground.readFromESRIFile(gridGen.createGridFile());
 					break;
 		case 3: 	ground.readFromESRIFile("grds/coolLake.dem.grd");
 					break;
@@ -133,7 +162,7 @@ void menuCallback(int choice) {
 					break;
 	}
 
-	updateMovementSpeed();
+	updateUserAttributes(choice == 10);
 }
 
 void initMenu() {
@@ -197,7 +226,7 @@ void init(int numArgs, char** argArray) {
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb); // Global ambient light.
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); // Enable local viewpoint
 
-	user.setDepthOfView(1000);
+	user.setDepthOfView(10000);
 
 	if (!gettingRandomDEMFileInput){
 		ground.readFromESRIFile(DEMFileName);
@@ -208,6 +237,7 @@ void init(int numArgs, char** argArray) {
 		initGenMenu();
 	}
 
+	updateUserAttributes(false);
 	// cout << "\n\nTesting:" << endl;
 
 	// Vec3f vec(1, 0, 0);

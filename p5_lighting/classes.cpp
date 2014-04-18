@@ -229,11 +229,13 @@ void Ground::readFromESRIFile(string filename) {
 	}
 
 	float cellData;
+	this->highest = 0;
+	this->lowest = 10000;
 	for (int i = 0; i < nRows; i++) {
 		for (int j = 0; j < nCols; j++) {
 			inFile >> cellData;
-			if (cellData > highest) highest = cellData;
-			if (cellData < lowest) lowest = cellData;
+			if (cellData > this->highest) this->highest = cellData;
+			if (cellData < this->lowest) this->lowest = cellData;
 			this->pointGrid[i][j] = cellData;
 		}
 	}
@@ -322,27 +324,27 @@ Color3f Ground::colorAt(Coord3f point, Coord2i indexPoint) {
 		switch (i) {
 			case 0: dI = 1;
 					dJ = 0;
-					dX = 1;
+					dX = this->cellSize;
 					break;
 			case 1: dI = 0;
 					dJ = -1;
-					dX = 1;
+					dX = this->cellSize;
 					break;
 			case 2: dI = -1;
 					dJ = -1;
-					dX = 1.414; // sqrt(2)
+					dX = 1.414 * this->cellSize; // sqrt(2)
 					break;
 			case 3: dI = -1;
 					dJ = 0;
-					dX = 1;
+					dX = this->cellSize;
 					break;
 			case 4: dI = 0;
 					dJ = 1;
-					dX = 1;
+					dX = this->cellSize;
 					break;
 			case 5: dI = 1;
 					dJ = 1;
-					dX = 1.414; // sqrt(2)
+					dX = 1.414 * this->cellSize; // sqrt(2)
 					break;
 		}
 
@@ -682,7 +684,7 @@ void DEMGenerator::display() {
 	}
 	glEnd();
 
-	glBegin(GL_LINES);
+	offset = this->gridWidth / 2;
 	int x, y, z;
 	for (int i = 0; i < this->gridWidth; i++) {
 		for (int j = 0; j < this->gridWidth; j++) {
@@ -690,32 +692,34 @@ void DEMGenerator::display() {
 
 			else if (this->grid[i][j] == 0.0f) { // Sentinel value for lake
 				// cout << "Lake at: " << i << ", " << j << endl;
-				glColor3f(0.0, 0.0, 1.0);
-				glEnd();
-				glBegin(GL_QUADS);
-
-				x = i - offset;
-				z = j - offset;
+				x = (i - offset) * this->cellSize;
+				z = (j - offset) * this->cellSize;
 				y = this->grid[i][j];
-				glVertex3f(x-0.5, 0.1, z-0.5);
-				glVertex3f(x+0.5, 0.1, z-0.5);
-				glVertex3f(x+0.5, 0.1, z+0.5);
-				glVertex3f(x-0.5, 0.1, z+0.5);
+
+				float shift = 0.5 * this->cellSize;
+
+				glColor3f(0.0, 0.0, 1.0);
+				glBegin(GL_QUADS);
+					glVertex3f(x-shift, 0.2, z-shift);
+					glVertex3f(x+shift, 0.2, z-shift);
+					glVertex3f(x+shift, 0.2, z+shift);
+					glVertex3f(x-shift, 0.2, z+shift);
 
 				glEnd();
-				glBegin(GL_LINES);
 			}
 			else { // User defined point
-				glColor3f(0.0, 1.0, 0.0);
 				x = i - offset;
 				z = j - offset;
 				y = this->grid[i][j];
-				glVertex3f(x, 0, z);
-				glVertex3f(x, y, z);
+
+				glColor3f(0.0, 1.0, 0.0);
+				glBegin(GL_LINES);
+					glVertex3f(x, 0, z);
+					glVertex3f(x, y, z);
+				glEnd();
 			}
 		}
 	}
-	glEnd();
 	glEnable(GL_LIGHTING);
 }
 
