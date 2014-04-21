@@ -1,0 +1,26 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {cancelButton = id; colorPickerTraget = id; okButton = id; }; 
+            CLASS = ColorPicker; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                mBlueColorEdit = NSTextField; 
+                mColorWell = NSColorWell; 
+                mDelegate = id; 
+                mFTransmitOn = NSButton; 
+                mFilterEdit = NSTextField; 
+                mFilterOn = NSButton; 
+                mFilterTransmitView = NSView; 
+                mGrayOn = NSButton; 
+                mGreenColorEdit = NSTextField; 
+                mRedColorEdit = NSTextField; 
+                mTransmitEdit = NSTextField; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

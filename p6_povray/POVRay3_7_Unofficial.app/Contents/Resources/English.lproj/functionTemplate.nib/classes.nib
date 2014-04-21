@@ -1,0 +1,109 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {functionTypesPopup = id; }; 
+            CLASS = FunctionTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                abView = NSView; 
+                abViewA = NSTextField; 
+                abViewB = NSTextField; 
+                abcdView = NSView; 
+                abcdViewA = NSTextField; 
+                abcdViewB = NSTextField; 
+                abcdViewC = NSTextField; 
+                abcdViewD = NSTextField; 
+                alpView = NSView; 
+                alpViewA = NSTextField; 
+                alpViewL = NSTextField; 
+                alpViewP = NSTextField; 
+                emptyView = NSView; 
+                functionDescriptionView = NSTextView; 
+                functionTableView = NSTableView; 
+                functionTypesPopup = NSPopUpButton; 
+                idaView = NSView; 
+                idaViewA = NSTextField; 
+                idaViewID = NSTextField; 
+                idvView = NSView; 
+                idvViewID = NSTextField; 
+                idvViewV0 = NSTextField; 
+                idvViewV1 = NSTextField; 
+                idvViewV2 = NSTextField; 
+                mainTabView = NSTabView; 
+                nvslpView = NSView; 
+                nvslpViewL = NSTextField; 
+                nvslpViewN = NSPopUpButton; 
+                nvslpViewP = NSTextField; 
+                nvslpViewS = NSTextField; 
+                nvslpViewV0 = NSTextField; 
+                nvslpViewV1 = NSTextField; 
+                nvslpViewV2 = NSTextField; 
+                nvslpViewV3 = NSTextField; 
+                nvslpViewV4 = NSTextField; 
+                s1s2View = NSView; 
+                s1s2ViewS1 = NSTextField; 
+                s1s2ViewS2 = NSTextField; 
+                splView = NSView; 
+                splViewL = NSTextField; 
+                splViewP = NSTextField; 
+                splViewS = NSTextField; 
+                v1v2aView = NSView; 
+                v1v2aViewA = NSTextField; 
+                v1v2aViewV10 = NSTextField; 
+                v1v2aViewV11 = NSTextField; 
+                v1v2aViewV12 = NSTextField; 
+                v1v2aViewV20 = NSTextField; 
+                v1v2aViewV21 = NSTextField; 
+                v1v2aViewV22 = NSTextField; 
+                vlooView = NSView; 
+                vlooViewLa = NSTextField; 
+                vlooViewOc = NSTextField; 
+                vlooViewOm = NSTextField; 
+                vlooViewV0 = NSTextField; 
+                vlooViewV1 = NSTextField; 
+                vlooViewV2 = NSTextField; 
+                xyzpView = NSView; 
+                xyzpViewX = NSTextField; 
+                xyzpViewY = NSTextField; 
+                xyzpViewZ = NSTextField; 
+                xyzpViewp0 = NSTextField; 
+                xyzpViewp1 = NSTextField; 
+                xyzpViewp2 = NSTextField; 
+                xyzpViewp3 = NSTextField; 
+                xyzpViewp4 = NSTextField; 
+                xyzpViewp5 = NSTextField; 
+                xyzpViewp6 = NSTextField; 
+                xyzpViewp7 = NSTextField; 
+                xyzpViewp8 = NSTextField; 
+                xyzpViewp9 = NSTextField; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }
+    ); 
+    IBVersion = 1; 
+}

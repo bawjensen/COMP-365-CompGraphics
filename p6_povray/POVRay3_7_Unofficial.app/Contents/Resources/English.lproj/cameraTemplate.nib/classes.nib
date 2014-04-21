@@ -1,0 +1,95 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {cameraButtons = id; cameraTarget = id; }; 
+            CLASS = CameraTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                cameraAngleAngleEdit = NSTextField; 
+                cameraAngleDirectionGroup = NSBox; 
+                cameraAngleDirectionMatrix = NSMatrix; 
+                cameraAngleDirectionOn = NSButton; 
+                cameraAngleDirectionPopup = NSPopUpButton; 
+                cameraAngleTabView = NSTabView; 
+                cameraAspectRatioAutoOn = NSButton; 
+                cameraAspectRatioAutoView = NSBox; 
+                cameraAspectRatioGroup = NSBox; 
+                cameraAspectRatioGroupOn = NSButton; 
+                cameraAspectRatioRightEdit = NSTextField; 
+                cameraAspectRatioRightPopup = NSPopUpButton; 
+                cameraAspectRatioUpEdit = NSTextField; 
+                cameraAspectRatioUpPopup = NSPopUpButton; 
+                cameraFocalBlurApertureEdit = NSTextField; 
+                cameraFocalBlurBlurSamplesEdit = NSTextField; 
+                cameraFocalBlurConfidenceEdit = NSTextField; 
+                cameraFocalBlurConfidenceOn = NSButton; 
+                cameraFocalBlurFocalPointMatrix = NSMatrix; 
+                cameraFocalBlurGroup = NSBox; 
+                cameraFocalBlurGroupOn = NSButton; 
+                cameraFocalBlurVarianceEdit = NSTextField; 
+                cameraFocalBlurVarianceOn = NSButton; 
+                cameraHorizontalAngleEdit = NSTextField; 
+                cameraLocationMatrix = NSMatrix; 
+                cameraLookAtMatrix = NSMatrix; 
+                cameraMainTabView = NSTabView; 
+                cameraNormalGroup = NSBox; 
+                cameraNormalGroupOn = NSButton; 
+                cameraPredefinedEditNormalButton = NSButton; 
+                cameraSkyMatrix = NSMatrix; 
+                cameraSkyOn = NSButton; 
+                cameraSkyVectorPopup = NSPopUpButton; 
+                cameraTabView = NSTabView; 
+                cameraTypePopup = NSPopUpButton; 
+                cameraUserDefinedDirectionEditPigmentButton = NSButton; 
+                cameraUserDefinedDirectionFunctionUButton = NSButton; 
+                cameraUserDefinedDirectionFunctionVButton = NSButton; 
+                cameraUserDefinedDirectionFunctionX = NSTextView; 
+                cameraUserDefinedDirectionFunctionY = NSTextView; 
+                cameraUserDefinedDirectionFunctionZ = NSTextView; 
+                cameraUserDefinedDirectionFunctionZButton = NSButton; 
+                cameraUserDefinedDirectionGroupBox = NSBox; 
+                cameraUserDefinedDirectionPopup = NSPopUpButton; 
+                cameraUserDefinedDirectionTabView = NSTabView; 
+                cameraUserDefinedLocationEditPigmentButton = NSButton; 
+                cameraUserDefinedLocationFunctionUButton = NSButton; 
+                cameraUserDefinedLocationFunctionVButton = NSButton; 
+                cameraUserDefinedLocationFunctionX = NSTextView; 
+                cameraUserDefinedLocationFunctionY = NSTextView; 
+                cameraUserDefinedLocationFunctionZ = NSTextView; 
+                cameraUserDefinedLocationFunctionZButton = NSButton; 
+                cameraUserDefinedLocationGroupBox = NSBox; 
+                cameraUserDefinedLocationPopup = NSPopUpButton; 
+                cameraUserDefinedLocationTabView = NSTabView; 
+                cameraVerticalAngleEdit = NSTextField; 
+                cameraVerticalAngleOn = NSButton; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

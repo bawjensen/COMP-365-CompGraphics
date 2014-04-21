@@ -1,0 +1,83 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                displayColorPicker = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = MPColorWell; LANGUAGE = ObjC; SUPERCLASS = NSColorWell; }, 
+        {CLASS = MPFTColorWell; LANGUAGE = ObjC; SUPERCLASS = MPColorWell; }, 
+        {
+            ACTIONS = {mediaButtons = id; mediaTarget = id; }; 
+            CLASS = MediaTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                mediaAbsorptionGroup = NSBox; 
+                mediaAbsorptionGroupColorWell = NSColorWell; 
+                mediaAbsorptionGroupOn = NSButton; 
+                mediaDensityEditMapButton = NSButton; 
+                mediaDensityEditPatternButton = NSButton; 
+                mediaDensityGroup = NSBox; 
+                mediaDensityGroupOn = NSButton; 
+                mediaDensityMatrix = NSMatrix; 
+                mediaDontWrapInMedia = NSButton; 
+                mediaEmissionGroup = NSBox; 
+                mediaEmissionGroupColorWell = NSColorWell; 
+                mediaEmissionGroupOn = NSButton; 
+                mediaIgnorePhotonsOn = NSButton; 
+                mediaSamplingAaDepthEdit = NSTextField; 
+                mediaSamplingAaDepthOn = NSButton; 
+                mediaSamplingAaThresholdEdit = NSTextField; 
+                mediaSamplingAaThresholdOn = NSButton; 
+                mediaSamplingConfidenceEdit = NSTextField; 
+                mediaSamplingConfidenceOn = NSButton; 
+                mediaSamplingIntervalsEdit = NSTextField; 
+                mediaSamplingIntervalsOn = NSButton; 
+                mediaSamplingJitterEdit = NSTextField; 
+                mediaSamplingJitterOn = NSButton; 
+                mediaSamplingMethodPopUp = NSPopUpButton; 
+                mediaSamplingRatioEdit = NSTextField; 
+                mediaSamplingRatioOn = NSButton; 
+                mediaSamplingSamplesMaxEdit = NSTextField; 
+                mediaSamplingSamplesMaxText = NSTextField; 
+                mediaSamplingSamplesMinEdit = NSTextField; 
+                mediaSamplingSamplesMinText = NSTextField; 
+                mediaSamplingSamplesOn = NSButton; 
+                mediaSamplingVarianceEdit = NSTextField; 
+                mediaSamplingVarianceOn = NSButton; 
+                mediaScatteringColorWell = NSColorWell; 
+                mediaScatteringEccentricityEdit = NSTextField; 
+                mediaScatteringEccentricityText = NSTextField; 
+                mediaScatteringExtinctionEdit = NSTextField; 
+                mediaScatteringExtinctionOn = NSButton; 
+                mediaScatteringGroup = NSBox; 
+                mediaScatteringGroupOn = NSButton; 
+                mediaScatteringTypePopUp = NSPopUpButton; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }, 
+        {CLASS = greenLed; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    ); 
+    IBVersion = 1; 
+}

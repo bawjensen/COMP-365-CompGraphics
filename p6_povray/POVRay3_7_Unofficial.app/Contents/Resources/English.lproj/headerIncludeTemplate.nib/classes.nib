@@ -1,0 +1,80 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {switchedOn = id; }; 
+            CLASS = HeaderIncludeTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                headerIncludeComment1 = NSTextField; 
+                headerIncludeComment1On = NSButton; 
+                headerIncludeComment2 = NSTextField; 
+                headerIncludeComment2On = NSButton; 
+                headerIncludeComment3 = NSTextField; 
+                headerIncludeComment3On = NSButton; 
+                headerIncludeComment4 = NSTextField; 
+                headerIncludeComment4On = NSButton; 
+                headerIncludeComment5 = NSTextField; 
+                headerIncludeComment5On = NSButton; 
+                headerIncludeComment6 = NSTextField; 
+                headerIncludeComment6On = NSButton; 
+                headerIncludeComment7 = NSTextField; 
+                headerIncludeComment7On = NSButton; 
+                headerIncludeInclude1 = NSTextField; 
+                headerIncludeInclude10 = NSTextField; 
+                headerIncludeInclude10On = NSButton; 
+                headerIncludeInclude11 = NSTextField; 
+                headerIncludeInclude11On = NSButton; 
+                headerIncludeInclude12 = NSTextField; 
+                headerIncludeInclude12On = NSButton; 
+                headerIncludeInclude1On = NSButton; 
+                headerIncludeInclude2 = NSTextField; 
+                headerIncludeInclude2On = NSButton; 
+                headerIncludeInclude3 = NSTextField; 
+                headerIncludeInclude3On = NSButton; 
+                headerIncludeInclude4 = NSTextField; 
+                headerIncludeInclude4On = NSButton; 
+                headerIncludeInclude5 = NSTextField; 
+                headerIncludeInclude5On = NSButton; 
+                headerIncludeInclude6 = NSTextField; 
+                headerIncludeInclude6On = NSButton; 
+                headerIncludeInclude7 = NSTextField; 
+                headerIncludeInclude7On = NSButton; 
+                headerIncludeInclude8 = NSTextField; 
+                headerIncludeInclude8On = NSButton; 
+                headerIncludeInclude9 = NSTextField; 
+                headerIncludeInclude9On = NSButton; 
+                headerIncludeVersion1 = NSTextField; 
+                headerIncludeVersion1On = NSButton; 
+                headerIncludeVersion2 = NSTextField; 
+                headerIncludeVersion2On = NSButton; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }
+    ); 
+    IBVersion = 1; 
+}

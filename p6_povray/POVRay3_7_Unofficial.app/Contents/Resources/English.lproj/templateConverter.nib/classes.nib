@@ -1,0 +1,23 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                cancel = id; 
+                convert = id; 
+                selectTargetDirectory = id; 
+                selectTemplateFile = id; 
+            }; 
+            CLASS = templateConverter; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                progress = NSProgressIndicator; 
+                targetDirectory = NSTextField; 
+                templateFile = NSTextField; 
+                window = NSPanel; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

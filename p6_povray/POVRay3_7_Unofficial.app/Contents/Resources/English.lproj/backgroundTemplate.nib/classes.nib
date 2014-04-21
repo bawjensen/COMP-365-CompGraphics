@@ -1,0 +1,110 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {backgroundButtons = id; backgroundTarget = id; }; 
+            CLASS = BackgroundTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                backgroundColorMapEditButton = NSButton; 
+                backgroundColorWell = NSColorWell; 
+                backgroundFogAltitudeEdit = NSTextField; 
+                backgroundFogAltitudeOn = NSButton; 
+                backgroundFogColorColorWell = NSColorWell; 
+                backgroundFogDistanceEdit = NSTextField; 
+                backgroundFogGroundfogView = NSView; 
+                backgroundFogLambdaEdit = NSTextField; 
+                backgroundFogLambdaOn = NSButton; 
+                backgroundFogOctavesEdit = NSTextField; 
+                backgroundFogOctavesOn = NSButton; 
+                backgroundFogOffsetEdit = NSTextField; 
+                backgroundFogOffsetOn = NSButton; 
+                backgroundFogOmegaEdit = NSTextField; 
+                backgroundFogOmegaOn = NSButton; 
+                backgroundFogTurbulenceDepthEdit = NSTextField; 
+                backgroundFogTurbulenceDepthOn = NSButton; 
+                backgroundFogTurbulenceMatrix = NSMatrix; 
+                backgroundFogTurbulenceOn = NSButton; 
+                backgroundFogTurbulenceXYZPopUp = NSPopUpButton; 
+                backgroundFogTypePopUp = NSPopUpButton; 
+                backgroundFogUpMatrix = NSMatrix; 
+                backgroundFogUpOn = NSButton; 
+                backgroundFogUpXYZPopUp = NSPopUpButton; 
+                backgroundGlowColorWell = NSColorWell; 
+                backgroundGlowFadePowerEdit = NSTextField; 
+                backgroundGlowLocationMatrix = NSMatrix; 
+                backgroundGlowLocationXYZPopUp = NSPopUpButton; 
+                backgroundGlowRadiusEdit = NSTextField; 
+                backgroundGlowSizeEdit = NSTextField; 
+                backgroundGlowTransformationsButton = NSButton; 
+                backgroundGlowTransformationsOn = NSButton; 
+                backgroundGlowTypePopUp = NSPopUpButton; 
+                backgroundRainbowAngleEdit = NSTextField; 
+                backgroundRainbowArcAngleEdit = NSTextField; 
+                backgroundRainbowArcAngleOn = NSButton; 
+                backgroundRainbowColorMapBlackAndWhitePreview = colormapPreview; 
+                backgroundRainbowColorMapCustomizedPreview = colormapPreview; 
+                backgroundRainbowColorMapRainbowPreview = colormapPreview; 
+                backgroundRainbowColorMapTabView = NSTabView; 
+                backgroundRainbowDirectionMatrix = NSMatrix; 
+                backgroundRainbowDirectionXYZPopUp = NSPopUpButton; 
+                backgroundRainbowDistanceEdit = NSTextField; 
+                backgroundRainbowFalloffAngleEdit = NSTextField; 
+                backgroundRainbowFalloffAngleOn = NSButton; 
+                backgroundRainbowJitterEdit = NSTextField; 
+                backgroundRainbowJitterOn = NSButton; 
+                backgroundRainbowUpMatrix = NSMatrix; 
+                backgroundRainbowUpOn = NSButton; 
+                backgroundRainbowUpXYZPopUp = NSPopUpButton; 
+                backgroundRainbowWidthEdit = NSTextField; 
+                backgroundSkysphereEditPigment1Button = NSButton; 
+                backgroundSkysphereEditPigment2Button = NSButton; 
+                backgroundSkysphereEditPigment3Button = NSButton; 
+                backgroundSkysphereEditPigment4Button = NSButton; 
+                backgroundSkysphereEditPigment5Button = NSButton; 
+                backgroundSkyspherePigment2On = NSButton; 
+                backgroundSkyspherePigment3On = NSButton; 
+                backgroundSkyspherePigment4On = NSButton; 
+                backgroundSkyspherePigment5On = NSButton; 
+                backgroundTabView = NSTabView; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }, 
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                displayColorPicker = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = MPColorWell; LANGUAGE = ObjC; SUPERCLASS = NSColorWell; }, 
+        {CLASS = MPFTColorWell; LANGUAGE = ObjC; SUPERCLASS = MPColorWell; }, 
+        {CLASS = colormapPreview; LANGUAGE = ObjC; SUPERCLASS = mapPreview; }, 
+        {CLASS = greenLed; LANGUAGE = ObjC; SUPERCLASS = NSView; }, 
+        {
+            CLASS = mapPreview; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {mMap = id; }; 
+            SUPERCLASS = NSView; 
+        }
+    ); 
+    IBVersion = 1; 
+}

@@ -1,0 +1,48 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {photonsTarget = id; }; 
+            CLASS = PhotonsTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                photonsCollectMaxtrix = NSMatrix; 
+                photonsCollectOn = NSButton; 
+                photonsPassThroughOn = NSButton; 
+                photonsReflectionMaxtrix = NSMatrix; 
+                photonsReflectionOn = NSButton; 
+                photonsRefractionMaxtrix = NSMatrix; 
+                photonsRefractionOn = NSButton; 
+                photonsSpacingEdit = NSTextField; 
+                photonsSpacingText = NSTextField; 
+                photonsTargetOn = NSButton; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }
+    ); 
+    IBVersion = 1; 
+}

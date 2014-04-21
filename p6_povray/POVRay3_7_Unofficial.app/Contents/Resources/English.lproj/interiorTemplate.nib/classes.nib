@@ -1,0 +1,63 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                cancelButton = id; 
+                displayColorPicker = id; 
+                okButton = id; 
+                openButton = id; 
+                resetButton = id; 
+                saveButton = id; 
+                setModified = id; 
+            }; 
+            CLASS = BaseTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorPickerController = id; 
+                mFileOwner = id; 
+                mTemplateCaller = id; 
+                mWindow = NSPanel; 
+                templateCancelButton = NSButton; 
+                templateOkButton = NSButton; 
+                templateOpenButton = NSButton; 
+                templateResetButton = NSButton; 
+                templateSaveButton = NSButton; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {interiorButtons = id; interiorTarget = id; }; 
+            CLASS = InteriorTemplate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                interiorCausticsEdit = NSTextField; 
+                interiorCausticsOn = NSButton; 
+                interiorDispersionGroup = NSBox; 
+                interiorDispersionGroupOn = NSButton; 
+                interiorDispersionSamplesEdit = NSTextField; 
+                interiorDispersionSamplesOn = NSButton; 
+                interiorDispersionValueEdit = NSTextField; 
+                interiorIorIndexEdit = NSTextField; 
+                interiorIorIndexPopUp = NSPopUpButton; 
+                interiorLightAttenuationFadeColorColorWell = NSColorWell; 
+                interiorLightAttenuationFadeColorGroup = NSBox; 
+                interiorLightAttenuationFadeColorGroupOn = NSButton; 
+                interiorLightAttenuationFadeDistanceEdit = NSTextField; 
+                interiorLightAttenuationFadePowerEdit = NSTextField; 
+                interiorLightAttenuationGroup = NSBox; 
+                interiorLightAttenuationGroupOn = NSButton; 
+                interiorMainViewHolderView = NSView; 
+                interiorMainViewNIBView = NSView; 
+                interiorMediaEditButton = NSButton; 
+                interiorMediaGroup = NSBox; 
+                interiorMediaGroupOn = NSButton; 
+            }; 
+            SUPERCLASS = BaseTemplate; 
+        }, 
+        {CLASS = MPColorWell; LANGUAGE = ObjC; SUPERCLASS = NSColorWell; }, 
+        {CLASS = MPFTColorWell; LANGUAGE = ObjC; SUPERCLASS = MPColorWell; }, 
+        {CLASS = greenLed; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    ); 
+    IBVersion = 1; 
+}
