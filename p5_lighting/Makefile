@@ -10,7 +10,7 @@ else # Linux
 endif
 
 p5:			lighting.cpp classes.cpp classes.h baseClasses.cpp baseClasses.h
-			g++ lighting.cpp classes.cpp baseClasses.cpp -o Delfino_Jensen_G5 -w $(CFLAGS)
+			g++ -std=c++11 lighting.cpp classes.cpp baseClasses.cpp -o Delfino_Jensen_G5 -w $(CFLAGS) 
 
 clean:
 			rm *.o
