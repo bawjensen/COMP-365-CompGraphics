@@ -3,12 +3,12 @@
 #include "stones.inc"
 
 camera {
-	location <20, 20, -50>
-	look_at <0, 5, 0>
+	location <0, 0, -50>
+	look_at <0, 0, 0>
 }
 
 light_source {
-	<2, 4, -3> color White
+	<50, 0, 0> color White
 }
 
 #declare Red = texture {
@@ -50,46 +50,48 @@ light_source {
 	}//end of normal dec
 }
 
-mesh {
-	/* top side */
-	triangle {
-		<-10, 10, -10>, <10, 10, -10>, <10, 10, 10>
-		texture { Base_Tex }
-	}
-	triangle {
-		<-10, 10, -10>, <-10, 10, 10>, <10, 10, 10>
-		texture { Base_Tex }
-	}
-	/* bottom side */
-	triangle { <-10, -10, -10>, <10, -10, -10>, <10, -10, 10> }
-	triangle { <-10, -10, -10>, <-10, -10, 10>, <10, -10, 10> }
-	/* left side */
-	triangle { <-10, -10, -10>, <-10, -10, 10>, <-10, 10, 10> }
-	triangle { <-10, -10, -10>, <-10, 10, -10>, <-10, 10, 10> }
-	/* right side */
-	triangle {
-		<10, -10, -10>, <10, -10, 10>, <10, 10, 10>
-		texture { Base_Tex }
-	}
-	triangle {
-		<10, -10, -10>, <10, 10, -10>, <10, 10, 10>
-		texture { Base_Tex }
-	}
-	/* front side */
-	triangle {
-		<-10, -10, -10>, <10, -10, -10>, <-10, 10, -10>
-		texture { Base_Tex }
-	}
-	triangle {
-		<-10, 10, -10>, <10, 10, -10>, <10, -10, -10>
-		texture { Base_Tex }
-	}
-	/* back side */
-	triangle { <-10, -10, 10>, <10, -10, 10>, <-10, 10, 10> }
-	triangle { <-10, 10, 10>, <10, 10, 10>, <10, -10, 10> }
+#include "test.inc"
 
-	texture {
-		pigment { color rgb<0.9, 0.9, 0.9> }
-		finish { ambient 0.2 diffuse 0.7 }
-	}
-}
+// mesh {
+// 	/* top side */
+// 	triangle {
+// 		<-10, 10, -10>, <10, 10, -10>, <10, 10, 10>
+// 		texture { Base_Tex }
+// 	}
+// 	triangle {
+// 		<-10, 10, -10>, <-10, 10, 10>, <10, 10, 10>
+// 		texture { Base_Tex }
+// 	}
+// 	/* bottom side */
+// 	triangle { <-10, -10, -10>, <10, -10, -10>, <10, -10, 10> }
+// 	triangle { <-10, -10, -10>, <-10, -10, 10>, <10, -10, 10> }
+// 	/* left side */
+// 	triangle { <-10, -10, -10>, <-10, -10, 10>, <-10, 10, 10> }
+// 	triangle { <-10, -10, -10>, <-10, 10, -10>, <-10, 10, 10> }
+// 	/* right side */
+// 	triangle {
+// 		<10, -10, -10>, <10, -10, 10>, <10, 10, 10>
+// 		texture { Base_Tex }
+// 	}
+// 	triangle {
+// 		<10, -10, -10>, <10, 10, -10>, <10, 10, 10>
+// 		texture { Base_Tex }
+// 	}
+// 	/* front side */
+// 	triangle {
+// 		<-10, -10, -10>, <10, -10, -10>, <-10, 10, -10>
+// 		texture { Base_Tex }
+// 	}
+// 	triangle {
+// 		<-10, 10, -10>, <10, 10, -10>, <10, -10, -10>
+// 		texture { Base_Tex }
+// 	}
+// 	/* back side */
+// 	triangle { <-10, -10, 10>, <10, -10, 10>, <-10, 10, 10> }
+// 	triangle { <-10, 10, 10>, <10, 10, 10>, <10, -10, 10> }
+
+// 	texture {
+// 		pigment { color rgb<0.9, 0.9, 0.9> }
+// 		finish { ambient 0.2 diffuse 0.7 }
+// 	}
+// }
