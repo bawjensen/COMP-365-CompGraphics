@@ -9,8 +9,9 @@ global_settings {
 }
 
 camera {
-	location <120, 35, 75>
-	// location <50, 12.5, 25>
+	location <120, 35, 75> // Final look
+	// location <50, 12.5, 25> // Close-up
+	// location <0, 400.0, 0> // Top-down
 	// angle 40 
 	right	x*image_width/image_height
 	look_at <0, 10, 0>
@@ -38,11 +39,11 @@ plane { y, -10.0
    }
 }
 
-// #include "boat.inc"
-#include "test.inc"
-#include "cessna1.inc"
-#include "cessna2.inc"
-#include "cessna3.inc"
+// #include "test.inc"
+#include "planes/cessna1.inc"
+#include "planes/cessna2.inc"
+#include "planes/cessna3.inc"
+#include "colorBoat.inc"
 // #include "dolphin1.inc"
 // #include "dolphin2.inc"
 

@@ -78,6 +78,7 @@ def calcSpecular(colorList):
 def parseMTL(filename):
 	materialList = []
 	matNameDict = {}
+	matNameList = {}
 	numTextures = 0
 
 	firstMaterial = True
@@ -121,7 +122,7 @@ def readFromFile(filename, usingMTL, matNameDict):
 	normals = []
 	faces = []
 	if usingMTL:
-		currentMaterial = 10
+		currentMaterial = 1
 
 	for line in open(filename, 'r'):
 		line = line.split()
@@ -177,22 +178,21 @@ def writeToFile(filename, vertices, normals, faces, normalIndices, materialList,
 			outFile.write('\ttexture_list {\n')
 			outFile.write('\t\t' + str(len(materialList)) + ',\n')
 
+			i = 0
 			for texture in materialList:
 				outFile.write('\t\t' + 'texture {\n')
 				outFile.write('\t\t\t' + 'pigment {\n')
 				outFile.write('\t\t\t\trgb <' + ', '.join(texture[0]) + '>\n')
 				outFile.write('\t\t\t}\n')
-				outFile.write('\t\t\t' + 'finish {\n')
+				outFile.write('\t\t\t' + 'finish { //' + str(i) + '\n')
 				outFile.write('\t\t\t\tambient ' + texture[1] + '\n')
 				outFile.write('\t\t\t\tdiffuse ' + texture[2] + '\n')
-				if type(texture[3]) == int:
-					print texture
-					sys.exit()
 				outFile.write('\t\t\t\tphong ' + texture[3] + '\n')
 				outFile.write('\t\t\t\tphong_size ' + texture[4] + '\n')
 				outFile.write('\t\t\t}\n')
 				outFile.write('\t\t}\n')
-				# outFile.write('\t\t<' + ', '.join(texture) + '>,\n') # TODO --------
+
+				i += 1
 
 			outFile.write('\t}\n')
 
@@ -218,8 +218,6 @@ def writeToFile(filename, vertices, normals, faces, normalIndices, materialList,
 
 			outFile.write('\t}\n')
 
-		outFile.write('\tpigment { White }\n')
-
 		outFile.write('}')
 
 # ------------------------------------------------------------------------------------------------------------------------
@@ -243,7 +241,7 @@ def triangulate(oldList, usingMTL):
 # ------------------------------------------------------------------------------------------------------------------------
 
 def main():
-	filename = 'airboat'
+	filename = 'cessna'
 	usingMTL = True
 	matNameDict = {}
 	materialList = []
