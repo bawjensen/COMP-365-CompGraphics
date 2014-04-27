@@ -15729,7 +15729,7 @@ mesh2 {
 		<221, 213, 220>, 1,
 	}
 	rotate <-40, 0, 0> // X-axis
-	rotate <0, -20, -20> // Y-axis
+	rotate <0, -40, -20> // Y-axis
 
-	translate <-80, 50, -20>
+	translate <-480, 50, -280>
 }

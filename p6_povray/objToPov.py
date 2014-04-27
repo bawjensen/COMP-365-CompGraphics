@@ -246,7 +246,7 @@ def main():
 	matNameDict = {}
 	materialList = []
 	if usingMTL:
-		materialList, matNameDict = parseMTL('vp.mtl')
+		materialList, matNameDict = parseMTL('su-39.mtl')
 
 	# with open('ref.txt', 'w') as outFile:
 	# 	for i in xrange(len(materialList)):
