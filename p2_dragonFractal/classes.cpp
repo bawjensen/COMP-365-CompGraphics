@@ -102,7 +102,7 @@ void Fractal::setColor(string newColor) {
 	cout << "Setting new starting color to " << newColor << "." << endl;
 
 	if (newColor == "red") this->startColor = RED;
-	if (newColor == "green") this->startColor = GREEN;
+	else if (newColor == "green") this->startColor = GREEN;
 	else this->startColor = BLUE;
 
 	glutPostRedisplay();
